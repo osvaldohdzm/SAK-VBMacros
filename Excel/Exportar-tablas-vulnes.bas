@@ -1,4 +1,4 @@
-Attribute VB_Name = "Módulo1"
+Attribute VB_Name = "Módulo12"
 Sub GenerarDocumentosWord()
     Dim rng As Range
     Dim tbl As ListObject
@@ -15,6 +15,7 @@ Sub GenerarDocumentosWord()
     Dim tempFolderPath As String
     Dim saveFolder As String
     Dim selectedRange As Range ' Variable para almacenar el rango seleccionado por el usuario
+    Dim documentsList() As String ' Lista para almacenar los documentos generados
     
     ' Solicita al usuario seleccionar el rango de celdas que contienen las columnas a considerar
     On Error Resume Next
@@ -62,11 +63,8 @@ Sub GenerarDocumentosWord()
     
     ' Llena el diccionario de reemplazo con los datos de la tabla de Excel
     rowCount = rng.Rows.Count
-    For Each cell In selectedRange.Rows(1).Cells
+    For Each cell In selectedRange.Rows(1).Cells ' Tomamos la primera fila para los nombres de los campos
         replaceDic("«" & cell.Value & "»") = ""
-        For i = 1 To rowCount
-            replaceDic("«" & cell.Value & "»") = replaceDic("«" & cell.Value & "»") & vbCrLf & rng.Cells(i, cell.Column).Value
-        Next i
     Next cell
     
     ' Crea una carpeta temporal en la carpeta de archivos temporales del sistema
@@ -76,63 +74,59 @@ Sub GenerarDocumentosWord()
     ' Copia el documento de Word seleccionado a la carpeta temporal
     Dim fs As Object
     Set fs = CreateObject("Scripting.FileSystemObject")
-    fs.CopyFile templatePath, tempFolder & "\Plantilla.docx"
     
     ' Genera un archivo de Word por cada registro de la tabla
-    For i = 1 To rowCount
+    For i = 2 To rowCount ' Empezamos desde la segunda fila para los datos reales
         ' Crear un nuevo diccionario para cada fila
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
         ' Llena el diccionario de reemplazo con los datos de la fila actual de la tabla de Excel
-        For Each cell In selectedRange.Rows(1).Cells
+        For Each cell In selectedRange.Rows(1).Cells ' Tomamos la primera fila para los nombres de los campos
             replaceDic("«" & cell.Value & "»") = rng.Cells(i, cell.Column).Value
         Next cell
         
         ' Crea una copia del documento de Word en la carpeta temporal
-        fs.CopyFile tempFolder & "\Plantilla.docx", tempFolder & "\Documento_" & i & ".docx"
+        fs.CopyFile templatePath, tempFolder & "\Documento_" & i & ".docx"
         ' Abre la copia del documento de Word
         Set wordDoc = wordApp.Documents.Open(tempFolder & "\Documento_" & i & ".docx")
         ' Realiza los reemplazos en el documento de Word
-          For Each Key In replaceDic.Keys
-          Debug.Print CStr(Key)
-        If CStr(Key) = "«Descripcion»" Then
-            ' Aplicar la función específica para la clave «Descripcion»
-            replaceDic(Key) = TransformText(replaceDic(Key))
-        End If
-        ' Reemplazar en el documento de Word
-        WordAppReplaceParagraph wordApp, wordDoc, CStr(Key), CStr(replaceDic(Key))
-        
-        
-    Next Key
+        For Each Key In replaceDic.Keys
+            Debug.Print CStr(Key)
+            If CStr(Key) = "«Descripcion»" Then
+                ' Aplicar la función específica para la clave «Descripcion»
+                replaceDic(Key) = TransformText(replaceDic(Key))
+            End If
+            ' Reemplazar en el documento de Word
+            WordAppReplaceParagraph wordApp, wordDoc, CStr(Key), CStr(replaceDic(Key))
+        Next Key
         FormatRiskLevelCell wordDoc.Tables(1).cell(1, 2)
         ' Guarda y cierra el documento de Word
         ' Antes de guardar el documento de Word
-EliminarUltimasFilasSiEsSalidaPruebaSeguridad wordDoc, replaceDic
-
+        EliminarUltimasFilasSiEsSalidaPruebaSeguridad wordDoc, replaceDic
         wordDoc.Save
         wordDoc.Close
+        
+        ' Agregar el documento generado a la lista
+        ReDim Preserve documentsList(i - 2)
+        documentsList(i - 2) = tempFolder & "\Documento_" & i & ".docx"
     Next i
-    
-    ' Cierra la aplicación de Word
-    wordApp.Quit
     
     ' Combina todos los archivos en uno solo
-    Dim outputFile As Object
-    Set outputFile = fs.CreateTextFile(tempFolder & "\Documento_Consolidado.docx")
-    For i = 1 To rowCount
-        Dim content As String
-        content = fs.OpenTextFile(tempFolder & "\Documento_" & i & ".docx").ReadAll
-        outputFile.WriteLine content
-        fs.DeleteFile tempFolder & "\Documento_" & i & ".docx"
-    Next i
-    outputFile.Close
+    Dim finalDocumentPath As String
+    finalDocumentPath = saveFolder & "\Documento_Consolidado.docx"
+    MergeDocuments wordApp, documentsList, finalDocumentPath
     
-    ' Mueve la carpeta temporal y el archivo consolidado a la carpeta seleccionada por el usuario
+    ' Mueve la carpeta temporal a la carpeta seleccionada por el usuario
     fs.MoveFolder tempFolder, saveFolder & "\DocumentosGenerados"
+    
+    ' Cerrar la aplicación de Word
+    wordApp.Quit
+    Set wordApp = Nothing
     
     ' Muestra un mensaje de éxito
     MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
+
 
 
 
@@ -229,5 +223,51 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(wordDoc As Object, replaceDic 
             End If
         End If
     End If
+End Sub
+
+Sub MergeDocuments(wordApp As Object, documentsList As Variant, finalDocumentPath As String)
+    Dim baseDoc As Object
+    Dim sFile As String
+    Dim oRng As Object
+    Dim i As Integer
+    
+    On Error GoTo err_Handler
+    
+    ' Crear un nuevo documento base
+    Set baseDoc = wordApp.Documents.Add
+    
+    ' Iterar sobre la lista de documentos a fusionar
+    For i = LBound(documentsList) To UBound(documentsList)
+        sFile = documentsList(i)
+        
+        ' Insertar el contenido del documento actual al final del documento base
+        Set oRng = baseDoc.Range
+        oRng.Collapse 0 ' Colapsar el rango al final del documento base
+        oRng.InsertFile sFile ' Insertar el contenido del archivo actual
+        
+        ' Insertar un salto de página después de cada documento insertado (excepto el último)
+        If i < UBound(documentsList) Then
+            Set oRng = baseDoc.Range
+            oRng.Collapse 0 ' Colapsar el rango al final del documento base
+            'oRng.InsertBreak Type:=6 ' Insertar un salto de página
+        End If
+    Next i
+    
+    ' Guardar el archivo final
+    baseDoc.SaveAs finalDocumentPath
+    
+    ' Cerrar el documento base
+    baseDoc.Close
+    
+    ' Limpiar objetos
+    Set baseDoc = Nothing
+    Set oRng = Nothing
+    
+    Exit Sub
+    
+err_Handler:
+    MsgBox "Error: " & Err.Number & vbCrLf & Err.Description
+    Err.Clear
+    Exit Sub
 End Sub
 
