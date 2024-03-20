@@ -10,6 +10,7 @@ Sub UTF8ReemplazarAcentos()
     With Hoja.UsedRange
         Texto = .Cells(1, 1).Text
         .Replace What:="Ã³", Replacement:="ó", LookAt:=xlPart
+        .Replace What:="í“", Replacement:="ó", LookAt:=xlPart
         .Replace What:="Ã¡", Replacement:="á", LookAt:=xlPart
         .Replace What:="Ã±", Replacement:="ñ", LookAt:=xlPart
         .Replace What:="Ãº", Replacement:="ú", LookAt:=xlPart
