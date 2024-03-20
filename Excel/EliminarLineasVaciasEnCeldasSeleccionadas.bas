@@ -1,4 +1,4 @@
-Attribute VB_Name = "Módulo1"
+Attribute VB_Name = "Módulo11"
 Sub EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
     Dim lineas As Variant
@@ -11,6 +11,11 @@ Sub EliminarLineasVaciasEnCeldasSeleccionadas()
             ' Reemplazar diferentes saltos de línea con vbLf
             Dim contenido As String
             contenido = Replace(Replace(Replace(celda.Value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
+            
+            ' Si el contenido comienza con vbLf, quitarlo
+            If Left(contenido, 1) = vbLf Then
+                contenido = Mid(contenido, 2)
+            End If
             
             ' Si el contenido termina con vbLf, quitarlo
             If Right(contenido, 1) = vbLf Then
