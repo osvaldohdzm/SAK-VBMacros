@@ -1,4 +1,4 @@
-Attribute VB_Name = "Módulo1"
+Attribute VB_Name = "Módulo11"
 Sub ExtraerCadenas()
 
     ' Declarar variables
@@ -41,7 +41,7 @@ Sub ExtraerCadenas()
     Dim objFSO As Object
     Dim objFile As Object
     Set objFSO = CreateObject("Scripting.FileSystemObject")
-    Set objFile = objFSO.CreateTextFile(ActiveDocument.Path & "\Campos_documento.txt")
+    Set objFile = objFSO.CreateTextFile(ActiveDocument.Path & "\Campos_en_documento.txt")
 
     ' Escribir las cadenas únicas en el archivo .txt
     Dim key As Variant

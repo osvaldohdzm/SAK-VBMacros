@@ -169,16 +169,16 @@ Sub FormatRiskLevelCell(cell As Object)
     
     ' Realizar la comparación utilizando el texto de la celda sin caracteres especiales
     Select Case cellText
-        Case "CRÍTICO"
+        Case "CRÍTICA"
             cell.Shading.BackgroundPatternColor = 10498160
             cell.Range.Font.Color = 16777215
-        Case "ALTO"
+        Case "ALTA"
             cell.Shading.BackgroundPatternColor = 255
             cell.Range.Font.Color = 16777215
-        Case "MEDIO"
+        Case "MEDIA"
             cell.Shading.BackgroundPatternColor = 65535
             cell.Range.Font.Color = 0
-        Case "BAJO"
+        Case "BAJA"
             cell.Shading.BackgroundPatternColor = 5287936
             cell.Range.Font.Color = 16777215
     End Select

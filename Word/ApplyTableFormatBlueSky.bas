@@ -1,5 +1,4 @@
 Attribute VB_Name = "Módulo1"
-
 Sub FormatearTabla()
     Dim tbl As Table
     Dim row As row
@@ -36,15 +35,21 @@ Sub FormatearTabla()
         For Each row In tbl.Rows
             If Not isFirstRow Then
                 ' Aplicar formato a filas no cabecera
-                If row.Index Mod 2 = 0 Then
-                    ' Filas pares
-                    row.Range.Shading.BackgroundPatternColor = RGB(255, 255, 255)
-                    row.Range.Font.Color = RGB(0, 0, 0) ' Color de letra negro
-                Else
-                    ' Filas impares
-                    row.Range.Shading.BackgroundPatternColor = RGB(217, 226, 243) ' Color de fondo blanco
-                    row.Range.Font.Color = RGB(0, 0, 0) ' Color de letra negro
-                End If
+                Dim cell As cell
+                For Each cell In row.Cells
+                    ' Verificar si la celda tiene un color de fondo predeterminado (blanco)
+                    If cell.Range.Shading.BackgroundPatternColorIndex = wdColorAutomatic Then
+                        If row.Index Mod 2 = 0 Then
+                            ' Filas pares
+                            row.Range.Shading.BackgroundPatternColor = RGB(255, 255, 255)
+                            row.Range.Font.Color = RGB(0, 0, 0) ' Color de letra negro
+                        Else
+                            ' Filas impares
+                            row.Range.Shading.BackgroundPatternColor = RGB(217, 226, 243) ' Color de fondo blanco
+                            row.Range.Font.Color = RGB(0, 0, 0) ' Color de letra negro
+                        End If
+                    End If
+                Next cell
                 row.Range.ParagraphFormat.SpaceBefore = 0
                 row.Range.ParagraphFormat.SpaceAfter = 0
                 row.Range.ParagraphFormat.Alignment = wdAlignParagraphCenter 'Centrar texto
@@ -58,5 +63,4 @@ Sub FormatearTabla()
     
     MsgBox "La tabla seleccionada ha sido formateada correctamente.", vbInformation
 End Sub
-
 
