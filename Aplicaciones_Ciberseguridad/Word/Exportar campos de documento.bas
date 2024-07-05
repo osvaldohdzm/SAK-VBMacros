@@ -37,11 +37,21 @@ Sub ExtraerCadenas()
         End If
     Loop
 
-    ' Crear el archivo .txt en la misma carpeta que el documento activo
+    ' Determinar la ruta para guardar el archivo
+    Dim rutaGuardar As String
+    If InStr(1, ActiveDocument.Path, "http://") = 0 Or InStr(1, ActiveDocument.Path, "https://") = 0 Then
+        ' Si la ruta actual no contiene "http://" ni "https://", usar la ubicación del escritorio
+        rutaGuardar = CreateObject("WScript.Shell").SpecialFolders("Desktop") & "\Campos_en_documento.txt"
+    Else
+        ' Si la ruta actual contiene "http://" o "https://", usar la ubicación del documento activo
+        rutaGuardar = ActiveDocument.Path & "\Campos_en_documento.txt"
+    End If
+
+    ' Crear el archivo .txt
     Dim objFSO As Object
     Dim objFile As Object
     Set objFSO = CreateObject("Scripting.FileSystemObject")
-    Set objFile = objFSO.CreateTextFile(ActiveDocument.Path & "\Campos_en_documento.txt")
+    Set objFile = objFSO.CreateTextFile(rutaGuardar)
 
     ' Escribir las cadenas únicas en el archivo .txt
     Dim key As Variant
@@ -53,7 +63,7 @@ Sub ExtraerCadenas()
     objFile.Close
 
     ' Mostrar mensaje de información con la ruta completa del archivo
-    MsgBox "Las cadenas se han extraído correctamente en el archivo Campos_documento.txt ubicado en: " & ActiveDocument.Path, vbInformation
+    MsgBox "Las cadenas se han extraído correctamente en el archivo Campos_en_documento.txt ubicado en: " & rutaGuardar, vbInformation
 
 End Sub
 

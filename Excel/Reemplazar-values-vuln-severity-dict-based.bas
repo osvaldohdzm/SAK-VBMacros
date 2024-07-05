@@ -1,4 +1,4 @@
-Attribute VB_Name = "Módulo1"
+Attribute VB_Name = "Módulo12"
 Sub ReemplazarPalabras()
     Dim c As Range
     Dim valorActual As String
@@ -8,7 +8,7 @@ Sub ReemplazarPalabras()
         
         Select Case valorActual
             Case "Moderate"
-                c.Value = "MEDIO"
+                c.Value = "MEDIA"
             Case "Critical"
                 c.Value = "CRÍTICO"
             Case "Important"
@@ -16,13 +16,17 @@ Sub ReemplazarPalabras()
             Case "Low"
                 c.Value = "BAJO"
             Case "Info"
-                c.Value = "INFO"
+                c.Value = "INFORMATIVO"
             Case "High"
                 c.Value = "ALTO"
             Case "Medium"
                 c.Value = "MEDIO"
             Case "Low"
                 c.Value = "BAJO"
+            Case "Information"
+                c.Value = "INFORMATIVO"
+                Case "BestPractice"
+                c.Value = "BUENA PRACTICA"
             ' Mantener el contenido actual si no coincide con las palabras a reemplazar
             Case Else
                 ' No hacer nada
