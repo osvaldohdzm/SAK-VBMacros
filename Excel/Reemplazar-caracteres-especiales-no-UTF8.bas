@@ -19,6 +19,8 @@ Sub UTF8ReemplazarAcentos()
         .Replace What:="√", Replacement:="Ì", LookAt:=xlPart
         .Replace What:="¬", Replacement:="", LookAt:=xlPart
         .Replace What:="Ì≠≠≠≠", Replacement:="Ì", LookAt:=xlPart
+        .Replace What:="‚Äî", Replacement:="", LookAt:=xlPart
+        .Replace What:="Äî", Replacement:="", LookAt:=xlPart
         .Replace What:="CRÌçTICO", Replacement:="CRÕTICO", LookAt:=xlWhole
         
     End With
