@@ -1,4 +1,4 @@
-Attribute VB_Name = "ExcelMacrosCibersecurity"
+Attribute VB_Name = "ExcelModulosCibersecurity"
 Sub ReemplazarPalabras()
     Dim c As Range
     Dim valorActual As String
@@ -555,11 +555,11 @@ Sub FormatRiskLevelCell(cell As Object)
 End Sub
 
 Function TransformText(text As String) As String
-    Dim regEx As Object
-    Set regEx = CreateObject("VBScript.RegExp")
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
     
     ' Configurar la expresión regular para encontrar saltos de línea o saltos de carro sin un punto antes y no seguidos de paréntesis ni de guión
-    With regEx
+    With regex
         .Global = True
         .MultiLine = True
         .IgnoreCase = True
@@ -567,7 +567,7 @@ Function TransformText(text As String) As String
     End With
     
     ' Realizar la transformación: quitar caracteres especiales y aplicar la expresión regular
-    TransformText = regEx.Replace(Replace(text, Chr(7), ""), "$1 ")
+    TransformText = regex.Replace(Replace(text, Chr(7), ""), "$1 ")
 End Function
 
 Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(wordDoc As Object, replaceDic As Object)
