@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 Attribute VB_Name = "ExcelModulosCibersecurity"
 Sub ReemplazarPalabras()
+=======
+Attribute VB_Name = "ExcelMacrosCibersecurity"
+Sub ReemplazarCadenasSeveridades()
+>>>>>>> 1bb1fe487d58bbd668658bab534d6ed6edba6959
     Dim c As Range
     Dim valorActual As String
     
@@ -213,20 +218,20 @@ End Sub
 
 Sub ConvertirATextoEnOracion()
     Dim celda As Range
-    Dim texto As String
+    Dim Texto As String
     Dim primeraLetra As String
     Dim restoTexto As String
 
     ' Recorre cada celda en el rango seleccionado
     For Each celda In Selection
         If Not IsEmpty(celda.Value) Then
-            texto = celda.Value
+            Texto = celda.Value
             ' Convierte todo el texto a minúsculas
-            texto = LCase(texto)
+            Texto = LCase(Texto)
             ' Extrae la primera letra
-            primeraLetra = UCase(Left(texto, 1))
+            primeraLetra = UCase(Left(Texto, 1))
             ' Extrae el resto del texto
-            restoTexto = Mid(texto, 2)
+            restoTexto = Mid(Texto, 2)
             ' Combina la primera letra en mayúsculas con el resto del texto en minúsculas
             celda.Value = primeraLetra & restoTexto
         End If
@@ -563,7 +568,7 @@ Function TransformText(text As String) As String
         .Global = True
         .MultiLine = True
         .IgnoreCase = True
-        .Pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+" ' Expresión regular para encontrar saltos de línea o saltos de carro sin un punto antes y no seguidos de paréntesis ni de guión
+        .pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+" ' Expresión regular para encontrar saltos de línea o saltos de carro sin un punto antes y no seguidos de paréntesis ni de guión
     End With
     
     ' Realizar la transformación: quitar caracteres especiales y aplicar la expresión regular
