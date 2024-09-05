@@ -161,6 +161,11 @@ End Sub
 
 Sub FormatRiskLevelCell(cell As Object)
     Dim cellText As String
+    Dim COLORIKETRIA As String
+    
+    ' Definir la constante según sea necesario
+    COLORIMETRIA = "INAI"  ' Cambiar a "INAI" si es necesario
+    
     ' Obtener el texto de la celda y eliminar los caracteres especiales
     cellText = Replace(cell.Range.text, vbCrLf, "")
     cellText = Replace(cellText, vbCr, "")
@@ -168,20 +173,38 @@ Sub FormatRiskLevelCell(cell As Object)
     cellText = Replace(cellText, Chr(7), "")
     
     ' Realizar la comparación utilizando el texto de la celda sin caracteres especiales
-    Select Case cellText
-        Case "CRÍTICA"
-            cell.Shading.BackgroundPatternColor = 10498160
-            cell.Range.Font.Color = 16777215
-        Case "ALTA"
-            cell.Shading.BackgroundPatternColor = 255
-            cell.Range.Font.Color = 16777215
-        Case "MEDIA"
-            cell.Shading.BackgroundPatternColor = 65535
-            cell.Range.Font.Color = 0
-        Case "BAJA"
-            cell.Shading.BackgroundPatternColor = 5287936
-            cell.Range.Font.Color = 16777215
-    End Select
+    If COLORIMETRIA = "BANOBRAS" Then
+        Select Case cellText
+            Case "CRÍTICA"
+                cell.Shading.BackgroundPatternColor = 10498160
+                cell.Range.Font.Color = 16777215
+            Case "ALTA"
+                cell.Shading.BackgroundPatternColor = 255
+                cell.Range.Font.Color = 16777215
+            Case "MEDIA"
+                cell.Shading.BackgroundPatternColor = 65535
+                cell.Range.Font.Color = 0
+            Case "BAJA"
+                cell.Shading.BackgroundPatternColor = 5287936
+                cell.Range.Font.Color = 16777215
+        End Select
+    ElseIf COLORIMETRIA = "INAI" Then
+        ' Asignar colores para INAI según especificación
+        Select Case cellText
+            Case "CRÍTICA"
+                cell.Shading.BackgroundPatternColor = RGB(255, 0, 0) ' Rojo para "CRÍTICA"
+                cell.Range.Font.Color = RGB(255, 255, 255) ' Texto blanco para "CRÍTICA"
+            Case "ALTA"
+                cell.Shading.BackgroundPatternColor = RGB(255, 102, 0) ' Naranja para "ALTA"
+                cell.Range.Font.Color = RGB(255, 255, 255) ' Texto blanco para "ALTA"
+            Case "MEDIA"
+                cell.Shading.BackgroundPatternColor = RGB(255, 192, 0) ' Amarillo para "MEDIA"
+                cell.Range.Font.Color = RGB(0, 0, 0) ' Texto negro para "MEDIA"
+            Case "BAJA"
+                cell.Shading.BackgroundPatternColor = RGB(0, 176, 80) ' Verde para "BAJA"
+                cell.Range.Font.Color = RGB(255, 255, 255) ' Texto blanco para "BAJA"
+        End Select
+    End If
 End Sub
 
 Function TransformText(text As String) As String
