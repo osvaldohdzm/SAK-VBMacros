@@ -6,31 +6,31 @@ Sub ReemplazarCadenasSeveridades()
     Dim valorActual As String
     
     For Each c In Selection
-        valorActual = Trim(UCase(c.Value)) ' Convertimos a mayúsculas y eliminamos espacios adicionales
+        valorActual = Trim(UCase(c.value)) ' Convertimos a mayúsculas y eliminamos espacios adicionales
         
         Select Case valorActual
             Case "0", "NONE", "INFORMATIVA", "INFO"
-                c.Value = "INFORMATIVA"
+                c.value = "INFORMATIVA"
             Case "1", "BAJA", "BAJO", "LOW"
-                c.Value = "BAJA"
+                c.value = "BAJA"
             Case "2", "BAJA", "BAJO", "LOW"
-                c.Value = "BAJA"
+                c.value = "BAJA"
             Case "3", "BAJA", "BAJO", "LOW"
-                c.Value = "BAJA"
+                c.value = "BAJA"
             Case "4", "BAJA", "BAJO", "LOW"
-                c.Value = "BAJA"
+                c.value = "BAJA"
             Case "5", "MEDIA", "MEDIO", "MEDIUM"
-                c.Value = "MEDIA"
+                c.value = "MEDIA"
             Case "6", "MEDIA", "MEDIO", "MEDIUM"
-                c.Value = "MEDIA"
+                c.value = "MEDIA"
             Case "7", "ALTO", "HIGH"
-                c.Value = "ALTA"
+                c.value = "ALTA"
             Case "8", "ALTA", "HIGH"
-                c.Value = "ALTA"
+                c.value = "ALTA"
             Case "9", "CRÍTICA", "CRITICAL", "CRÍTICO"
-                c.Value = "CRÍTICA"
+                c.value = "CRÍTICA"
             Case "10", "CRÍTICA", "CRITICAL", "CRÍTICO"
-                c.Value = "CRÍTICA"
+                c.value = "CRÍTICA"
             ' Mantener el contenido actual si no coincide con las palabras a reemplazar
             Case Else
                 ' No hacer nada
@@ -57,7 +57,7 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
     ' Recorre cada celda en el rango
     For Each cell In rng
         ' Obtiene el contenido de la celda
-        content = cell.Value
+        content = cell.value
         
         ' Comprueba si el contenido es vacío
         If content <> "" Then
@@ -75,7 +75,7 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -86,8 +86,8 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each Key In uniqueUrls.keys
-                uniqueArray(i) = Key
+            For Each key In uniqueUrls.Keys
+                uniqueArray(i) = key
                 i = i + 1
             Next
             
@@ -106,7 +106,7 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
             content = Join(uniqueArray, Chr(10))
             
             ' Asigna el contenido filtrado a la celda
-            cell.Value = content
+            cell.value = content
         End If
     Next cell
 End Sub
@@ -119,9 +119,9 @@ Sub ReplaceWithURLs()
     
     ' Recorre cada celda en el rango seleccionado
     For Each cell In Selection
-        If cell.Value <> "" Then
+        If cell.value <> "" Then
             ' Separa la cadena por comas
-            parts = Split(cell.Value, ",")
+            parts = Split(cell.value, ",")
             
             ' Inicializa una cadena vacía para las URLs
             url = ""
@@ -143,7 +143,7 @@ Sub ReplaceWithURLs()
             url = Replace(url, """", "")
             
             ' Reemplaza el valor de la celda con las URLs y saltos de línea
-            cell.Value = url
+            cell.value = url
         End If
     Next cell
 End Sub
@@ -221,8 +221,8 @@ Sub ConvertirATextoEnOracion()
 
     ' Recorre cada celda en el rango seleccionado
     For Each celda In Selection
-        If Not IsEmpty(celda.Value) Then
-            Texto = celda.Value
+        If Not IsEmpty(celda.value) Then
+            Texto = celda.value
             ' Convierte todo el texto a minúsculas
             Texto = LCase(Texto)
             ' Extrae la primera letra
@@ -230,7 +230,7 @@ Sub ConvertirATextoEnOracion()
             ' Extrae el resto del texto
             restoTexto = Mid(Texto, 2)
             ' Combina la primera letra en mayúsculas con el resto del texto en minúsculas
-            celda.Value = primeraLetra & restoTexto
+            celda.value = primeraLetra & restoTexto
         End If
     Next celda
 End Sub
@@ -243,7 +243,7 @@ Sub QuitarEspacios()
     Set rng = Selection 'asume que el rango seleccionado es el que quieres modificar
     
     For Each c In rng 'recorre cada celda del rango
-        c.Value = Application.Trim(c.Value) 'quita los espacios de la celda
+        c.value = Application.Trim(c.value) 'quita los espacios de la celda
     Next c
 End Sub
 
@@ -261,18 +261,18 @@ Sub LimpiarSalida()
     ' Primero, quita los espacios en blanco y caracteres de tabulación de las celdas
     For Each c In rng
         ' Reemplazar caracteres de tabulación con espacios
-        c.Value = Replace(c.Value, Chr(9), " ")
+        c.value = Replace(c.value, Chr(9), " ")
         ' Quitar espacios en blanco adicionales
-        c.Value = Application.Trim(c.Value)
+        c.value = Application.Trim(c.value)
     Next c
 
     ' Luego, elimina las líneas vacías y los saltos de línea finales de las celdas
     For Each celda In rng
         ' Verificar si la celda tiene texto
-        If Not IsEmpty(celda.Value) Then
+        If Not IsEmpty(celda.value) Then
             ' Reemplazar diferentes saltos de línea con vbLf
             Dim contenido As String
-            contenido = Replace(Replace(Replace(celda.Value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
+            contenido = Replace(Replace(Replace(celda.value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
             
             ' Si el contenido comienza con vbLf, quitarlo
             If Left(contenido, 1) = vbLf Then
@@ -297,10 +297,10 @@ Sub LimpiarSalida()
             
             ' Unir el array de líneas de nuevo en una cadena y asignarlo a la celda
             ' Además, eliminar posibles saltos de línea al final del contenido
-            celda.Value = Join(lineas, vbLf)
+            celda.value = Join(lineas, vbLf)
             ' Eliminar saltos de línea al final
-            If Right(celda.Value, 1) = vbLf Then
-                celda.Value = Left(celda.Value, Len(celda.Value) - 1)
+            If Right(celda.value, 1) = vbLf Then
+                celda.value = Left(celda.value, Len(celda.value) - 1)
             End If
         End If
     Next celda
@@ -335,7 +335,7 @@ Sub OrdenaSegunColorRelleno()
                 .SortFields.Clear
                 
                 ' Ordenar por color de relleno verde
-                .SortFields.Add Key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
+                .SortFields.Add key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
                     SortOn:=xlSortOnCellColor, _
                     Order:=xlAscending, _
                     DataOption:=xlSortNormal
@@ -346,7 +346,7 @@ Sub OrdenaSegunColorRelleno()
                 .SortFields.Clear
                 
                 ' Ordenar por color de relleno amarillo
-                .SortFields.Add Key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
+                .SortFields.Add key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
                     SortOn:=xlSortOnCellColor, _
                     Order:=xlAscending, _
                     DataOption:=xlSortNormal
@@ -357,7 +357,7 @@ Sub OrdenaSegunColorRelleno()
                 .SortFields.Clear
                 
                 ' Ordenar por color de relleno rojo
-                .SortFields.Add Key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
+                .SortFields.Add key:=ws.ListObjects(tabla.Name).ListColumns("Severidad").Range, _
                     SortOn:=xlSortOnCellColor, _
                     Order:=xlAscending, _
                     DataOption:=xlSortNormal
@@ -371,138 +371,6 @@ Sub OrdenaSegunColorRelleno()
 End Sub
 ' GenerarDocumentosWord
 
-Sub GenerarDocumentosWordVulnerabilidades()
-    Dim rng As Range
-    Dim tbl As ListObject
-    Dim WordApp As Object
-    Dim WordDoc As Object
-    Dim templatePath As String
-    Dim outputPath As String
-    Dim replaceDic As Object
-    Dim cell As Range
-    Dim colIndex As Integer
-    Dim rowCount As Integer
-    Dim i As Integer
-    Dim tempFolder As String
-    Dim tempFolderPath As String
-    Dim saveFolder As String
-    Dim selectedRange As Range ' Variable para almacenar el rango seleccionado por el usuario
-    Dim documentsList() As String ' Lista para almacenar los documentos generados
-    
-    ' Solicita al usuario seleccionar el rango de celdas que contienen las columnas a considerar
-    On Error Resume Next
-    Set selectedRange = Application.InputBox("Seleccione el rango de celdas que contienen las columnas a considerar", Type:=8)
-    On Error GoTo 0
-    
-    If selectedRange Is Nothing Then
-        MsgBox "No se ha seleccionado un rango válido.", vbExclamation
-        Exit Sub
-    End If
-    
-    ' Verifica si el rango seleccionado está dentro de una tabla
-    On Error Resume Next
-    Set rng = selectedRange.ListObject.Range
-    On Error GoTo 0
-    
-    If rng Is Nothing Then
-        MsgBox "El rango seleccionado no está dentro de una tabla.", vbExclamation
-        Exit Sub
-    End If
-    
-    ' Solicita al usuario la ruta del documento de Word
-    templatePath = Application.GetOpenFilename("Documentos de Word (*.docx), *.docx", , "Seleccione un documento de Word como plantilla")
-    If templatePath = "Falso" Then Exit Sub
-    
-    ' Solicita al usuario la carpeta donde desea guardar los archivos generados
-    With Application.FileDialog(msoFileDialogFolderPicker)
-        .Title = "Seleccione la carpeta donde desea guardar los documentos generados"
-        If .Show = -1 Then
-            saveFolder = .SelectedItems(1)
-        Else
-            Exit Sub
-        End If
-    End With
-    
-    ' Crea una instancia de la aplicación de Word
-    Set WordApp = CreateObject("Word.Application")
-    WordApp.Visible = True
-    
-    ' Abre el documento de Word seleccionado
-    Set WordDoc = WordApp.Documents.Open(templatePath)
-    
-    ' Crea un diccionario de reemplazo para los campos
-    Set replaceDic = CreateObject("Scripting.Dictionary")
-    
-    ' Llena el diccionario de reemplazo con los datos de la tabla de Excel
-    rowCount = rng.Rows.Count
-    For Each cell In selectedRange.Rows(1).Cells ' Tomamos la primera fila para los nombres de los campos
-        replaceDic("«" & cell.Value & "»") = ""
-    Next cell
-    
-    ' Crea una carpeta temporal en la carpeta de archivos temporales del sistema
-    tempFolder = Environ("TEMP") & "\tmp-" & Format(Now(), "yyyymmddhhmmss")
-    MkDir tempFolder
-    
-    ' Copia el documento de Word seleccionado a la carpeta temporal
-    Dim fs As Object
-    Set fs = CreateObject("Scripting.FileSystemObject")
-    
-    ' Genera un archivo de Word por cada registro de la tabla
-    For i = 2 To rowCount ' Empezamos desde la segunda fila para los datos reales
-        ' Crear un nuevo diccionario para cada fila
-        Set replaceDic = CreateObject("Scripting.Dictionary")
-        
-        ' Llena el diccionario de reemplazo con los datos de la fila actual de la tabla de Excel
-        For Each cell In selectedRange.Rows(1).Cells ' Tomamos la primera fila para los nombres de los campos
-            replaceDic("«" & cell.Value & "»") = rng.Cells(i, cell.Column).Value
-        Next cell
-        
-        ' Crea una copia del documento de Word en la carpeta temporal
-        fs.CopyFile templatePath, tempFolder & "\Documento_" & i & ".docx"
-        ' Abre la copia del documento de Word
-        Set WordDoc = WordApp.Documents.Open(tempFolder & "\Documento_" & i & ".docx")
-        ' Realiza los reemplazos en el documento de Word
-        For Each Key In replaceDic.keys
-            Debug.Print CStr(Key)
-            If CStr(Key) = "«Descripcion»" Then
-                ' Aplicar la función específica para la clave «Descripcion»
-                replaceDic(Key) = TransformText(replaceDic(Key))
-            End If
-            ' Reemplazar en el documento de Word
-            WordAppReplaceParagraph WordApp, WordDoc, CStr(Key), CStr(replaceDic(Key))
-        Next Key
-        FormatRiskLevelCell WordDoc.Tables(1).cell(1, 2)
-        ' Guarda y cierra el documento de Word
-        ' Antes de guardar el documento de Word
-        EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
-        WordDoc.Save
-        WordDoc.Close
-        
-        ' Agregar el documento generado a la lista
-        ReDim Preserve documentsList(i - 2)
-        documentsList(i - 2) = tempFolder & "\Documento_" & i & ".docx"
-    Next i
-    
-    ' Combina todos los archivos en uno solo
-    Dim finalDocumentPath As String
-    finalDocumentPath = saveFolder & "\Documento_Consolidado.docx"
-    MergeDocuments WordApp, documentsList, finalDocumentPath
-    
-    ' Mueve la carpeta temporal a la carpeta seleccionada por el usuario
-    fs.MoveFolder tempFolder, saveFolder & "\DocumentosGenerados"
-    
-    ' Cerrar la aplicación de Word
-    WordApp.Quit
-    Set WordApp = Nothing
-    
-    ' Muestra un mensaje de éxito
-    MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
-End Sub
-
-
-
-
-
 Sub WordAppReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As String, replaceWord As String)
     Dim findInRange As Boolean
     
@@ -513,7 +381,7 @@ Sub WordAppReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As 
     ' Bucle para buscar y reemplazar todas las ocurrencias
     Do
         ' Intentar encontrar y reemplazar en el cuerpo del documento
-        findInRange = WordApp.Selection.Find.Execute(FindText:=wordToFind)
+        findInRange = WordApp.Selection.Find.Execute(findText:=wordToFind)
         
         ' Si se encontró el texto, reemplazarlo
         If findInRange Then
@@ -571,15 +439,19 @@ Function TransformText(text As String) As String
     ' Realizar la transformación: quitar caracteres especiales y aplicar la expresión regular
     TransformText = regex.Replace(Replace(text, Chr(7), ""), "$1 ")
 End Function
-
 Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic As Object)
     Dim salidaPruebaSeguridadKey As String
-    salidaPruebaSeguridadKey = "«SalidaPruebaSeguridad»"
+    salidaPruebaSeguridadKey = "«Salidas de herramienta»"
     
-    ' Verificar si la clave "«SalidaPruebaSeguridad»" está presente en el diccionario
-    If replaceDic.exists(salidaPruebaSeguridadKey) Then
-        ' Verificar si el valor asociado coincide con el texto específico
-        If replaceDic(salidaPruebaSeguridadKey) = "La herramienta identificó la vulnerabilidad mediante una prueba específica, ya sea mediante el empleo de una solicitud preparada, la utilización de un plugin o un intento de conexión directa. Esta evaluación confirmó si la respuesta se recibió de manera exitosa. Para acceder a información más detallada sobre la vulnerabilidad, le recomendamos consultar la descripción correspondiente o referirse a la fuente de referencia proporcionada." Then
+    ' Verificar si la clave está presente en el diccionario
+    If replaceDic.Exists(salidaPruebaSeguridadKey) Then
+        ' Convertir el valor asociado a una cadena
+        Dim keyValue As String
+        keyValue = CStr(replaceDic(salidaPruebaSeguridadKey))
+   
+        
+        ' Verificar si el valor es vacío, una cadena vacía o Null
+        If Len(Trim(keyValue)) = 0 Then
             ' Eliminar las últimas dos filas de la primera tabla en el documento
             Dim firstTable As Object
             Set firstTable = WordDoc.Tables(1)
@@ -587,16 +459,17 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
             numRows = firstTable.Rows.Count
             
             If numRows > 0 Then
-                ' Eliminar la última fila dos veces
-                firstTable.Rows(numRows).Delete
+                ' Eliminar la última fila dos veces si hay suficientes filas
                 If numRows > 1 Then
+                    firstTable.Rows(numRows).Delete
                     firstTable.Rows(numRows - 1).Delete
+                ElseIf numRows = 1 Then
+                    firstTable.Rows(numRows).Delete
                 End If
             End If
         End If
     End If
 End Sub
-' Crear arvhivo word
 
 Sub MergeDocuments(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
     Dim baseDoc As Object
@@ -703,11 +576,11 @@ Sub ExportarTablaContenidoADocumentoWord()
     
     ' Procesar cada fila de la tabla
     For Each r In tbl.ListRows
-        estilo = r.Range.Cells(1, tbl.ListColumns("Estilo").Index).Value
-        seccion = r.Range.Cells(1, tbl.ListColumns("Sección").Index).Value
-        descripcion = r.Range.Cells(1, tbl.ListColumns("Descripción").Index).Value
-        imagen = r.Range.Cells(1, tbl.ListColumns("Imágenes").Index).Value
-        parrafoResultados = r.Range.Cells(1, tbl.ListColumns("Párrafo de resultados").Index).Value
+        estilo = r.Range.Cells(1, tbl.ListColumns("Estilo").Index).value
+        seccion = r.Range.Cells(1, tbl.ListColumns("Sección").Index).value
+        descripcion = r.Range.Cells(1, tbl.ListColumns("Descripción").Index).value
+        imagen = r.Range.Cells(1, tbl.ListColumns("Imágenes").Index).value
+        parrafoResultados = r.Range.Cells(1, tbl.ListColumns("Párrafo de resultados").Index).value
         
         ' Obtener la ruta completa de la imagen
         imagenRutaCompleta = rutaBase & imagen
@@ -815,7 +688,7 @@ Sub LimpiarColumnaReferencias()
     ' Recorre cada celda en el rango
     For Each cell In rng
         ' Obtiene el contenido de la celda
-        content = cell.Value
+        content = cell.value
         
         ' Sustituye comillas dobles con saltos de línea (Char 10)
         content = Replace(content, """", Chr(10))
@@ -835,7 +708,7 @@ Sub LimpiarColumnaReferencias()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -846,8 +719,8 @@ Sub LimpiarColumnaReferencias()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each Key In uniqueUrls.keys
-                uniqueArray(i) = Key
+            For Each key In uniqueUrls.Keys
+                uniqueArray(i) = key
                 i = i + 1
             Next
             
@@ -882,46 +755,265 @@ Sub LimpiarColumnaReferencias()
             Next i
             
             ' Asigna el contenido filtrado a la celda
-            cell.Value = filteredContent
+            cell.value = filteredContent
         End If
     Next cell
 End Sub
 
-Sub GenerarReporteVulnerabilidadesAppsINAI()
+
+
+Sub LeerArchivoTXT(txtFilePath As String, dataDict As Object)
+    Dim fileNumber As Integer
+    Dim line As String
+    Dim keyValue() As String
+    Dim key As String
+    Dim value As String
+    
+    fileNumber = FreeFile
+    Open txtFilePath For Input As #fileNumber
+    
+    Do While Not EOF(fileNumber)
+        Line Input #fileNumber, line
+        ' Divide la línea en clave y valor
+        keyValue = Split(line, ":")
+        If UBound(keyValue) = 1 Then
+            key = Trim(keyValue(0))
+            value = Trim(Mid(keyValue(1), 2, Len(keyValue(1)) - 2)) ' Extrae el valor entre comillas dobles
+            ' Añadir al diccionario
+            dataDict(key) = value
+        End If
+    Loop
+    
+    Close #fileNumber
+End Sub
+
+
+
+
+
+
+Sub WordAppAlternativeReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As String, replaceWord As String)
+    Dim findInRange As Boolean
+    Dim rng As Object
+    
+    ' Establecer el rango al contenido del documento
+    Set rng = WordDoc.content
+    
+    ' Configurar la búsqueda
+    With rng.Find
+        .text = wordToFind
+        .Replacement.text = replaceWord
+        .Forward = True
+        .Wrap = 1 ' wdFindContinue
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    
+    ' Reemplazar todo el texto encontrado
+    rng.Find.Execute Replace:=2 ' wdReplaceAll
+End Sub
+
+
+
+Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
+    Dim key As Variant
+    Dim findInRange As Boolean
+    Dim WordApp As Object
+    Dim docContent As Object
+    
+    ' Obtener la aplicación de Word
+    Set WordApp = WordDoc.Application
+    
+    ' Obtener el contenido del documento
+    Set docContent = WordDoc.content
+    
+    ' Bucle para buscar y reemplazar todas las ocurrencias en el diccionario
+    For Each key In replaceDic.Keys
+        ' Ir al principio del documento nuevamente
+        docContent.Select
+        WordApp.Selection.GoTo What:=1, Which:=1, Name:="1"
+        WordApp.ActiveWindow.ActivePane.View.SeekView = 0
+        
+        ' Configurar la búsqueda
+        With WordApp.Selection.Find
+            .text = key
+            .Forward = True
+            .Wrap = 1 ' wdFindStop
+            .Format = False
+            .MatchCase = False
+            .MatchWholeWord = False
+            .MatchWildcards = False
+            .MatchSoundsLike = False
+            .MatchAllWordForms = False
+            
+            ' Intentar encontrar y reemplazar en el cuerpo del documento
+            Do
+                findInRange = .Execute
+                If findInRange Then
+                    ' Realizar el reemplazo
+                    WordApp.Selection.text = replaceDic(key)
+                    ' Ir al principio del documento nuevamente
+                    WordApp.Selection.GoTo What:=1, Which:=1, Name:="1"
+                End If
+            Loop While findInRange
+        End With
+    Next key
+
+    ' Limpiar
+    Set docContent = Nothing
+    Set WordApp = Nothing
+End Sub
+
+
+Sub ActualizarGraficosSeveridades(docPath1 As String, docPath2 As String, docPath3 As String)
     Dim WordApp As Object
     Dim WordDoc As Object
-    Dim plantillaPath As String
-    Dim fechaReporte As String
-    Dim nombreAplicacion As String
-    Dim ipAplicacion As String
-    Dim urlAplicacion As String
+    Dim filePaths As Variant
+    Dim i As Integer
+
+    ' Crear una instancia de Word
+    On Error Resume Next
+    Set WordApp = CreateObject("Word.Application")
+    On Error GoTo 0
+    
+    If WordApp Is Nothing Then
+        MsgBox "No se puede iniciar Microsoft Word."
+        Exit Sub
+    End If
+    
+    WordApp.Visible = False
+    
+    ' Array de documentos para actualizar gráficos
+    filePaths = Array(docPath1, docPath2, docPath3)
+    
+    ' Actualizar gráficos en cada documento
+    For i = LBound(filePaths) To UBound(filePaths)
+        Set WordDoc = WordApp.Documents.Open(filePaths(i))
+        WordApp.Visible = False
+        ' Aquí puedes agregar el código para actualizar gráficos en el documento
+        ' Ejemplo:
+        ' Call ActualizarGrafico(WordDoc) ' Asumiendo que tienes una función para esto
+        WordDoc.Save
+        WordDoc.Close
+    Next i
+    
+    ' Limpiar
+    WordApp.Quit
+    Set WordDoc = Nothing
+    Set WordApp = Nothing
+End Sub
+
+
+
+
+Sub GenerarReportesVulnsAppsINAI()
+    Dim WordApp As Object
+    Dim WordDoc As Object
+    Dim plantillaReportePath As String
+    Dim plantillaReportePath2 As String
+    Dim plantillaVulnerabilidadesPath As String
     Dim carpetaSalida As String
     Dim archivoTemp As String
     Dim fileSystem As Object
     Dim dlg As FileDialog
+    Dim rng As Range
+    Dim replaceDic As Object
+    Dim cell As Range
+    Dim rowCount As Integer
+    Dim i As Integer
+    Dim tempFolder As String
+    Dim tempFolderGenerados As String
+    Dim finalDocumentPath As String
+    Dim tempDocPath As String
+    Dim tempDocVulnerabilidadesPath As String
+    Dim tempFileName As String
+    Dim secVulnerabilidades As String
+    Dim rngReplace As Object
+    Dim campoArchivoPath As String
+    Dim campoLine As String
+    Dim partes() As String
+    Dim key As String
+    Dim value As String
+    Dim documentsList() As String
+    Dim numDocuments As Integer
+    Dim severityCounts As Object
+    Dim severity As Variant
+    Dim totalVulnerabilidades As Integer
+    Dim chart As Object
+    Dim seriesCollection As Object
+    Dim dataLabels As Object
+    Dim severidadColumna As Integer
+    Dim countBAJA As Integer
+    Dim countMEDIA As Integer
+    Dim countALTA As Integer
+    Dim countCRITICAS As Integer
+    Dim ils As Object
+    Dim wb As Object
+    Dim SourceSheet As Object
     
-    ' Crear un diálogo para seleccionar el archivo de plantilla
+    ' Crear un diálogo para seleccionar el archivo CSV
+    campoArchivoPath = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", , "Seleccionar archivo CSV")
+    If campoArchivoPath = "Falso" Then
+        MsgBox "No se seleccionó ningún archivo CSV. La macro se detendrá."
+        Exit Sub
+    End If
+
+    ' Leer campos de reemplazo desde el archivo CSV
+    Set replaceDic = CreateObject("Scripting.Dictionary")
+    Set fileSystem = CreateObject("Scripting.FileSystemObject")
+    Set ts = fileSystem.OpenTextFile(campoArchivoPath, 1, False, 0)
+    
+    ' Leer el archivo línea por línea
+    Do Until ts.AtEndOfStream
+        csvLine = ts.ReadLine
+        
+        ' Separar la línea en clave y valor usando la coma como delimitador
+        partes = Split(csvLine, ",", 2) ' Divide en dos partes (clave, valor)
+        
+        If UBound(partes) = 1 Then
+            key = Trim(partes(0))
+            value = Trim(partes(1))
+            
+            ' Añadir al diccionario
+            replaceDic(key) = value
+        End If
+    Loop
+    ts.Close
+
+    ' Crear diálogos para seleccionar plantillas y carpeta de salida
     Set dlg = Application.FileDialog(msoFileDialogFilePicker)
-    dlg.Title = "Seleccionar la plantilla de Word"
+    dlg.Title = "Seleccionar la plantilla de reporte técnico"
     dlg.Filters.Clear
     dlg.Filters.Add "Archivos de Word", "*.docx"
     
     If dlg.Show = -1 Then
-        plantillaPath = dlg.SelectedItems(1)
+        plantillaReportePath = dlg.SelectedItems(1)
     Else
         MsgBox "No se seleccionó ningún archivo. La macro se detendrá."
         Exit Sub
     End If
     
- 
-    ' Solicitar el nombre de la aplicación
-    nombreAplicacion = InputBox("Ingrese el nombre de la aplicación:", "Nombre de la Aplicación")
+    dlg.Title = "Seleccionar la plantilla de reporte ejecutivo"
     
-    ' Solicitar la IP de la aplicación
-    ipAplicacion = InputBox("Ingrese la IP de la aplicación:", "IP de la Aplicación")
+    If dlg.Show = -1 Then
+        plantillaReportePath2 = dlg.SelectedItems(1)
+    Else
+        MsgBox "No se seleccionó ningún archivo. La macro se detendrá."
+        Exit Sub
+    End If
     
-    ' Solicitar la URL de la aplicación
-    urlAplicacion = InputBox("Ingrese la URL de la aplicación:", "URL de la Aplicación")
+    dlg.Title = "Seleccionar la plantilla de tabla de vulnerabilidades"
+    
+    If dlg.Show = -1 Then
+        plantillaVulnerabilidadesPath = dlg.SelectedItems(1)
+    Else
+        MsgBox "No se seleccionó ningún archivo. La macro se detendrá."
+        Exit Sub
+    End If
     
     ' Solicitar la carpeta de salida
     With Application.FileDialog(msoFileDialogFolderPicker)
@@ -944,50 +1036,278 @@ Sub GenerarReporteVulnerabilidadesAppsINAI()
         Exit Sub
     End If
     
-    ' Crear una copia temporal del archivo de plantilla
-    Set fileSystem = CreateObject("Scripting.FileSystemObject")
-    archivoTemp = Environ("TEMP") & "\" & fileSystem.GetFileName(plantillaPath)
-    fileSystem.CopyFile plantillaPath, archivoTemp
+    ' Crear una carpeta temporal
+    tempFolder = Environ("TEMP") & "\tmp-" & Format(Now(), "yyyymmddhhmmss")
+    On Error Resume Next
+    MkDir tempFolder
+    On Error GoTo 0
     
-    ' Abrir la plantilla en Word
-    Set WordDoc = WordApp.Documents.Open(archivoTemp)
-    WordApp.Visible = False
+    ' Crear una carpeta para documentos generados
+    tempFolderGenerados = tempFolder & "\DocumentosGenerados"
+    On Error Resume Next
+    MkDir tempFolderGenerados
+    On Error GoTo 0
     
+    ' Crear y abrir documentos de reporte técnico y ejecutivo
+    For Each plantilla In Array(plantillaReportePath, plantillaReportePath2)
+        archivoTemp = tempFolder & "\" & fileSystem.GetFileName(plantilla)
+        fileSystem.CopyFile plantilla, archivoTemp
+        
+        Set WordDoc = WordApp.Documents.Open(archivoTemp)
+        WordApp.Visible = False
+        
+        ReplaceFields WordDoc, replaceDic
+        
+        If plantilla = plantillaReportePath Then
+            tempDocPath = tempFolder & "\SSIFO14-03 Informe Técnico.docx"
+            WordDoc.SaveAs2 tempDocPath
+        Else
+            tempDocPath2 = tempFolder & "\SSIFO15-03 Informe Ejecutivo.docx"
+            WordDoc.SaveAs2 tempDocPath2
+        End If
+        
+        WordDoc.Close False
+    Next
     
-    With WordDoc.content.Find
-        .text = "<<Aplicación>>"
-        .Replacement.text = nombreAplicacion
-        .Execute Replace:=2 ' 2 = wdReplaceAll
-    End With
+    ' Solicita al usuario seleccionar el rango de celdas
+    On Error Resume Next
+    Set selectedRange = Application.InputBox("Seleccione el rango de celdas que contienen las columnas a considerar", Type:=8)
+    On Error GoTo 0
+    
+    If selectedRange Is Nothing Then
+        MsgBox "No se ha seleccionado un rango válido.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Verifica si el rango seleccionado está dentro de una tabla
+    On Error Resume Next
+    Set rng = selectedRange.ListObject.Range
+    On Error GoTo 0
+    
+    If rng Is Nothing Then
+        MsgBox "El rango seleccionado no está dentro de una tabla.", vbExclamation
+        Exit Sub
+    End If
 
-    With WordDoc.content.Find
-        .text = "<<IP de Aplicación>>"
-        .Replacement.text = ipAplicacion
-        .Execute Replace:=2 ' 2 = wdReplaceAll
-    End With
+    ' Inicializar el diccionario para contar severidades
+    Set severityCounts = CreateObject("Scripting.Dictionary")
+    
+    ' Buscar la columna "Severidad"
+    severidadColumna = -1
+    For i = 1 To rng.Columns.Count
+        If rng.Cells(1, i).value = "Severidad" Then
+            severidadColumna = i
+            Exit For
+        End If
+    Next i
+    
+    If severidadColumna = -1 Then
+        MsgBox "No se encontró la columna 'Severidad' en el rango seleccionado.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Contar severidades
+    For i = 2 To rng.Rows.Count
+        severity = rng.Cells(i, severidadColumna).value
+        If severity <> "" Then
+            If severityCounts.Exists(severity) Then
+                severityCounts(severity) = severityCounts(severity) + 1
+            Else
+                severityCounts.Add severity, 1
+            End If
+        End If
+    Next i
+    
+    ' Inicializar conteos
+    countBAJA = IIf(severityCounts.Exists("BAJA"), severityCounts("BAJA"), 0)
+    countMEDIA = IIf(severityCounts.Exists("MEDIA"), severityCounts("MEDIA"), 0)
+    countALTA = IIf(severityCounts.Exists("ALTA"), severityCounts("ALTA"), 0)
+    countCRITICAS = IIf(severityCounts.Exists("CRÍTICAS"), severityCounts("CRÍTICAS"), 0)
+    
+    ' Calcular total de vulnerabilidades
+    totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
 
-    With WordDoc.content.Find
-        .text = "<<URL de Aplicación>>"
-        .Replacement.text = urlAplicacion
-        .Execute Replace:=2 ' 2 = wdReplaceAll
+    ' Copia la plantilla de vulnerabilidades
+    tempDocVulnerabilidadesPath = tempFolder & "\Plantilla_Vulnerabilidades.docx"
+    fileSystem.CopyFile plantillaVulnerabilidadesPath, tempDocVulnerabilidadesPath
+    
+    ' Genera documentos de Word por cada registro
+    rowCount = rng.Rows.Count
+    For i = 2 To rowCount
+        Set replaceDic = CreateObject("Scripting.Dictionary")
+        
+        For Each cell In selectedRange.Rows(1).Cells
+            replaceDic("«" & cell.value & "»") = rng.Cells(i, cell.Column).value
+        Next cell
+        
+        tempFileName = "Documento_" & i & ".docx"
+        fileSystem.CopyFile tempDocVulnerabilidadesPath, tempFolderGenerados & "\" & tempFileName
+        
+        On Error Resume Next
+        Set WordDoc = WordApp.Documents.Open(tempFolderGenerados & "\" & tempFileName)
+        If Err.Number <> 0 Then
+            MsgBox "No se pudo abrir el archivo: " & tempFolderGenerados & "\" & tempFileName, vbCritical
+            Err.Clear
+            Exit Sub
+        End If
+        On Error GoTo 0
+        
+        ReplaceFields WordDoc, replaceDic
+        FormatRiskLevelCell WordDoc.Tables(1).cell(1, 2)
+        EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
+        WordDoc.Save
+        WordDoc.Close
+        
+        numDocuments = numDocuments + 1
+        ReDim Preserve documentsList(numDocuments - 1)
+        documentsList(numDocuments - 1) = tempFolderGenerados & "\" & tempFileName
+    Next i
+    
+    ' Combina todos los archivos en uno solo
+    finalDocumentPath = tempFolder & "\Documento_Consolidado.docx"
+    MergeDocuments WordApp, documentsList, finalDocumentPath
+    
+    ' Actualizar el documento de reporte técnico
+    Set WordDoc = WordApp.Documents.Open(tempDocPath)
+    secVulnerabilidades = "{{Sección de tablas de vulnerabilidades}}"
+    
+    Set rngReplace = WordDoc.content
+    rngReplace.Find.ClearFormatting
+    With rngReplace.Find
+        .text = secVulnerabilidades
+        .Replacement.text = ""
+        .Forward = True
+        .Wrap = 1 ' wdFindStop
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
     End With
     
-    ' Guardar el reporte en la carpeta indicada con la nueva nomenclatura
-    Dim reportePath As String
-    reportePath = carpetaSalida & "\" & "SSIFO14-03 Informe Técnico - " & nombreAplicacion & ".docx"
-    WordDoc.SaveAs2 reportePath
+    If rngReplace.Find.Execute Then
+        rngReplace.text = ""
+        rngReplace.InsertFile finalDocumentPath
+    End If
     
-    ' Cerrar el documento y Word
+    ' Reemplazar el total de vulnerabilidades
+    Set rngReplace = WordDoc.content
+    rngReplace.Find.ClearFormatting
+    With rngReplace.Find
+        .text = "«Total de vulnerabilidades»"
+        .Replacement.text = totalVulnerabilidades
+        .Forward = True
+        .Wrap = 1 ' wdFindStop
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    
+    If rngReplace.Find.Execute Then
+        rngReplace.text = totalVulnerabilidades
+    End If
+
+    ' Actualizar el gráfico InlineShape número 1
+    On Error Resume Next
+    Set ils = WordDoc.InlineShapes(1)
+    If Err.Number = 0 Then
+        On Error GoTo 0
+        
+        If ils.Type = 12 Then ' Verificar si es un gráfico
+            Set chart = ils.chart
+            chart.ChartData.Activate
+            Set wb = chart.ChartData.Workbook
+            Set SourceSheet = wb.Sheets(1)
+            
+            ' Actualizar los datos del gráfico
+            SourceSheet.Cells(2, 2).Value2 = countBAJA
+            SourceSheet.Cells(3, 2).Value2 = countMEDIA
+            SourceSheet.Cells(4, 2).Value2 = countALTA
+            SourceSheet.Cells(5, 2).Value2 = countCRITICAS
+            
+            chart.Refresh
+            wb.Close SaveChanges:=True
+        Else
+            MsgBox "El InlineShape número 1 no es un gráfico."
+        End If
+    Else
+        MsgBox "No se encontró el gráfico InlineShape número 1."
+    End If
+    On Error GoTo 0
+
+    ' Guardar el documento de reporte técnico final
+    WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe Técnico.docx"
     WordDoc.Close False
-    WordApp.Quit
+
+    ' Actualizar el documento de reporte ejecutivo
+    Set WordDoc = WordApp.Documents.Open(tempDocPath2)
     
-    ' Limpiar objetos
+    Set rngReplace = WordDoc.content
+    rngReplace.Find.ClearFormatting
+    With rngReplace.Find
+        .text = "«Total de vulnerabilidades»"
+        .Replacement.text = totalVulnerabilidades
+        .Forward = True
+        .Wrap = 1 ' wdFindStop
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+    End With
+    
+    If rngReplace.Find.Execute Then
+        rngReplace.text = totalVulnerabilidades
+    End If
+
+    ' Actualizar el gráfico InlineShape número 1
+    On Error Resume Next
+    Set ils = WordDoc.InlineShapes(1)
+    If Err.Number = 0 Then
+        On Error GoTo 0
+        
+        If ils.Type = 12 Then ' Verificar si es un gráfico
+            Set chart = ils.chart
+            chart.ChartData.Activate
+            Set wb = chart.ChartData.Workbook
+            Set SourceSheet = wb.Sheets(1)
+            
+            ' Actualizar los datos del gráfico
+            SourceSheet.Cells(2, 2).Value2 = countBAJA
+            SourceSheet.Cells(3, 2).Value2 = countMEDIA
+            SourceSheet.Cells(4, 2).Value2 = countALTA
+            SourceSheet.Cells(5, 2).Value2 = countCRITICAS
+            
+            chart.Refresh
+            wb.Close SaveChanges:=True
+        Else
+            MsgBox "El InlineShape número 1 no es un gráfico."
+        End If
+    Else
+        MsgBox "No se encontró el gráfico InlineShape número 1."
+    End If
+    On Error GoTo 0
+
+    ' Guardar el documento de reporte ejecutivo final
+    WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
+    WordDoc.Close False
+    
+    ' Mover los documentos generados y el archivo consolidado a la carpeta de salida final
+    fileSystem.MoveFolder tempFolderGenerados, carpetaSalida & "\DocumentosGenerados"
+    fileSystem.MoveFile finalDocumentPath, carpetaSalida & "\Documento_Consolidado.docx"
+    
+    ' Cerrar la aplicación de Word
+    WordApp.Quit
     Set WordDoc = Nothing
     Set WordApp = Nothing
     Set fileSystem = Nothing
     
-    ' Informar al usuario que el reporte fue creado
-    MsgBox "Reporte de vulnerabilidades creado con éxito en: " & reportePath
+    ' Mostrar mensaje de éxito
+    MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
-
 
