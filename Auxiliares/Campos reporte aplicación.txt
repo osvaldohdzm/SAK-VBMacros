@@ -1,3 +1,0 @@
-«Aplicación» : "pntdocumentos.inai.org.mx"
-«URL de Aplicación» : "http://pntdocumentos.inai.org.mx/"
-«IP de Aplicación» : "189.206.143.245"

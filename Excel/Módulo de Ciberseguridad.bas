@@ -86,7 +86,7 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.Keys
+            For Each key In uniqueUrls.keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -719,7 +719,7 @@ Sub LimpiarColumnaReferencias()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.Keys
+            For Each key In uniqueUrls.keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -832,7 +832,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     Set docContent = WordDoc.content
     
     ' Bucle para buscar y reemplazar todas las ocurrencias en el diccionario
-    For Each key In replaceDic.Keys
+    For Each key In replaceDic.keys
         ' Ir al principio del documento nuevamente
         docContent.Select
         WordApp.Selection.GoTo What:=1, Which:=1, Name:="1"
@@ -855,7 +855,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
                 findInRange = .Execute
                 If findInRange Then
                     ' Realizar el reemplazo
-                    WordApp.Selection.text = replaceDic(key)
+                    WordApp.Selection.text = CStr(replaceDic(key))
                     ' Ir al principio del documento nuevamente
                     WordApp.Selection.GoTo What:=1, Which:=1, Name:="1"
                 End If
@@ -867,48 +867,6 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     Set docContent = Nothing
     Set WordApp = Nothing
 End Sub
-
-
-Sub ActualizarGraficosSeveridades(docPath1 As String, docPath2 As String, docPath3 As String)
-    Dim WordApp As Object
-    Dim WordDoc As Object
-    Dim filePaths As Variant
-    Dim i As Integer
-
-    ' Crear una instancia de Word
-    On Error Resume Next
-    Set WordApp = CreateObject("Word.Application")
-    On Error GoTo 0
-    
-    If WordApp Is Nothing Then
-        MsgBox "No se puede iniciar Microsoft Word."
-        Exit Sub
-    End If
-    
-    WordApp.Visible = False
-    
-    ' Array de documentos para actualizar gráficos
-    filePaths = Array(docPath1, docPath2, docPath3)
-    
-    ' Actualizar gráficos en cada documento
-    For i = LBound(filePaths) To UBound(filePaths)
-        Set WordDoc = WordApp.Documents.Open(filePaths(i))
-        WordApp.Visible = False
-        ' Aquí puedes agregar el código para actualizar gráficos en el documento
-        ' Ejemplo:
-        ' Call ActualizarGrafico(WordDoc) ' Asumiendo que tienes una función para esto
-        WordDoc.Save
-        WordDoc.Close
-    Next i
-    
-    ' Limpiar
-    WordApp.Quit
-    Set WordDoc = Nothing
-    Set WordApp = Nothing
-End Sub
-
-
-
 
 Sub GenerarReportesVulnsAppsINAI()
     Dim WordApp As Object
@@ -954,7 +912,8 @@ Sub GenerarReportesVulnsAppsINAI()
     Dim ils As Object
     Dim wb As Object
     Dim SourceSheet As Object
-    
+    Dim appName As String ' Variable para el nombre de la aplicación
+
     ' Crear un diálogo para seleccionar el archivo CSV
     campoArchivoPath = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", , "Seleccionar archivo CSV")
     If campoArchivoPath = "Falso" Then
@@ -983,6 +942,14 @@ Sub GenerarReportesVulnsAppsINAI()
         End If
     Loop
     ts.Close
+    
+    ' Extraer el nombre de la aplicación del diccionario
+    If replaceDic.Exists("«Aplicación»") Then
+        appName = replaceDic("«Aplicación»")
+    Else
+        MsgBox "No se encontró el campo 'Aplicación' en el archivo CSV.", vbExclamation
+        Exit Sub
+    End If
 
     ' Crear diálogos para seleccionar plantillas y carpeta de salida
     Set dlg = Application.FileDialog(msoFileDialogFilePicker)
@@ -1026,6 +993,12 @@ Sub GenerarReportesVulnsAppsINAI()
         End If
     End With
     
+    ' Crear una subcarpeta con el nombre de la aplicación
+    carpetaSalida = carpetaSalida & "\" & appName
+    On Error Resume Next
+    MkDir carpetaSalida
+    On Error GoTo 0
+    
     ' Crear una instancia de Word
     On Error Resume Next
     Set WordApp = CreateObject("Word.Application")
@@ -1043,7 +1016,7 @@ Sub GenerarReportesVulnsAppsINAI()
     On Error GoTo 0
     
     ' Crear una carpeta para documentos generados
-    tempFolderGenerados = tempFolder & "\DocumentosGenerados"
+    tempFolderGenerados = tempFolder & "\Documentos generados"
     On Error Resume Next
     MkDir tempFolderGenerados
     On Error GoTo 0
@@ -1118,12 +1091,41 @@ Sub GenerarReportesVulnsAppsINAI()
         End If
     Next i
     
+    ' Inicializar el diccionario para contar tipos vulnerabilidades
+    Set vulntypesCounts = CreateObject("Scripting.Dictionary")
+    
+    ' Buscar la columna "Tipo de vulnerabilidad"
+    tiposvulnerabilidadColumna = -1
+    For i = 1 To rng.Columns.Count
+        If rng.Cells(1, i).value = "Tipo de vulnerabilidad" Then
+            tiposvulnerabilidadColumna = i
+            Exit For
+        End If
+    Next i
+    
+    If tiposvulnerabilidadColumna = -1 Then
+        MsgBox "No se encontró la columna 'Tipo de vulnerabilidad' en el rango seleccionado.", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Contar tipos vulnerabilidades
+    For i = 2 To rng.Rows.Count
+        vulntypes = rng.Cells(i, tiposvulnerabilidadColumna).value
+        If vulntypes <> "" Then
+            If vulntypesCounts.Exists(vulntypes) Then
+                vulntypesCounts(vulntypes) = vulntypesCounts(vulntypes) + 1
+            Else
+                vulntypesCounts.Add vulntypes, 1
+            End If
+        End If
+    Next i
+
     ' Inicializar conteos
     countBAJA = IIf(severityCounts.Exists("BAJA"), severityCounts("BAJA"), 0)
     countMEDIA = IIf(severityCounts.Exists("MEDIA"), severityCounts("MEDIA"), 0)
     countALTA = IIf(severityCounts.Exists("ALTA"), severityCounts("ALTA"), 0)
     countCRITICAS = IIf(severityCounts.Exists("CRÍTICAS"), severityCounts("CRÍTICAS"), 0)
-    
+
     ' Calcular total de vulnerabilidades
     totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
 
@@ -1164,7 +1166,7 @@ Sub GenerarReportesVulnsAppsINAI()
     Next i
     
     ' Combina todos los archivos en uno solo
-    finalDocumentPath = tempFolder & "\Documento_Consolidado.docx"
+    finalDocumentPath = tempFolder & "\Tablas_vulnerabilidades.docx"
     MergeDocuments WordApp, documentsList, finalDocumentPath
     
     ' Actualizar el documento de reporte técnico
@@ -1229,8 +1231,8 @@ Sub GenerarReportesVulnsAppsINAI()
             SourceSheet.Cells(4, 2).Value2 = countALTA
             SourceSheet.Cells(5, 2).Value2 = countCRITICAS
             
+            wb.Close
             chart.Refresh
-            wb.Close SaveChanges:=True
         Else
             MsgBox "El InlineShape número 1 no es un gráfico."
         End If
@@ -1239,7 +1241,7 @@ Sub GenerarReportesVulnsAppsINAI()
     End If
     On Error GoTo 0
 
-    ' Guardar el documento de reporte técnico final
+    ' Guardar el documento de reporte técnico final en la subcarpeta
     WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe Técnico.docx"
     WordDoc.Close False
 
@@ -1283,8 +1285,8 @@ Sub GenerarReportesVulnsAppsINAI()
             SourceSheet.Cells(4, 2).Value2 = countALTA
             SourceSheet.Cells(5, 2).Value2 = countCRITICAS
             
+            wb.Close
             chart.Refresh
-            wb.Close SaveChanges:=True
         Else
             MsgBox "El InlineShape número 1 no es un gráfico."
         End If
@@ -1293,13 +1295,41 @@ Sub GenerarReportesVulnsAppsINAI()
     End If
     On Error GoTo 0
 
-    ' Guardar el documento de reporte ejecutivo final
+    ' Actualizar el gráfico InlineShape número 2
+    On Error Resume Next
+    Set ils = WordDoc.InlineShapes(2)
+    If Err.Number = 0 Then
+        On Error GoTo 0
+        
+        If ils.Type = 22 Then ' Verificar si es un gráfico
+            Set chart = ils.chart
+            chart.ChartData.Activate
+            Set wb = chart.ChartData.Workbook
+            Set SourceSheet = wb.Sheets(1)
+            
+            ' Actualizar los datos del gráfico
+            SourceSheet.Cells(2, 2).Value2 = countBAJA
+            SourceSheet.Cells(3, 2).Value2 = countMEDIA
+            SourceSheet.Cells(4, 2).Value2 = countALTA
+            SourceSheet.Cells(5, 2).Value2 = countCRITICAS
+            
+            wb.Close
+            chart.Refresh
+        Else
+            MsgBox "El InlineShape número 2 no es un gráfico."
+        End If
+    Else
+        MsgBox "No se encontró el gráfico InlineShape número 2."
+    End If
+    On Error GoTo 0
+
+    ' Guardar el documento de reporte ejecutivo final en la subcarpeta
     WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
     WordDoc.Close False
     
-    ' Mover los documentos generados y el archivo consolidado a la carpeta de salida final
-    fileSystem.MoveFolder tempFolderGenerados, carpetaSalida & "\DocumentosGenerados"
-    fileSystem.MoveFile finalDocumentPath, carpetaSalida & "\Documento_Consolidado.docx"
+    ' Mover los documentos generados y el archivo consolidado a la subcarpeta de salida
+    fileSystem.MoveFolder tempFolderGenerados, carpetaSalida & "\Documentos generados"
+    fileSystem.MoveFile finalDocumentPath, carpetaSalida & "\Tablas_vulnerabilidades.docx"
     
     ' Cerrar la aplicación de Word
     WordApp.Quit
