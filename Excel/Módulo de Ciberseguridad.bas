@@ -1392,7 +1392,6 @@ Sub GenerarReportesVulnsAppsINAI()
                 End If
                 ' Refrescar el gráfico
                 chart.Refresh
-                ils.LinkFormat.Update
             End If
         End If
     Next i
