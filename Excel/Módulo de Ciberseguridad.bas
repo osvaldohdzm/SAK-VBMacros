@@ -86,7 +86,7 @@ Sub LimpiarCeldasYMostrarContenidoComoArray()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.keys
+            For Each key In uniqueUrls.Keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -749,7 +749,7 @@ Sub LimpiarColumnaReferencias()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.keys
+            For Each key In uniqueUrls.Keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -862,7 +862,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     Set docContent = WordDoc.content
     
     ' Bucle para buscar y reemplazar todas las ocurrencias en el diccionario
-    For Each key In replaceDic.keys
+    For Each key In replaceDic.Keys
         ' Ir al principio del documento nuevamente
         docContent.Select
         WordApp.Selection.GoTo What:=1, Which:=1, Name:="1"
@@ -1272,26 +1272,34 @@ Sub GenerarReportesVulnsAppsINAI()
     On Error GoTo 0
 
       ' Actualizar todos los gráficos en el documento
+ On Error Resume Next
+    Set WordDoc = ActiveDocument
+
+    ' Recorrer todos los InlineShapes en el documento
     For i = 1 To WordDoc.InlineShapes.Count
-        Set ils = WordDoc.InlineShapes(i)
-        If ils.Type = wdInlineShapeChart Then ' Verificar si el InlineShape es un gráfico
-            Set chart = ils.chart
-            If Not chart Is Nothing Then
-                chart.ChartData.Activate
-                ' Intentar obtener el libro de trabajo asociado y cerrarlo
-                Set wb = chart.ChartData.Workbook
-                If Not wb Is Nothing Then
-                    wb.Application.Visible = False
-                    On Error Resume Next
-                    wb.Close SaveChanges:=False
-                    On Error GoTo 0
+        
+        With WordDoc.InlineShapes(i)
+            If .Type = 12 And .HasChart Then ' Tipo 12 corresponde a wdInlineShapeChart
+                Set chart = .chart
+                If Not chart Is Nothing Then
+                    ' Activar el libro de trabajo asociado al gráfico
+                    Set ChartData = chart.ChartData
+                    If Not ChartData Is Nothing Then
+                        ChartData.Activate
+                        Set chartWorkbook = ChartData.Workbook
+                        If Not chartWorkbook Is Nothing Then
+                            chartWorkbook.Application.Visible = False
+                            ' Intentar cerrar el libro de trabajo
+                            chartWorkbook.Close SaveChanges:=False
+                        End If
+                        ' Refrescar el gráfico
+                        chart.Refresh
+                    End If
                 End If
-                ' Refrescar el gráfico
-                chart.Refresh
             End If
-        End If
+        End With
     Next i
-    On Error GoTo 0
+
 
     ' Guardar el documento de reporte técnico final en la subcarpeta
     WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe Técnico.docx"
@@ -1347,56 +1355,93 @@ Sub GenerarReportesVulnsAppsINAI()
     End If
     On Error GoTo 0
 
-    ' Actualizar el gráfico InlineShape número 2
-    On Error Resume Next
-    Set ils = WordDoc.InlineShapes(2)
-    If Err.Number = 0 Then
-        On Error GoTo 0
-        
-        If ils.Type = 12 Then ' Verificar si es un gráfico
-            Set chart = ils.chart
-            chart.ChartData.Activate
-            Set wb = chart.ChartData.Workbook
-            Set SourceSheet = wb.Sheets(1)
-            
-            ' Actualizar los datos del gráfico
-            SourceSheet.Cells(2, 2).Value2 = countBAJA
-            SourceSheet.Cells(3, 2).Value2 = countMEDIA
-            SourceSheet.Cells(4, 2).Value2 = countALTA
-            SourceSheet.Cells(5, 2).Value2 = countCRITICAS
-            
-            wb.Close
-            chart.Refresh
-        Else
-            MsgBox "El InlineShape número 2 no es un gráfico."
-        End If
-    Else
-        MsgBox "No se encontró el gráfico InlineShape número 2."
-    End If
-    On Error GoTo 0
-
-      ' Actualizar todos los gráficos en el documento
-    For i = 1 To WordDoc.InlineShapes.Count
-        Set ils = WordDoc.InlineShapes(i)
-        If ils.Type = wdInlineShapeChart Then ' Verificar si el InlineShape es un gráfico
-            Set chart = ils.chart
-            If Not chart Is Nothing Then
-                chart.ChartData.Activate
-                ' Intentar obtener el libro de trabajo asociado y cerrarlo
-                Set wb = chart.ChartData.Workbook
-                If Not wb Is Nothing Then
-                    wb.Application.Visible = False
-                    On Error Resume Next
-                    wb.Close SaveChanges:=False
-                    On Error GoTo 0
-                End If
-                ' Refrescar el gráfico
-                chart.Refresh
-            End If
-        End If
-    Next i
+' Actualizar el gráfico InlineShape número 2
+On Error Resume Next
+Set ils = WordDoc.InlineShapes(2)
+If Err.Number = 0 Then
     On Error GoTo 0
     
+    If ils.Type = 12 And ils.HasChart Then
+        Set chart = ils.chart
+        chart.ChartData.Activate
+        Set wb = chart.ChartData.Workbook
+        Set SourceSheet = wb.Sheets(1) ' Usar el índice de la hoja, por ejemplo, la primera hoja
+        
+        ' Limpiar las celdas en el rango antes de agregar nuevos datos
+        Dim lastRow As Long
+        lastRow = SourceSheet.Cells(SourceSheet.Rows.Count, 1).End(xlUp).Row
+        SourceSheet.Range("A2:B" & lastRow).ClearContents
+        
+        ' Insertar nuevos datos
+        Dim tipoVuln As Variant
+        Dim tipoVulnRow As Integer
+        tipoVulnRow = 2 ' Empezar en la fila 2 para los tipos de vulnerabilidad
+        
+        For Each tipoVuln In vulntypesCounts.Keys
+            SourceSheet.Cells(tipoVulnRow, 1).value = tipoVuln
+            SourceSheet.Cells(tipoVulnRow, 2).value = vulntypesCounts(tipoVuln)
+            tipoVulnRow = tipoVulnRow + 1
+        Next tipoVuln
+        
+        ' Construir el rango dinámico como una cadena con el índice de la hoja
+        Dim dataRangeAddress As String
+        dataRangeAddress = "Sheet1!$A$1:$B$" & tipoVulnRow - 1 ' Usa el nombre en inglés o verifica el índice
+
+        ' Si necesitas usar el índice de la hoja, en lugar de usar la cadena de dirección puedes construirla así:
+        Dim sheetIndex As Integer
+        sheetIndex = 1 ' Cambia esto al índice de la hoja correcta si es necesario
+        dataRangeAddress = "'" & wb.Sheets(sheetIndex).Name & "'!$A$1:$B$" & tipoVulnRow - 1
+        
+        ' Actualizar el gráfico con el nuevo rango de datos
+        On Error Resume Next
+        chart.SetSourceData Source:=dataRangeAddress
+        If Err.Number <> 0 Then
+            MsgBox "Error al establecer el rango de datos: " & Err.Description
+            Err.Clear
+        End If
+        On Error GoTo 0
+        
+        ' Actualizar el gráfico
+        chart.Refresh
+        
+        wb.Close SaveChanges:=True
+    Else
+        MsgBox "El InlineShape número 2 no es un gráfico."
+    End If
+Else
+    MsgBox "No se encontró el gráfico InlineShape número 2."
+End If
+On Error GoTo 0
+
+
+
+
+
+    
+    ' Recorrer todos los InlineShapes en el documento
+    For i = 1 To WordDoc.InlineShapes.Count
+        
+        With WordDoc.InlineShapes(i)
+            If .Type = 12 And .HasChart Then ' Tipo 12 corresponde a wdInlineShapeChart
+                Set chart = .chart
+                If Not chart Is Nothing Then
+                    ' Activar el libro de trabajo asociado al gráfico
+                    Set ChartData = chart.ChartData
+                    If Not ChartData Is Nothing Then
+                        ChartData.Activate
+                        Set chartWorkbook = ChartData.Workbook
+                        If Not chartWorkbook Is Nothing Then
+                            chartWorkbook.Application.Visible = False
+                            ' Intentar cerrar el libro de trabajo
+                            chartWorkbook.Close SaveChanges:=False
+                        End If
+                        ' Refrescar el gráfico
+                        chart.Refresh
+                    End If
+                End If
+            End If
+        End With
+    Next i
 
     ' Guardar el documento de reporte ejecutivo final en la subcarpeta
     WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
