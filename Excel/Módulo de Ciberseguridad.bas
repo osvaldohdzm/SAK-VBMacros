@@ -247,64 +247,94 @@ Sub QuitarEspacios()
     Next c
 End Sub
 
-' Posible divisor de comentarios
 Sub LimpiarSalida()
     Dim rng As Range
-    Dim c As Range
     Dim celda As Range
     Dim lineas As Variant
     Dim i As Integer
+    Dim htmlPattern As String
+    Dim liPattern As String
+    Dim cleanHtmlPattern As String
+    
+    ' Definir los patrones HTML
+    htmlPattern = "<(\/?(p|a|ul|b|strong|i|u|br)[^>]*?)>|<\/p><p>"
+    liPattern = "<li[^>]*?>"
+    cleanHtmlPattern = "<[^>]+>" ' Para eliminar cualquier etiqueta HTML y sus atributos
     
     ' Asume que el rango seleccionado es el que quieres modificar
     Set rng = Selection
     
-    ' Primero, quita los espacios en blanco y caracteres de tabulación de las celdas
-    For Each c In rng
-        ' Reemplazar caracteres de tabulación con espacios
-        c.value = Replace(c.value, Chr(9), " ")
-        ' Quitar espacios en blanco adicionales
-        c.value = Application.Trim(c.value)
-    Next c
-
-    ' Luego, elimina las líneas vacías y los saltos de línea finales de las celdas
+    ' Reemplaza caracteres de tabulación con espacios y quita espacios en blanco adicionales
     For Each celda In rng
-        ' Verificar si la celda tiene texto
         If Not IsEmpty(celda.value) Then
-            ' Reemplazar diferentes saltos de línea con vbLf
-            Dim contenido As String
-            contenido = Replace(Replace(Replace(celda.value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
+            ' Reemplazar caracteres de tabulación con espacios
+            celda.value = Replace(celda.value, Chr(9), " ")
+            ' Quitar espacios en blanco adicionales
+            celda.value = Application.Trim(celda.value)
             
-            ' Si el contenido comienza con vbLf, quitarlo
-            If Left(contenido, 1) = vbLf Then
-                contenido = Mid(contenido, 2)
-            End If
+                        ' Reemplazar <li> etiquetas con saltos de línea
+            celda.value = RegExpReplace(celda.value, liPattern, vbLf)
             
-            ' Si el contenido termina con vbLf, quitarlo
-            If Right(contenido, 1) = vbLf Then
-                contenido = Left(contenido, Len(contenido) - 1)
-            End If
+            ' Eliminar otras etiquetas HTML pero conservar el texto interno
+            celda.value = RegExpReplace(celda.value, cleanHtmlPattern, vbNullString)
             
-            ' Dividir el contenido de la celda en un array de líneas
-            lineas = Split(contenido, vbLf)
-            
-            ' Iterar sobre cada línea del array
+            ' Unificar saltos de línea y eliminar líneas vacías
+            lineas = Split(celda.value, vbLf)
             For i = LBound(lineas) To UBound(lineas)
-                ' Verificar si la línea está vacía y eliminarla
                 If Trim(lineas(i)) = "" Then
                     lineas(i) = vbNullString
                 End If
             Next i
             
-            ' Unir el array de líneas de nuevo en una cadena y asignarlo a la celda
-            ' Además, eliminar posibles saltos de línea al final del contenido
+            ' Unir líneas no vacías y eliminar posibles saltos de línea finales
             celda.value = Join(lineas, vbLf)
-            ' Eliminar saltos de línea al final
             If Right(celda.value, 1) = vbLf Then
                 celda.value = Left(celda.value, Len(celda.value) - 1)
             End If
+            
+            ' Eliminar etiquetas HTML que no se hayan eliminado y reemplazar con saltos de línea
+            celda.value = RegExpReplace(celda.value, htmlPattern, vbLf)
+            
+            ' Reemplazar entidades HTML con caracteres correspondientes
+            celda.value = ReplaceHtmlEntities(celda.value)
+            
         End If
     Next celda
+    
+    MsgBox "Proceso completado: Espacios, etiquetas HTML y saltos de línea ajustados.", vbInformation
 End Sub
+
+Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
+    ' Función para reemplazar utilizando expresiones regulares
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    With regex
+        .Global = True
+        .MultiLine = True
+        .IgnoreCase = False
+        .Pattern = replacePattern
+    End With
+    
+    RegExpReplace = regex.Replace(text, replaceWith)
+End Function
+
+Function ReplaceHtmlEntities(ByVal text As String) As String
+    ' Función para reemplazar entidades HTML con caracteres correspondientes
+    text = Replace(text, "&lt;", "<")
+    text = Replace(text, "&gt;", ">")
+    text = Replace(text, "&amp;", "&")
+    text = Replace(text, "&quot;", """")
+    text = Replace(text, "&apos;", "'")
+    text = Replace(text, "&#x27;", "'")
+    text = Replace(text, "&#34;", """")
+    text = Replace(text, "&#39;", "'")
+    text = Replace(text, "&#160;", Chr(160)) ' Espacio no separable
+    
+    ReplaceHtmlEntities = text
+End Function
+
+
 
 Sub OrdenaSegunColorRelleno()
     Dim celdaActual As Range
@@ -433,7 +463,7 @@ Function TransformText(text As String) As String
         .Global = True
         .MultiLine = True
         .IgnoreCase = True
-        .pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+" ' Expresión regular para encontrar saltos de línea o saltos de carro sin un punto antes y no seguidos de paréntesis ni de guión
+        .Pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+" ' Expresión regular para encontrar saltos de línea o saltos de carro sin un punto antes y no seguidos de paréntesis ni de guión
     End With
     
     ' Realizar la transformación: quitar caracteres especiales y aplicar la expresión regular
@@ -868,6 +898,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     Set WordApp = Nothing
 End Sub
 
+
 Sub GenerarReportesVulnsAppsINAI()
     Dim WordApp As Object
     Dim WordDoc As Object
@@ -994,7 +1025,7 @@ Sub GenerarReportesVulnsAppsINAI()
     End With
     
     ' Crear una subcarpeta con el nombre de la aplicación
-    carpetaSalida = carpetaSalida & "\" & appName
+    carpetaSalida = carpetaSalida & "\AV " & appName
     On Error Resume Next
     MkDir carpetaSalida
     On Error GoTo 0
@@ -1232,13 +1263,34 @@ Sub GenerarReportesVulnsAppsINAI()
             SourceSheet.Cells(5, 2).Value2 = countCRITICAS
             
             wb.Close
-            chart.Refresh
         Else
             MsgBox "El InlineShape número 1 no es un gráfico."
         End If
     Else
         MsgBox "No se encontró el gráfico InlineShape número 1."
     End If
+    On Error GoTo 0
+
+      ' Actualizar todos los gráficos en el documento
+    For i = 1 To WordDoc.InlineShapes.Count
+        Set ils = WordDoc.InlineShapes(i)
+        If ils.Type = wdInlineShapeChart Then ' Verificar si el InlineShape es un gráfico
+            Set chart = ils.chart
+            If Not chart Is Nothing Then
+                chart.ChartData.Activate
+                ' Intentar obtener el libro de trabajo asociado y cerrarlo
+                Set wb = chart.ChartData.Workbook
+                If Not wb Is Nothing Then
+                    wb.Application.Visible = False
+                    On Error Resume Next
+                    wb.Close SaveChanges:=False
+                    On Error GoTo 0
+                End If
+                ' Refrescar el gráfico
+                chart.Refresh
+            End If
+        End If
+    Next i
     On Error GoTo 0
 
     ' Guardar el documento de reporte técnico final en la subcarpeta
@@ -1285,7 +1337,7 @@ Sub GenerarReportesVulnsAppsINAI()
             SourceSheet.Cells(4, 2).Value2 = countALTA
             SourceSheet.Cells(5, 2).Value2 = countCRITICAS
             
-            wb.Close
+            wb.Close SaveChanges:=True
             chart.Refresh
         Else
             MsgBox "El InlineShape número 1 no es un gráfico."
@@ -1301,7 +1353,7 @@ Sub GenerarReportesVulnsAppsINAI()
     If Err.Number = 0 Then
         On Error GoTo 0
         
-        If ils.Type = 22 Then ' Verificar si es un gráfico
+        If ils.Type = 12 Then ' Verificar si es un gráfico
             Set chart = ils.chart
             chart.ChartData.Activate
             Set wb = chart.ChartData.Workbook
@@ -1323,6 +1375,30 @@ Sub GenerarReportesVulnsAppsINAI()
     End If
     On Error GoTo 0
 
+      ' Actualizar todos los gráficos en el documento
+    For i = 1 To WordDoc.InlineShapes.Count
+        Set ils = WordDoc.InlineShapes(i)
+        If ils.Type = wdInlineShapeChart Then ' Verificar si el InlineShape es un gráfico
+            Set chart = ils.chart
+            If Not chart Is Nothing Then
+                chart.ChartData.Activate
+                ' Intentar obtener el libro de trabajo asociado y cerrarlo
+                Set wb = chart.ChartData.Workbook
+                If Not wb Is Nothing Then
+                    wb.Application.Visible = False
+                    On Error Resume Next
+                    wb.Close SaveChanges:=False
+                    On Error GoTo 0
+                End If
+                ' Refrescar el gráfico
+                chart.Refresh
+                ils.LinkFormat.Update
+            End If
+        End If
+    Next i
+    On Error GoTo 0
+    
+
     ' Guardar el documento de reporte ejecutivo final en la subcarpeta
     WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
     WordDoc.Close False
@@ -1340,4 +1416,3 @@ Sub GenerarReportesVulnsAppsINAI()
     ' Mostrar mensaje de éxito
     MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
-
