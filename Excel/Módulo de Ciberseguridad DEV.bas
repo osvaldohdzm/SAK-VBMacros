@@ -1,5 +1,5 @@
 Attribute VB_Name = "ExcelMacrosCibersecurity"
-Sub ExportarHojaConFormato()
+Sub ExportarHojaConFormatoINAI()
     Dim ws As Worksheet
     Dim wb As Workbook
     Dim tempFileName As String
@@ -18,7 +18,7 @@ Sub ExportarHojaConFormato()
             Exit Sub
         End If
     End With
-
+    
     ' Exportar la hoja activa a un archivo Excel
     Set ws = ActiveSheet
     If Not ws Is Nothing Then
@@ -37,7 +37,7 @@ Sub ExportarHojaConFormato()
                 .HorizontalAlignment = xlCenter
                 .VerticalAlignment = xlBottom
             End With
-
+            
             ' Centrar la columna C y "Severidad"
             Columns("C:C").Select
             With Selection
@@ -63,54 +63,54 @@ Sub ExportarHojaConFormato()
                     .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
-                        .Color = RGB(255, 255, 255) ' Blanco
+                        .Color = RGB(255, 255, 255)        ' Blanco
                     End With
                     With .FormatConditions(1).Interior
-                        .Color = RGB(112, 48, 160) ' #7030A0
+                        .Color = RGB(112, 48, 160)        ' #7030A0
                     End With
                     
                     ' ALTA
                     .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
-                        .Color = RGB(255, 255, 255) ' Blanco
+                        .Color = RGB(255, 255, 255)        ' Blanco
                     End With
                     With .FormatConditions(1).Interior
-                        .Color = RGB(255, 0, 0) ' #FF0000
+                        .Color = RGB(255, 0, 0)        ' #FF0000
                     End With
                     
                     ' MEDIA
                     .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
-                        .Color = RGB(0, 0, 0) ' Negro
+                        .Color = RGB(0, 0, 0)        ' Negro
                     End With
                     With .FormatConditions(1).Interior
-                        .Color = RGB(255, 255, 0) ' #FFFF00
+                        .Color = RGB(255, 255, 0)        ' #FFFF00
                     End With
                     
                     ' BAJA
                     .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
-                        .Color = RGB(255, 255, 255) ' Blanco
+                        .Color = RGB(255, 255, 255)        ' Blanco
                     End With
                     With .FormatConditions(1).Interior
-                        .Color = RGB(0, 176, 80) ' #00B050
+                        .Color = RGB(0, 176, 80)        ' #00B050
                     End With
                     
                     ' INFORMATIVA
                     .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
-                        .Color = RGB(0, 0, 0) ' Negro
+                        .Color = RGB(0, 0, 0)        ' Negro
                     End With
                     With .FormatConditions(1).Interior
-                        .Color = RGB(231, 230, 230) ' #E7E6E6
+                        .Color = RGB(231, 230, 230)        ' #E7E6E6
                     End With
                 End With
             Else
-                MsgBox "No se encontró la columna 'Severidad'.", vbExclamation
+                MsgBox "No se encontró la columna        'Severidad'.", vbExclamation
             End If
         End With
         
@@ -120,10 +120,128 @@ Sub ExportarHojaConFormato()
         wb.SaveAs tempFileName, xlOpenXMLWorkbook
         wb.Close False
     End If
-
+    
     MsgBox "La hoja ha sido exportada con éxito a " & tempFileName, vbInformation
 End Sub
 
+Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, appName As String) As Boolean
+    Dim ws As Worksheet
+    Dim wb As Workbook
+    Dim tempFileName As String
+    Dim tbl As ListObject
+    Dim colSeveridad As ListColumn
+    Dim selectedRange As Range
+    
+    On Error GoTo ErrorHandler
+    
+    ' Exportar la hoja activa a un archivo Excel
+    Set ws = ActiveSheet
+    If Not ws Is Nothing Then
+        tempFileName = carpetaSalida & "\" & "SSIFO37-02_Matriz de seguimiento vulnerabilidades de aplicaciones.xlsx"
+        ws.Copy
+        Set wb = ActiveWorkbook
+        
+        ' Aplicar formato a la hoja exportada
+        With wb.Sheets(1)
+            ' Ajustar altura de las filas
+            .Cells.RowHeight = 15
+            
+            ' Centrar la columna A
+            .Columns("A:A").HorizontalAlignment = xlCenter
+            .Columns("A:A").VerticalAlignment = xlBottom
+            
+            ' Centrar la columna C y "Severidad"
+            .Columns("C:C").HorizontalAlignment = xlCenter
+            .Columns("C:C").VerticalAlignment = xlCenter
+            
+            ' Aplicar el estilo de tabla a la primera tabla
+            .ListObjects(1).TableStyle = "TableStyleMedium1"
+            
+            ' Buscar la columna "Severidad" en la primera tabla
+            Set tbl = .ListObjects(1)
+            On Error Resume Next
+            Set colSeveridad = tbl.ListColumns("Severidad")
+            On Error GoTo 0
+            
+            ' Verificar si se encontró la columna "Severidad"
+            If Not colSeveridad Is Nothing Then
+                ' Aplicar formato condicional a la columna "Severidad"
+                Set selectedRange = colSeveridad.DataBodyRange
+                With selectedRange
+                    ' CRÍTICA
+                    .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
+                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    With .FormatConditions(1).Font
+                        .Color = RGB(255, 255, 255)        ' Blanco
+                    End With
+                    With .FormatConditions(1).Interior
+                        .Color = RGB(112, 48, 160)        ' #7030A0
+                    End With
+                    
+                    ' ALTA
+                    .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
+                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    With .FormatConditions(1).Font
+                        .Color = RGB(255, 255, 255)        ' Blanco
+                    End With
+                    With .FormatConditions(1).Interior
+                        .Color = RGB(255, 0, 0)        ' #FF0000
+                    End With
+                    
+                    ' MEDIA
+                    .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
+                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    With .FormatConditions(1).Font
+                        .Color = RGB(0, 0, 0)        ' Negro
+                    End With
+                    With .FormatConditions(1).Interior
+                        .Color = RGB(255, 255, 0)        ' #FFFF00
+                    End With
+                    
+                    ' BAJA
+                    .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
+                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    With .FormatConditions(1).Font
+                        .Color = RGB(255, 255, 255)        ' Blanco
+                    End With
+                    With .FormatConditions(1).Interior
+                        .Color = RGB(0, 176, 80)        ' #00B050
+                    End With
+                    
+                    ' INFORMATIVA
+                    .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
+                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    With .FormatConditions(1).Font
+                        .Color = RGB(0, 0, 0)        ' Negro
+                    End With
+                    With .FormatConditions(1).Interior
+                        .Color = RGB(231, 230, 230)        ' #E7E6E6
+                    End With
+                End With
+            Else
+                MsgBox "No se encontró la columna        'Severidad'.", vbExclamation
+            End If
+        End With
+        
+        wb.Sheets(1).Name = "Vulnerabilidades"
+        wb.Sheets(1).Range("A1").Select
+        ' Guardar el archivo en la carpeta seleccionada
+        wb.SaveAs tempFileName, xlOpenXMLWorkbook
+        wb.Close False
+        
+        FunExportarHojaActivaAExcelINAI = True
+        MsgBox "La hoja ha sido exportada con éxito a " & tempFileName, vbInformation
+    Else
+        FunExportarHojaActivaAExcelINAI = False
+        MsgBox "No hay ninguna hoja activa para exportar.", vbExclamation
+    End If
+    
+    Exit Function
+    
+ErrorHandler:
+    FunExportarHojaActivaAExcelINAI = False
+    MsgBox "Ocurrió un error: " & Err.Description, vbCritical
+End Function
 
 Sub ReemplazarCadenasSeveridades()
     
@@ -1002,22 +1120,25 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     Set WordApp = Nothing
 End Sub
 
-Sub ActualizarGraficoSegunDicionario(WordDoc As Object, conteos As Object, graficoIndex As Integer)
+Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Object, graficoIndex As Integer) As Boolean
     Dim ils As Object
     Dim chart As Object
     Dim ChartData As Object
     Dim ChartWorkbook As Object
     Dim SourceSheet As Object
-    Dim dataRange As Object
+    Dim dataRangeAddress As String
     Dim categoryRow As Integer
     Dim category As Variant
     Dim lastRow As Long
     Dim sheetIndex As Integer
     
+    On Error GoTo ErrorHandler
+    
     ' Verificar que el índice del gráfico es válido
     If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.Count Then
         MsgBox "Índice de gráfico fuera de rango."
-        Exit Sub
+        ActualizarGraficoSegunDicionario = False
+        Exit Function
     End If
     
     ' Obtener el InlineShape correspondiente al índice
@@ -1032,7 +1153,7 @@ Sub ActualizarGraficoSegunDicionario(WordDoc As Object, conteos As Object, grafi
                 ChartData.Activate
                 Set ChartWorkbook = ChartData.Workbook
                 If Not ChartWorkbook Is Nothing Then
-                    Set SourceSheet = ChartWorkbook.Sheets(1) ' Usar la primera hoja del libro
+                    Set SourceSheet = ChartWorkbook.Sheets(1)        ' Usar la primera hoja del libro
                     
                     ' Limpiar las celdas en el rango antes de agregar nuevos datos
                     lastRow = SourceSheet.Cells(SourceSheet.Rows.Count, 1).End(xlUp).Row
@@ -1041,7 +1162,7 @@ Sub ActualizarGraficoSegunDicionario(WordDoc As Object, conteos As Object, grafi
                     End If
                     
                     ' Insertar nuevos datos
-                    categoryRow = 2 ' Empezar en la fila 2 para los tipos de vulnerabilidad
+                    categoryRow = 2        ' Empezar en la fila 2 para los tipos de vulnerabilidad
                     For Each category In conteos.Keys
                         SourceSheet.Cells(categoryRow, 1).value = category
                         SourceSheet.Cells(categoryRow, 2).value = conteos(category)
@@ -1049,26 +1170,18 @@ Sub ActualizarGraficoSegunDicionario(WordDoc As Object, conteos As Object, grafi
                     Next category
                     
                     ' Construir el rango dinámico como una cadena
-                    sheetIndex = 1 ' Cambia esto al índice de la hoja correcta si es necesario
-                    Dim dataRangeAddress As String
-                    dataRangeAddress = "'" & CStr(ChartWorkbook.Sheets(sheetIndex).Name) & "'!$A$1:$B$" & CStr(categoryRow - 1)
-                    
-                    ' Convertir la dirección del rango a un objeto Range
-                    On Error Resume Next
-                    Set dataRange = ChartWorkbook.Sheets(sheetIndex).Range(dataRangeAddress)
-                    If Err.Number <> 0 Then
-                        MsgBox "Error al establecer el rango de datos: " & Err.Description
-                        Err.Clear
-                        Exit Sub
-                    End If
-                    On Error GoTo 0
+                    sheetIndex = 1
+                    dataRangeAddress = CStr(ChartWorkbook.Sheets(sheetIndex).Name & "$A$1:$B$" & CStr(categoryRow - 1))
+                    Debug.Print dataRangeAddress
                     
                     ' Actualizar el gráfico con el nuevo rango de datos
                     On Error Resume Next
-                    chart.SetSourceData Source:=dataRange
+                    ChartWorkbook.Sheets(sheetIndex).ChartObjects(1).chart.SetSourceData Source:=Range(dataRangeAddress)
                     If Err.Number <> 0 Then
                         MsgBox "Error al establecer el rango de datos: " & Err.Description
                         Err.Clear
+                        ActualizarGraficoSegunDicionario = False
+                        Exit Function
                     End If
                     On Error GoTo 0
                     
@@ -1078,54 +1191,68 @@ Sub ActualizarGraficoSegunDicionario(WordDoc As Object, conteos As Object, grafi
                     If Err.Number <> 0 Then
                         MsgBox "Error al actualizar el gráfico: " & Err.Description
                         Err.Clear
+                        ActualizarGraficoSegunDicionario = False
+                        Exit Function
                     End If
                     On Error GoTo 0
                     
                     ' Cerrar el libro de trabajo sin guardar cambios
                     ChartWorkbook.Close SaveChanges:=False
+                    
+                    ActualizarGraficoSegunDicionario = True
                 End If
             End If
         Else
             MsgBox "El InlineShape seleccionado no contiene un gráfico válido."
+            ActualizarGraficoSegunDicionario = False
         End If
     Else
         MsgBox "El InlineShape seleccionado no contiene un gráfico."
-    End If
-End Sub
-
-Function ExportarHojaActivaAExcelINAI(carpetaSalida As String, appName As String) As Boolean
-    Dim ws As Worksheet
-    Dim wb As Workbook
-    Dim tempFileName As String
-    
-    On Error GoTo ErrorHandler
-
-    ' Exportar la hoja activa a un archivo Excel
-    Set ws = ActiveSheet
-    If Not ws Is Nothing Then
-        tempFileName = carpetaSalida & "\" & "SSIFO37-02 Matriz de seguimiento vulnerabilidades de aplicaciones"
-        
-        ' Añadir sufijo solo si no está vacío
-        If Len(Trim(appName)) > 0 Then
-            tempFileName = tempFileName & " - " & appName
-        End If
-        tempFileName = tempFileName & ".xlsx"
-        
-        ws.Copy
-        Set wb = ActiveWorkbook
-        wb.SaveAs tempFileName, xlOpenXMLWorkbook
-        wb.Close False
-        ExportarHojaActivaAExcelINAI = True
-    Else
-        ExportarHojaActivaAExcelINAI = False
+        ActualizarGraficoSegunDicionario = False
     End If
     
     Exit Function
-
+    
 ErrorHandler:
-    ExportarHojaActivaAExcelINAI = False
-    MsgBox "Error al exportar la hoja activa a Excel: " & Err.Description, vbExclamation
+    MsgBox "Ocurrió un error: " & Err.Description, vbCritical
+    ActualizarGraficoSegunDicionario = False
 End Function
+
+Sub ActualizarGraficos(ByRef WordDoc As Object)
+    ' Actualizar todos los gráficos en el documento de Word
+    On Error Resume Next
+    
+    ' Recorrer todos los InlineShapes en el documento
+    Dim i As Integer
+    Dim chart As Object
+    Dim ChartData As Object
+    Dim ChartWorkbook As Object
+    
+    For i = 1 To WordDoc.InlineShapes.Count
+        With WordDoc.InlineShapes(i)
+            ' Verificar si el InlineShape es un gráfico (wdInlineShapeChart = 12)
+            If .Type = 12 And .HasChart Then
+                Set chart = .chart
+                If Not chart Is Nothing Then
+                    ' Activar los datos del gráfico
+                    Set ChartData = chart.ChartData
+                    If Not ChartData Is Nothing Then
+                        ChartData.Activate
+                        Set ChartWorkbook = ChartData.Workbook
+                        If Not ChartWorkbook Is Nothing Then
+                            ' Ocultar la ventana del libro de trabajo
+                            ChartWorkbook.Application.Visible = False
+                            ' Cerrar el libro de trabajo sin guardar cambios
+                            ChartWorkbook.Close SaveChanges:=False
+                        End If
+                        ' Refrescar el gráfico
+                        chart.Refresh
+                    End If
+                End If
+            End If
+        End With
+    Next i
+End Sub
 
 Sub GenerarReportesVulnsAppsINAI()
     Dim WordApp     As Object
@@ -1313,9 +1440,9 @@ Sub GenerarReportesVulnsAppsINAI()
     
     Dim resultado As Boolean
     
-      ' Llamar a la función para exportar la hoja activa a Excel
-    resultado = ExportarHojaActivaAExcelINAI(carpetaSalida, appName)
-
+    ' Llamar a la función para exportar la hoja activa a Excel
+    resultado = FunExportarHojaActivaAExcelINAI(carpetaSalida, appName)
+    
     If resultado Then
         MsgBox "Exportación completada exitosamente.", vbInformation
     Else
@@ -1487,104 +1614,58 @@ Sub GenerarReportesVulnsAppsINAI()
     ActualizarGraficoSegunDicionario WordDoc, severityCounts, 1
     
     ' Actualizar todos los gráficos en el documento
-    On Error Resume Next
-    Set WordDoc = ActiveDocument
+    ActualizarGraficos (WordDoc)
     
-    ' Recorrer todos los InlineShapes en el documento
-    For i = 1 To WordDoc.InlineShapes.Count
-        With WordDoc.InlineShapes(i)
-            If .Type = 12 And .HasChart Then        ' Tipo 12 corresponde a wdInlineShapeChart
-            Set chart = .chart
-            If Not chart Is Nothing Then
-                ' Activar el libro de trabajo asociado al gráfico
-                Set ChartData = chart.ChartData
-                If Not ChartData Is Nothing Then
-                    ChartData.Activate
-                    Set ChartWorkbook = ChartData.Workbook
-                    If Not ChartWorkbook Is Nothing Then
-                        ChartWorkbook.Application.Visible = False
-                        ' Intentar cerrar el libro de trabajo
-                        ChartWorkbook.Close SaveChanges:=False
-                    End If
-                    ' Refrescar el gráfico
-                    chart.Refresh
-                End If
-            End If
-        End If
+    ' Guardar el documento de reporte técnico final en la subcarpeta
+    WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe Técnico.docx"
+    WordDoc.Close False
+    
+    ' Actualizar el documento de reporte ejecutivo
+    Set WordDoc = WordApp.Documents.Open(tempDocPath2)
+    
+    Set rngReplace = WordDoc.content
+    rngReplace.Find.ClearFormatting
+    With rngReplace.Find
+        .text = "«Total de vulnerabilidades»"
+        .Replacement.text = totalVulnerabilidades
+        .Forward = True
+        .Wrap = 1        ' wdFindStop
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
     End With
-Next i
-
-' Guardar el documento de reporte técnico final en la subcarpeta
-WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe Técnico.docx"
-WordDoc.Close False
-
-' Actualizar el documento de reporte ejecutivo
-Set WordDoc = WordApp.Documents.Open(tempDocPath2)
-
-Set rngReplace = WordDoc.content
-rngReplace.Find.ClearFormatting
-With rngReplace.Find
-    .text = "«Total de vulnerabilidades»"
-    .Replacement.text = totalVulnerabilidades
-    .Forward = True
-    .Wrap = 1        ' wdFindStop
-    .Format = False
-    .MatchCase = False
-    .MatchWholeWord = False
-    .MatchWildcards = False
-    .MatchSoundsLike = False
-    .MatchAllWordForms = False
-End With
-
-If rngReplace.Find.Execute Then
-    rngReplace.text = totalVulnerabilidades
-End If
-
-' Actualizar el gráfico InlineShape número 1 en reporte ejecutivo
-ActualizarGraficoSegunDicionario WordDoc, severityCounts, 1
-
-' Actualizar el gráfico InlineShape número 2 en reporte ejecutivo
-ActualizarGraficoSegunDicionario WordDoc, vulntypesCounts, 2
-
-' Recorrer todos los InlineShapes en el documento
-For i = 1 To WordDoc.InlineShapes.Count
-    With WordDoc.InlineShapes(i)
-        If .Type = 12 And .HasChart Then        ' Tipo 12 corresponde a wdInlineShapeChart
-        Set chart = .chart
-        If Not chart Is Nothing Then
-            ' Activar el libro de trabajo asociado al gráfico
-            Set ChartData = chart.ChartData
-            If Not ChartData Is Nothing Then
-                ChartData.Activate
-                Set ChartWorkbook = ChartData.Workbook
-                If Not ChartWorkbook Is Nothing Then
-                    ChartWorkbook.Application.Visible = False
-                    ' Intentar cerrar el libro de trabajo
-                    ChartWorkbook.Close SaveChanges:=False
-                End If
-                ' Refrescar el gráfico
-                chart.Refresh
-            End If
-        End If
+    
+    If rngReplace.Find.Execute Then
+        rngReplace.text = totalVulnerabilidades
     End If
-End With
-Next i
-
-' Guardar el documento de reporte ejecutivo final en la subcarpeta
-WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
-WordDoc.Close False
-
-' Mover los documentos generados y el archivo consolidado a la subcarpeta de salida
-fileSystem.MoveFile finalDocumentPath, carpetaSalida & "\Tablas_vulnerabilidades.docx"
-
-' Cerrar la aplicación de Word
-WordApp.Quit
-Set WordDoc = Nothing
-Set WordApp = Nothing
-Set fileSystem = Nothing
-
-' Mostrar mensaje de éxito
-MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
+    
+    ' Actualizar el gráfico InlineShape número 1 en reporte ejecutivo
+    ActualizarGraficoSegunDicionario WordDoc, severityCounts, 1
+    
+    ' Actualizar el gráfico InlineShape número 2 en reporte ejecutivo
+    ActualizarGraficoSegunDicionario WordDoc, vulntypesCounts, 2
+    
+    ActualizarGraficos (WordDoc)
+    
+    ' Guardar el documento de reporte ejecutivo final en la subcarpeta
+    WordDoc.SaveAs2 carpetaSalida & "\SSIFO15-03 Informe Ejecutivo.docx"
+    WordDoc.Close False
+    
+    ' Mover los documentos generados y el archivo consolidado a la subcarpeta de salida
+    fileSystem.MoveFile finalDocumentPath, carpetaSalida & "\Tablas_vulnerabilidades.docx"
+    
+    ' Cerrar la aplicación de Word
+    WordApp.Quit
+    Set WordDoc = Nothing
+    Set WordApp = Nothing
+    Set fileSystem = Nothing
+    
+    ' Mostrar mensaje de éxito
+    MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
+
 
 
