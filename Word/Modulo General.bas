@@ -235,3 +235,38 @@ Sub BuscarPalabrasYGenerarCSV()
     MsgBox "Proceso completado. Archivo CSV generado: " & archivoCSV, vbInformation
 End Sub
 
+Sub ForzarRenumerarCaptionImagenes()
+
+    ' Definir variables
+    Dim rng As Range
+    Dim contador As Integer
+    Dim encontrado As Boolean
+    
+    ' Inicializar contador
+    contador = 1
+
+    ' Establecer el rango para buscar en todo el documento
+    Set rng = ActiveDocument.Content
+    
+    ' Inicializar la búsqueda
+    With rng.Find
+        .Text = "Imagen [0-9]{1,}:"
+        .MatchWildcards = True ' Usar comodines para encontrar números
+        .Forward = True
+        
+        ' Bucle para encontrar todas las ocurrencias
+        Do While .Execute
+            ' Verificar si se encontró el patrón
+            If .Found Then
+                ' Ajustar el texto encontrado con el nuevo número
+                rng.Text = "Imagen " & contador & ":"
+                contador = contador + 1 ' Incrementar el contador
+            End If
+        Loop
+    End With
+    
+    ' Notificar al usuario que se completó la renumeración
+    MsgBox "Renumeración de imágenes completada.", vbInformation
+
+End Sub
+
