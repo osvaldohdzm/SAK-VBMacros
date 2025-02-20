@@ -420,3 +420,100 @@ End Sub
 
 
 
+Sub GEN011_EnumerarCeldas()
+    Dim inicio As Long
+    Dim celda As Range
+    Dim seleccion As Range
+    Dim valorActual As Long
+    
+    ' Solicitar al usuario el número inicial
+    On Error Resume Next
+    inicio = Application.InputBox("Ingrese el número inicial:", "Inicio de Enumeración", Type:=1)
+    On Error GoTo 0
+    If inicio = 0 Or inicio = False Then Exit Sub ' Salir si se cancela o se ingresa un valor inválido
+    
+    valorActual = inicio ' Asignar el número inicial
+    
+    ' Iterar sobre las celdas seleccionadas
+    Set seleccion = Selection
+    For Each celda In seleccion
+        If Not celda.MergeCells Then ' Evitar celdas combinadas
+            celda.value = valorActual
+            valorActual = valorActual + 1
+        End If
+    Next celda
+    
+    MsgBox "Enumeración completada.", vbInformation
+End Sub
+
+
+
+
+Sub GEN012_VaciarTabla()
+    Dim ws As Worksheet
+    Dim tbl As ListObject
+    Dim rng As Range
+    
+    ' Obtener la hoja activa y la celda seleccionada
+    Set ws = ActiveSheet
+    Set rng = ActiveCell
+    
+    ' Verificar si la celda seleccionada está dentro de una tabla
+    On Error Resume Next
+    Set tbl = rng.ListObject
+    On Error GoTo 0
+    
+    If Not tbl Is Nothing Then
+        ' Confirmación antes de eliminar las filas
+        If MsgBox("¿Está seguro de que desea eliminar todas las filas de la tabla?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
+            ' Eliminar todas las filas de la tabla
+            On Error Resume Next
+            tbl.DataBodyRange.Delete
+            On Error GoTo 0
+            MsgBox "Se han eliminado todas las filas de la tabla.", vbInformation, "Proceso completado"
+        End If
+    Else
+        MsgBox "La celda seleccionada no está dentro de una tabla.", vbCritical, "Error"
+    End If
+    
+    ' Liberar variables
+    Set ws = Nothing
+    Set tbl = Nothing
+    Set rng = Nothing
+End Sub
+
+Sub GEN013_VaciarTablaAFilaEjemplo()
+    Dim ws As Worksheet
+    Dim tbl As ListObject
+    Dim rng As Range
+    
+    ' Obtener la hoja activa y la celda seleccionada
+    Set ws = ActiveSheet
+    Set rng = ActiveCell
+    
+    ' Verificar si la celda seleccionada está dentro de una tabla
+    On Error Resume Next
+    Set tbl = rng.ListObject
+    On Error GoTo 0
+    
+    If Not tbl Is Nothing Then
+        ' Confirmación antes de eliminar las filas
+        If MsgBox("¿Está seguro de que desea eliminar todas las filas excepto la primera?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
+            ' Eliminar todas las filas excepto la primera
+            On Error Resume Next
+            If tbl.ListRows.Count > 1 Then
+                tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
+            End If
+            On Error GoTo 0
+            MsgBox "Se han eliminado todas las filas excepto la primera.", vbInformation, "Proceso completado"
+        End If
+    Else
+        MsgBox "La celda seleccionada no está dentro de una tabla.", vbCritical, "Error"
+    End If
+    
+    ' Liberar variables
+    Set ws = Nothing
+    Set tbl = Nothing
+    Set rng = Nothing
+End Sub
+

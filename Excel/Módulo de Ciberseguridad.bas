@@ -523,7 +523,7 @@ Sub CYB030_AplicarFormatoCondicional()
     End With
 End Sub
 
-Sub ConvertirATextoEnOracion()
+Sub CYB033_ConvertirATextoEnOracion()
     Dim celda       As Range
     Dim Texto       As String
     Dim primeraLetra As String
