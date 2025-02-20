@@ -138,44 +138,37 @@ Sub CambiarMontserrat10a11()
     MsgBox "Cambio completado de Montserrat 10 a 11", vbInformation
 End Sub
 
-Sub FormatoNegritaViñetas()
+Sub GEN006_FormatoNegritaViñetas()
     Dim p As Paragraph
     Dim strTexto As String
-    Dim arrLineas As Variant
-    Dim i As Integer
     Dim posDosPuntos As Integer
     Dim rng As Range
-    
+
     ' Recorrer cada párrafo en la selección
     For Each p In Selection.Paragraphs
-        If p.Range.ListFormat.ListType = wdListBullet Then ' Verificar que sea una viñeta
+        ' Asignar el texto seleccionado a una cadena
+        strTexto = p.Range.Text
         
-            ' Asignar el texto seleccionado a una cadena
-            strTexto = p.Range.Text
-            
-            ' Dividir el texto en líneas
-            arrLineas = Split(strTexto, vbCrLf)
-            
-            ' Recorrer cada línea
-            For i = LBound(arrLineas) To UBound(arrLineas)
-                ' Obtener la posición de los dos puntos
-                posDosPuntos = InStr(arrLineas(i), ":")
-                
-                ' Seleccionar el texto desde el primer carácter hasta posDosPuntos y aplicar negrita
-                Set rng = p.Range
-                rng.MoveStart unit:=wdCharacter, count:=0
-                rng.MoveEnd unit:=wdCharacter, count:=posDosPuntos - 1
-                rng.Font.Bold = True
-                
-                ' Seleccionar el texto desde posDosPuntos hasta el final y quitar negrita
-                rng.MoveStart unit:=wdCharacter, count:=posDosPuntos - 1
-                rng.MoveEnd unit:=wdCharacter, count:=Len(arrLineas(i)) - posDosPuntos + 1
-                rng.Font.Bold = False
-            Next i
-            
+        ' Buscar la posición de los dos puntos
+        posDosPuntos = InStr(strTexto, ":")
+
+        ' Si se encuentran los dos puntos
+        If posDosPuntos > 0 Then
+            ' Seleccionar el rango desde el inicio hasta los dos puntos
+            Set rng = p.Range
+            rng.Start = p.Range.Start
+            rng.End = p.Range.Start + posDosPuntos - 1
+            rng.Font.Bold = True ' Aplicar negrita
+
+            ' Seleccionar el rango después de los dos puntos y quitar la negrita
+            Set rng = p.Range
+            rng.Start = p.Range.Start + posDosPuntos
+            rng.End = p.Range.End
+            rng.Font.Bold = False ' Quitar negrita
         End If
     Next p
 End Sub
+
 
 
 Sub BuscarPalabrasYGenerarCSV()
@@ -268,5 +261,118 @@ Sub ForzarRenumerarCaptionImagenes()
     ' Notificar al usuario que se completó la renumeración
     MsgBox "Renumeración de imágenes completada.", vbInformation
 
+End Sub
+
+Sub GEN_005_ReplacePicoParentesis()
+    Dim doc As Document
+    Dim rng As Range
+    Dim foundText As String
+    Dim newValue As String
+    Dim inputDict As Object
+    Dim headerFooter As headerFooter
+    Dim shape As shape
+
+    ' Inicializa el objeto para almacenar los valores ya reemplazados
+    Set inputDict = CreateObject("Scripting.Dictionary")
+
+    ' Establece el documento actual
+    Set doc = ActiveDocument
+
+    ' Recorre todo el contenido del documento, incluidos los encabezados y pies de página
+    Set rng = doc.Content
+
+    ' Define el patrón de búsqueda para las cadenas con pico paréntesis
+    With rng.Find
+        .Text = "«*»"
+        .MatchWildcards = True
+        .Forward = True
+
+        ' Realiza la búsqueda en todo el documento
+        Do While .Execute
+            foundText = rng.Text
+
+            ' Verifica si ya se solicitó el valor para esta cadena
+            If Not inputDict.Exists(foundText) Then
+                ' Solicita al usuario el nuevo valor
+                newValue = InputBox("Ingresa el nuevo valor para " & foundText, "Reemplazar texto")
+                
+                ' Almacena el valor ingresado o conserva el valor actual si está vacío
+                If newValue <> "" Then
+                    inputDict.Add foundText, newValue
+                Else
+                    inputDict.Add foundText, foundText
+                End If
+            End If
+
+            ' Reemplaza el texto con el valor ingresado o mantiene el original
+            If inputDict.Exists(foundText) Then
+                rng.Text = inputDict(foundText)
+            End If
+
+            ' Actualiza el rango para continuar la búsqueda
+            rng.Collapse wdCollapseEnd
+        Loop
+    End With
+
+    ' Recorre los encabezados y pies de página
+    For Each headerFooter In doc.Sections(1).Headers
+        Set rng = headerFooter.Range
+        Call ReplaceInRange(rng, inputDict)
+    Next headerFooter
+    
+    For Each headerFooter In doc.Sections(1).Footers
+        Set rng = headerFooter.Range
+        Call ReplaceInRange(rng, inputDict)
+    Next headerFooter
+    
+    ' Recorre las autormas en el documento (Shapes tipo msoTextBox)
+    For Each shape In doc.Shapes
+        If shape.Type = msoTextBox Then
+            ' Llama a la función ReplaceInRange para reemplazar texto dentro de la autorma
+            Call ReplaceInRange(shape.TextFrame.TextRange, inputDict)
+        End If
+    Next shape
+
+    ' Limpia los objetos
+    Set rng = Nothing
+    Set inputDict = Nothing
+End Sub
+
+Sub ReplaceInRange(rng As Range, inputDict As Object)
+    Dim foundText As String
+    Dim newValue As String
+    
+    ' Define el patrón de búsqueda para las cadenas con pico paréntesis
+    With rng.Find
+        .Text = "«*»"
+        .MatchWildcards = True
+        .Forward = True
+        
+        ' Realiza la búsqueda en el rango especificado
+        Do While .Execute
+            foundText = rng.Text
+
+            ' Verifica si ya se solicitó el valor para esta cadena
+            If Not inputDict.Exists(foundText) Then
+                ' Solicita al usuario el nuevo valor
+                newValue = InputBox("Ingresa el nuevo valor para " & foundText, "Reemplazar texto")
+                
+                ' Almacena el valor ingresado o conserva el valor actual si está vacío
+                If newValue <> "" Then
+                    inputDict.Add foundText, newValue
+                Else
+                    inputDict.Add foundText, foundText
+                End If
+            End If
+
+            ' Reemplaza el texto con el valor ingresado o mantiene el original
+            If inputDict.Exists(foundText) Then
+                rng.Text = inputDict(foundText)
+            End If
+
+            ' Actualiza el rango para continuar la búsqueda
+            rng.Collapse wdCollapseEnd
+        Loop
+    End With
 End Sub
 
