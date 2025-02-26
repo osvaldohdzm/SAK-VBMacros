@@ -13,7 +13,7 @@ End Sub
 
 Sub GEN004_CopyAsListSpaces()
     Dim cell As Range
-    Dim text As String
+    Dim Text As String
     Dim clipboard As Object
     
     ' Crear el objeto para el portapapeles
@@ -22,15 +22,15 @@ Sub GEN004_CopyAsListSpaces()
     ' Recorre las celdas seleccionadas
     For Each cell In Selection
         ' Añadir el contenido de cada celda a la cadena, separado por un espacio
-        If Len(text) > 0 Then
-            text = text & " " & cell.value
+        If Len(Text) > 0 Then
+            Text = Text & " " & cell.value
         Else
-            text = cell.value
+            Text = cell.value
         End If
     Next cell
     
     ' Colocar el texto en el portapapeles
-    clipboard.SetText text
+    clipboard.SetText Text
     clipboard.PutInClipboard
     
     ' Confirmación (opcional)
@@ -183,19 +183,19 @@ End Sub
 
 
 
-Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
+Function RegExpReplace(ByVal Text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
     ' Función para reemplazar utilizando expresiones regulares
-    Dim regEx As Object
-    Set regEx = CreateObject("VBScript.RegExp")
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
     
-    With regEx
+    With regex
         .Global = True
         .MultiLine = True
         .IgnoreCase = False
         .pattern = replacePattern
     End With
     
-    RegExpReplace = regEx.Replace(text, replaceWith)
+    RegExpReplace = regex.Replace(Text, replaceWith)
 End Function
 
 
@@ -377,7 +377,7 @@ Function translate_text(text_str As String, src_lang As String, trgt_lang As Str
     
     ' Realizar la solicitud HTTP
     xmlhttp.Open "GET", url_str, False
-    xmlhttp.send
+    xmlhttp.Send
     
     ' Obtener la respuesta
     responseText = xmlhttp.responseText
@@ -386,24 +386,24 @@ Function translate_text(text_str As String, src_lang As String, trgt_lang As Str
     translate_text = ParseTranslationResponse(responseText)
 End Function
 
-Function CheckIfHash(text As String) As Boolean
+Function CheckIfHash(Text As String) As Boolean
     ' Verificar si el texto parece un hash MD5 (32 caracteres hexadecimales)
     Dim pattern As String
-    Dim regEx As Object
+    Dim regex As Object
     
     pattern = "^[a-fA-F0-9]{32}$" ' Patrón para un hash MD5
     
     ' Crear objeto de expresión regular
-    Set regEx = CreateObject("VBScript.RegExp")
+    Set regex = CreateObject("VBScript.RegExp")
     
-    With regEx
+    With regex
         .Global = False
         .IgnoreCase = True
         .pattern = pattern
     End With
     
     ' Devolver True si el texto coincide con el patrón de hash
-    CheckIfHash = regEx.Test(text)
+    CheckIfHash = regex.Test(Text)
 End Function
 
 

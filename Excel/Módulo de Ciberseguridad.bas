@@ -387,7 +387,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -671,7 +671,19 @@ Sub CYB010_AgregarSaltosLineaATextoGuiones()
 End Sub
 
 
-Sub CYB011_ONLY_URLS_HTTP()
+Sub CYB011_BulletsAGuiones()
+
+ Dim celda As Range
+    For Each celda In Selection
+        If Not IsEmpty(celda.value) Then
+            celda.value = Replace(celda.value, "•", "-")
+        End If
+    Next celda
+    MsgBox "Reemplazo completado.", vbInformation, "Proceso Finalizado"
+End Sub
+
+
+Sub CYB011_MantererSoloURLSEnLinea()
 
     Dim celda As Range
     Dim contenido As String
@@ -822,7 +834,7 @@ End Sub
 
 
 
-Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
+Function RegExpReplace(ByVal Text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
     ' Función para reemplazar utilizando expresiones regulares
     Dim regex       As Object
     Set regex = CreateObject("VBScript.RegExp")
@@ -834,22 +846,22 @@ Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByV
         .pattern = replacePattern
     End With
     
-    RegExpReplace = regex.Replace(text, replaceWith)
+    RegExpReplace = regex.Replace(Text, replaceWith)
 End Function
 
-Function ReplaceHtmlEntities(ByVal text As String) As String
+Function ReplaceHtmlEntities(ByVal Text As String) As String
     ' Función para reemplazar entidades HTML con caracteres correspondientes
-    text = Replace(text, "&lt;", "<")
-    text = Replace(text, "&gt;", ">")
-    text = Replace(text, "&amp;", "&")
-    text = Replace(text, "&quot;", """")
-    text = Replace(text, "&apos;", "'")        ' Comillas simples
-    text = Replace(text, "&#x27;", "'")        ' Comillas simples
-    text = Replace(text, "&#34;", """")        ' Comillas dobles
-    text = Replace(text, "&#39;", "'")         ' Comillas simples
-    text = Replace(text, "&#160;", Chr(160))   ' Espacio no separable
+    Text = Replace(Text, "&lt;", "<")
+    Text = Replace(Text, "&gt;", ">")
+    Text = Replace(Text, "&amp;", "&")
+    Text = Replace(Text, "&quot;", """")
+    Text = Replace(Text, "&apos;", "'")        ' Comillas simples
+    Text = Replace(Text, "&#x27;", "'")        ' Comillas simples
+    Text = Replace(Text, "&#34;", """")        ' Comillas dobles
+    Text = Replace(Text, "&#39;", "'")         ' Comillas simples
+    Text = Replace(Text, "&#160;", Chr(160))   ' Espacio no separable
     
-    ReplaceHtmlEntities = text
+    ReplaceHtmlEntities = Text
 End Function
 
 Sub CYB026_OrdenaSegunColorRelleno()
@@ -917,7 +929,7 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
     metodoDeteccionKey = "«Método de detección»"
     
     ' Verificar si las claves están presentes en el diccionario
-    If replaceDic.exists(salidaPruebaSeguridadKey) And replaceDic.exists(metodoDeteccionKey) Then
+    If replaceDic.Exists(salidaPruebaSeguridadKey) And replaceDic.Exists(metodoDeteccionKey) Then
         ' Obtener los valores de las claves
         salidaPruebaSeguridadValue = CStr(replaceDic(salidaPruebaSeguridadKey))
         metodoDeteccionValue = CStr(replaceDic(metodoDeteccionKey))
@@ -1028,7 +1040,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
         ' Agregar el encabezado con el estilo correspondiente
         If Trim(seccion) <> "" Then
             With docWord.content.Paragraphs.Add
-                .Range.text = seccion
+                .Range.Text = seccion
                 .Range.Style = docWord.Styles(estilo)
                 .Range.InsertParagraphAfter
             End With
@@ -1038,7 +1050,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
         ' Agregar un párrafo con la descripción
         If Trim(descripcion) <> "" Then
             With docWord.content.Paragraphs.Add
-                .Range.text = descripcion
+                .Range.Text = descripcion
                 .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el párrafo de descripción
                 .Format.SpaceBefore = 12        ' Espacio antes del párrafo para separación
             End With
@@ -1074,7 +1086,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
                                                 Title:="", Position:=1        ' wdCaptionPositionBelow, ExcludeLabel:=0
                 appWord.Selection.ParagraphFormat.Alignment = 1        ' wdAlignParagraphCenter
                 
-                docWord.content.InsertAfter text:=" " & seccion
+                docWord.content.InsertAfter Text:=" " & seccion
                 
                 ' Agregar un párrafo vacío después del caption para separación
                 docWord.content.InsertParagraphAfter
@@ -1087,7 +1099,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
         ' Agregar el párrafo de resultados si no está vacío
         If Trim(parrafoResultados) <> "" Then
             With docWord.content.Paragraphs.Add
-                .Range.text = parrafoResultados
+                .Range.Text = parrafoResultados
                 .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el párrafo de resultados
                 .Format.SpaceBefore = 12        ' Espacio antes del párrafo para separación
             End With
@@ -1142,7 +1154,7 @@ Sub CYB017_LimpiarColumnaReferencias()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -1228,8 +1240,8 @@ Sub CYB019_WordAppAlternativeReplaceParagraph(WordApp As Object, WordDoc As Obje
     
     ' Configurar la búsqueda
     With rng.Find
-        .text = wordToFind
-        .Replacement.text = replaceWord
+        .Text = wordToFind
+        .Replacement.Text = replaceWord
         .Forward = True
         .Wrap = 1        ' wdFindContinue
         .Format = False
@@ -1559,7 +1571,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     ts.Close
     
     ' Extraer el nombre de la Aplicación del diccionario
-    If replaceDic.exists("«Aplicación»") Then
+    If replaceDic.Exists("«Aplicación»") Then
         appName = replaceDic("«Aplicación»")
     Else
         MsgBox "No se encontró el campo        'Aplicación' en el archivo CSV.", vbExclamation
@@ -1701,7 +1713,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         severity = rng.Cells(i, severidadColumna).value
         If severity <> "" Then
-            If severityCounts.exists(severity) Then
+            If severityCounts.Exists(severity) Then
                 severityCounts(severity) = severityCounts(severity) + 1
             Else
                 severityCounts.Add severity, 1
@@ -1730,7 +1742,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         vulntypes = rng.Cells(i, tiposvulnerabilidadColumna).value
         If vulntypes <> "" Then
-            If vulntypesCounts.exists(vulntypes) Then
+            If vulntypesCounts.Exists(vulntypes) Then
                 vulntypesCounts(vulntypes) = vulntypesCounts(vulntypes) + 1
             Else
                 vulntypesCounts.Add vulntypes, 1
@@ -1739,10 +1751,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Next i
     
     ' Inicializar conteos
-    countBAJA = IIf(severityCounts.exists("BAJA"), severityCounts("BAJA"), 0)
-    countMEDIA = IIf(severityCounts.exists("MEDIA"), severityCounts("MEDIA"), 0)
-    countALTA = IIf(severityCounts.exists("ALTA"), severityCounts("ALTA"), 0)
-    countCRITICAS = IIf(severityCounts.exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
+    countBAJA = IIf(severityCounts.Exists("BAJA"), severityCounts("BAJA"), 0)
+    countMEDIA = IIf(severityCounts.Exists("MEDIA"), severityCounts("MEDIA"), 0)
+    countALTA = IIf(severityCounts.Exists("ALTA"), severityCounts("ALTA"), 0)
+    countCRITICAS = IIf(severityCounts.Exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
     
     ' Calcular total de vulnerabilidades
     totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
@@ -1794,8 +1806,8 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
     With rngReplace.Find
-        .text = secVulnerabilidades
-        .Replacement.text = ""
+        .Text = secVulnerabilidades
+        .Replacement.Text = ""
         .Forward = True
         .Wrap = 1        ' wdFindStop
         .Format = False
@@ -1807,7 +1819,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     End With
     
     If rngReplace.Find.Execute Then
-        rngReplace.text = ""
+        rngReplace.Text = ""
         rngReplace.InsertFile finalDocumentPath
     End If
     
@@ -1815,8 +1827,8 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
     With rngReplace.Find
-        .text = "«Total de vulnerabilidades»"
-        .Replacement.text = totalVulnerabilidades
+        .Text = "«Total de vulnerabilidades»"
+        .Replacement.Text = totalVulnerabilidades
         .Forward = True
         .Wrap = 1        ' wdFindStop
         .Format = False
@@ -1828,7 +1840,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     End With
     
     If rngReplace.Find.Execute Then
-        rngReplace.text = totalVulnerabilidades
+        rngReplace.Text = totalVulnerabilidades
     End If
     
     ' Actualizar el gráfico InlineShape námero 1 en reporte técnico
@@ -1861,8 +1873,8 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
     With rngReplace.Find
-        .text = "«Total de vulnerabilidades»"
-        .Replacement.text = totalVulnerabilidades
+        .Text = "«Total de vulnerabilidades»"
+        .Replacement.Text = totalVulnerabilidades
         .Forward = True
         .Wrap = 1        ' wdFindStop
         .Format = False
@@ -1874,7 +1886,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     End With
     
     If rngReplace.Find.Execute Then
-        rngReplace.text = totalVulnerabilidades
+        rngReplace.Text = totalVulnerabilidades
     End If
     
     ' Actualizar el gráfico InlineShape námero 1 en reporte ejecutivo
@@ -1983,7 +1995,7 @@ Sub CYB003_GenerarReportesVulns()
         key = "«" & headerRow.Cells(1, i).value & "»"
         
         ' Verificar si la clave ya existe en el diccionario
-        If replaceDic.exists(key) Then
+        If replaceDic.Exists(key) Then
             MsgBox "Se ha encontrado un encabezado duplicado: " & headerRow.Cells(1, i).value & _
                    vbCrLf & "Por favor, corrige los encabezados duplicados y vuelve a ejecutar la macro.", vbExclamation
             Exit Sub
@@ -1995,7 +2007,7 @@ Sub CYB003_GenerarReportesVulns()
     Next i
     
     ' Extraer el nombre de la Aplicación
-    If replaceDic.exists("«Nombre de carpeta»") Then
+    If replaceDic.Exists("«Nombre de carpeta»") Then
         folderName = replaceDic("«Nombre de carpeta»")
     Else
         MsgBox "No se encontró el campo        'Nombre de carpeta'.", vbExclamation
@@ -2008,12 +2020,12 @@ Sub CYB003_GenerarReportesVulns()
     MkDir carpetaSalida
     On Error GoTo 0
     
-    If replaceDic.exists("«Tipo de reporte»") Then
+    If replaceDic.Exists("«Tipo de reporte»") Then
         Select Case replaceDic("«Tipo de reporte»")
             Case "Técnico"
                 
                 ' Obtener la ruta de la plantilla directamente de la celda de la tabla
-                If replaceDic.exists("«Ruta de la plantilla»") Then
+                If replaceDic.Exists("«Ruta de la plantilla»") Then
                     plantillaReportePath = replaceDic("«Ruta de la plantilla»")
                 Else
                     MsgBox "No se encontró el campo        'Ruta de la plantilla'.", vbExclamation
@@ -2173,7 +2185,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
         ' Configurar la búsqueda
         With WordApp.Selection.Find
             .ClearFormatting
-            .text = key
+            .Text = key
             .Forward = True
             .Wrap = 1        ' wdFindStop (detiene la búsqueda al final)
             .Format = False
@@ -2187,7 +2199,7 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
             findInRange = .Execute
             Do While findInRange
                 ' Realizar el reemplazo
-                WordApp.Selection.text = CStr(replaceDic(key))
+                WordApp.Selection.Text = CStr(replaceDic(key))
                 ' Continuar buscando la siguiente ocurrencia
                 findInRange = .Execute
             Loop
@@ -2376,7 +2388,7 @@ End Function
 Sub FormatRiskLevelCell(cell As Object)
     Dim cellText    As String
     ' Obtener el texto de la celda y eliminar los caracteres especiales
-    cellText = Replace(cell.Range.text, vbCrLf, "")
+    cellText = Replace(cell.Range.Text, vbCrLf, "")
     cellText = Replace(cellText, vbCr, "")
     cellText = Replace(cellText, vbLf, "")
     cellText = Replace(cellText, Chr(7), "")
@@ -2398,7 +2410,7 @@ Sub FormatRiskLevelCell(cell As Object)
     End Select
 End Sub
 
-Function TransformText(text As String) As String
+Function TransformText(Text As String) As String
     Dim regex       As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -2411,7 +2423,7 @@ Function TransformText(text As String) As String
     End With
     
     ' Realizar la transformación: quitar caracteres especiales y aplicar la expresión regular
-    TransformText = regex.Replace(Replace(text, Chr(7), ""), "$1 ")
+    TransformText = regex.Replace(Replace(Text, Chr(7), ""), "$1 ")
 End Function
 
 Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Object, graficoIndex As Integer) As Boolean
@@ -2570,8 +2582,8 @@ Sub WordAppReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As 
     
     ' Configurar las opciones de búsqueda
     With searchRange.Find
-        .text = wordToFind
-        .Replacement.text = ""
+        .Text = wordToFind
+        .Replacement.Text = ""
         .Forward = True
         .Wrap = wdFindContinue
         .Format = False
@@ -2585,7 +2597,7 @@ Sub WordAppReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As 
     ' Bucle para buscar y reemplazar todas las ocurrencias
     Do While searchRange.Find.Execute
         ' Reemplazar el texto encontrado con la cadena larga
-        searchRange.text = replaceWord
+        searchRange.Text = replaceWord
         
         ' Mover el rango al siguiente texto para evitar bucles infinitos
         searchRange.Collapse Direction:=wdCollapseEnd
@@ -2929,7 +2941,7 @@ Set regex = CreateObject("VBScript.RegExp")
     ' Definir los campos requeridos en la tabla
     requiredFields = Array("Severidad", "Nombre de vulnerabilidad", "Salidas de herramienta", "IPv4 Interna", "Puerto")
     For Each field In requiredFields
-        If Not dict.exists(field) Then
+        If Not dict.Exists(field) Then
             MsgBox "La columna '" & field & "' no se encontró en la tabla.", vbExclamation
             Exit Sub
         End If
@@ -2945,13 +2957,13 @@ End With
 For Each resultNode In resultNodes
     Set fila = tbl.ListRows.Add
     On Error Resume Next
-    fila.Range.Cells(1, dict("Severidad")).value = Trim(resultNode.SelectSingleNode("severity").text)
-    fila.Range.Cells(1, dict("Nombre de vulnerabilidad")).value = Trim(resultNode.SelectSingleNode("name").text)
-    fila.Range.Cells(1, dict("Salidas de herramienta")).value = Trim(resultNode.SelectSingleNode("description").text)
-    fila.Range.Cells(1, dict("IPv4 Interna")).value = Trim(resultNode.SelectSingleNode("host").text)
+    fila.Range.Cells(1, dict("Severidad")).value = Trim(resultNode.SelectSingleNode("severity").Text)
+    fila.Range.Cells(1, dict("Nombre de vulnerabilidad")).value = Trim(resultNode.SelectSingleNode("name").Text)
+    fila.Range.Cells(1, dict("Salidas de herramienta")).value = Trim(resultNode.SelectSingleNode("description").Text)
+    fila.Range.Cells(1, dict("IPv4 Interna")).value = Trim(resultNode.SelectSingleNode("host").Text)
 
     ' Extract port number only
-    fila.Range.Cells(1, dict("Puerto")).value = regex.Replace(Trim(resultNode.SelectSingleNode("port").text), "")
+    fila.Range.Cells(1, dict("Puerto")).value = regex.Replace(Trim(resultNode.SelectSingleNode("port").Text), "")
 
     On Error GoTo 0
 Next resultNode
@@ -2963,7 +2975,7 @@ End Sub
 
 
 
-Sub CYB040_ResaltarIgualesEnVerde()
+Sub CYB040_ResaltarFalsosPositivosEnVerde()
    Dim ws As Worksheet
     Dim tbl As ListObject
     Dim celda As Range
@@ -3012,7 +3024,7 @@ Sub CYB040_ResaltarIgualesEnVerde()
     Dim coincidencias As Boolean
     coincidencias = False
     For Each celda In Selection
-        If valoresTabla.exists(celda.value) Then
+        If valoresTabla.Exists(celda.value) Then
             celda.Interior.Color = RGB(0, 255, 0) ' Verde chillón
             coincidencias = True
         End If
@@ -3087,7 +3099,7 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     End If
     
     ' Verificar si el tipo de origen está en el diccionario
-    If Not dictColumnas.exists(tipoOrigen) Then
+    If Not dictColumnas.Exists(tipoOrigen) Then
         MsgBox "El tipo de origen '" & tipoOrigen & "' no tiene una columna asignada en la tabla de catálogo.", vbExclamation, "Error"
         Exit Sub
     End If
@@ -3163,7 +3175,7 @@ Sub CYB042_Standardize()
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
         If key <> "" Then
-            If Not dict.exists(key) Then
+            If Not dict.Exists(key) Then
                 dict.Add key, CreateObject("Scripting.Dictionary")
             End If
             
@@ -3181,10 +3193,10 @@ Sub CYB042_Standardize()
     ' Rellenar valores en base a los datos agrupados
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
-        If key <> "" And dict.exists(key) Then
+        If key <> "" And dict.Exists(key) Then
             For Each colName In colIndex.keys
                 colNum = colIndex(colName)
-                If ws.Cells(i, colNum).value = "" And dict(key).exists(colName) Then
+                If ws.Cells(i, colNum).value = "" And dict(key).Exists(colName) Then
                     ws.Cells(i, colNum).value = dict(key)(colName)
                 End If
             Next
@@ -3261,43 +3273,50 @@ Sub CYB043_AplicarFormatoCondicional()
 End Sub
 
 Sub CYB061_LLM_llama3_2_1b()
-    Dim http As Object
+     Dim http As Object
     Dim JSONBody As String
     Dim response As String
     Dim Vulnerabilidad As String
     Dim extractedResponse As String
+    Dim cell As Range
     
-    ' Obtener el valor de la celda activa
-    If Not IsEmpty(ActiveCell.value) Then
-        Vulnerabilidad = ActiveCell.value
-    Else
-        MsgBox "Seleccione una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
+    ' Verificar si hay celdas seleccionadas
+    If Selection.Cells.Count = 0 Then
+        MsgBox "Seleccione al menos una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
         Exit Sub
     End If
     
-    ' Construcción del prompt
-    Dim prompt As String
-    prompt = ConstruirPrompt(Vulnerabilidad)
-    
-    ' Crear el cuerpo del JSON
-    JSONBody = "{""model"": ""deepseek-r1:1.5b"", ""prompt"": """ & Replace(prompt, """", "\""") & """, ""stream"": false}"
-    
-    ' Enviar la solicitud HTTP
+    ' Crear objeto HTTP
     Set http = CreateObject("MSXML2.XMLHTTP")
-    With http
-        .Open "POST", "http://localhost:11434/api/generate", False
-        .setRequestHeader "Content-Type", "application/json"
-        .Send JSONBody
-        response = .responseText
-    End With
     
-    ' Extraer solo el valor de "response.response"
-    extractedResponse = ExtraerRespuesta(response)
-    
-    
-    
-    ' Reemplazar el contenido de la celda activa con la respuesta obtenida
-    ActiveCell.value = RemoveInitialBreaks(RemoveThinkTags(extractedResponse))
+    ' Recorrer cada celda en la selección
+    For Each cell In Selection
+        ' Verificar si la celda no está vacía
+        If Not IsEmpty(cell.value) Then
+            Vulnerabilidad = cell.value
+            
+            ' Construcción del prompt
+            Dim prompt As String
+            prompt = ConstruirPrompt(Vulnerabilidad)
+            
+            ' Crear el cuerpo del JSON
+            JSONBody = "{""model"": ""llama3.2:1b"", ""prompt"": """ & Replace(prompt, """", "\""") & """, ""stream"": false}"
+            
+            ' Enviar la solicitud HTTP
+            With http
+                .Open "POST", "http://localhost:11434/api/generate", False
+                .setRequestHeader "Content-Type", "application/json"
+                .Send JSONBody
+                response = .responseText
+            End With
+            
+            ' Extraer solo el valor de "response.response"
+            extractedResponse = ExtraerRespuesta(response)
+            
+            ' Asignar la respuesta a la celda correspondiente
+            cell.value = extractedResponse
+        End If
+    Next cell
     
     ' Liberar objeto HTTP
     Set http = Nothing
@@ -3310,38 +3329,45 @@ Sub CYB060_LLLM_deepseek_r1_1_5b()
     Dim response As String
     Dim Vulnerabilidad As String
     Dim extractedResponse As String
+    Dim cell As Range
     
-    ' Obtener el valor de la celda activa
-    If Not IsEmpty(ActiveCell.value) Then
-        Vulnerabilidad = ActiveCell.value
-    Else
-        MsgBox "Seleccione una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
+    ' Verificar si hay celdas seleccionadas
+    If Selection.Cells.Count = 0 Then
+        MsgBox "Seleccione al menos una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
         Exit Sub
     End If
     
-    ' Construcción del prompt
-    Dim prompt As String
-    prompt = ConstruirPrompt(Vulnerabilidad)
-    
-    ' Crear el cuerpo del JSON
-    JSONBody = "{""model"": ""deepseek-r1:1.5b"", ""prompt"": """ & Replace(prompt, """", "\""") & """, ""stream"": false}"
-    
-    ' Enviar la solicitud HTTP
+    ' Crear objeto HTTP
     Set http = CreateObject("MSXML2.XMLHTTP")
-    With http
-        .Open "POST", "http://localhost:11434/api/generate", False
-        .setRequestHeader "Content-Type", "application/json"
-        .Send JSONBody
-        response = .responseText
-    End With
     
-    ' Extraer solo el valor de "response.response"
-    extractedResponse = ExtraerRespuesta(response)
-    
-    
-    ActiveCell.value = extractedResponse
-    ' Reemplazar el contenido de la celda activa con la respuesta obtenida
-    'ActiveCell.value = RemoveInitialBreaks(RemoveThinkTags(extractedResponse))
+    ' Recorrer cada celda en la selección
+    For Each cell In Selection
+        ' Verificar si la celda no está vacía
+        If Not IsEmpty(cell.value) Then
+            Vulnerabilidad = cell.value
+            
+            ' Construcción del prompt
+            Dim prompt As String
+            prompt = ConstruirPrompt(Vulnerabilidad)
+            
+            ' Crear el cuerpo del JSON
+            JSONBody = "{""model"": ""deepseek-r1:1.5b"", ""prompt"": """ & Replace(prompt, """", "\""") & """, ""stream"": false}"
+            
+            ' Enviar la solicitud HTTP
+            With http
+                .Open "POST", "http://localhost:11434/api/generate", False
+                .setRequestHeader "Content-Type", "application/json"
+                .Send JSONBody
+                response = .responseText
+            End With
+            
+            ' Extraer solo el valor de "response.response"
+            extractedResponse = ExtraerRespuesta(response)
+            
+            ' Asignar la respuesta a la celda correspondiente
+            cell.value = extractedResponse
+        End If
+    Next cell
     
     ' Liberar objeto HTTP
     Set http = Nothing
@@ -3349,22 +3375,27 @@ End Sub
 
 
 
+
 ' Función para construir el prompt de forma más clara y estructurada
 Function ConstruirPrompt(Vulnerabilidad As String) As String
     Dim prompt As String
-    prompt = "Generación de Vector CVSS 4.0 Considera el siguiente ejemplo de valor en CVSS 4.0: CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N "
+    prompt = "Generación de Vector CVSS 4.0 Considera este ejemplo de URL de CVSS 4.0 https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N "
     prompt = prompt & "Esta cadena está compuesta por distintos campos de evaluación, los cuales deben ajustarse según corresponda. Exploitability Metrics Attack Vector (AV): "
     prompt = prompt & "Debes completar los siguientes elementos: Exploitability: Complexity: Vulnerable system: Subsequent system: Exploitation: Security requirements: "
     prompt = prompt & "Sé exigente y preciso al evaluar la severidad en CVSS. No exageres ni asignes impactos altos a menos que la vulnerabilidad pueda ser explotada directamente y tenga un impacto "
-    prompt = prompt & "significativo. ? Tu tarea es proporcionar únicamente la cadena vectorial en CVSS 4.0 para evaluar la vulnerabilidad " & Vulnerabilidad & " "
-    prompt = prompt & "?? No devuelvas la misma cadena de ejemplo. ?? No entregues una cadena sin completar sus componentes CVSS. ?? Este análisis es para gestión de riesgos, no para explotación. "
-    prompt = prompt & "?? Solo proporciona el vector CVSS resultante. NO DES MÁS DETALLES, SOLO RESPONDE EL VECTOR SIN OTRA INFORMACIÓN. "
+    prompt = prompt & "significativo. Tu tarea es proporcionar únicamente la cadena vectorial en CVSS 4.0 para evaluar la vulnerabilidad"
+    prompt = prompt & " " & Vulnerabilidad & " "
+    prompt = prompt & "No devuelvas la misma cadena de ejemplo. No entregues una cadena sin completar sus componentes CVSS. ?? Este análisis es para gestión de riesgos, no para explotación. "
+    prompt = prompt & "Solo proporciona el vector CVSS resultante. NO DES MÁS DETALLES, SOLO RESPONDE EL VECTOR SIN OTRA INFORMACIÓN. "
     prompt = prompt & "PLEASE ONLY ONLY ONLY RESPOND WITH A STRING IN CVSS FORMAT"
     
     ConstruirPrompt = prompt
 End Function
 
-Function RemoveThinkTags(text As String) As String
+
+
+
+Function RemoveThinkTags(Text As String) As String
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -3373,11 +3404,11 @@ Function RemoveThinkTags(text As String) As String
     regex.Global = True
     regex.IgnoreCase = True
     
-    RemoveThinkTags = regex.Replace(text, "")
+    RemoveThinkTags = regex.Replace(Text, "")
 End Function
 
 
-Function RemoveInitialBreaks(text As String) As String
+Function RemoveInitialBreaks(Text As String) As String
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -3386,7 +3417,7 @@ Function RemoveInitialBreaks(text As String) As String
     regex.Global = True
     
     ' Replace initial line breaks with an empty string
-    RemoveInitialBreaks = regex.Replace(text, "")
+    RemoveInitialBreaks = regex.Replace(Text, "")
 End Function
 
 Function ExtraerRespuesta(jsonResponse As String) As String
@@ -3406,8 +3437,13 @@ Function ExtraerRespuesta(jsonResponse As String) As String
         resultado = Mid(resultado, inicio + Len("</think>"))
     End If
     
-        ' Find ","done" and remove everything after it
-    fin = InStr(resultado, ",""done""")
+    inicio = InStr(resultado, """response"":""")
+    
+    If inicio > 0 Then
+        resultado = Mid(resultado, inicio + Len("""response"":"""))
+    End If
+   
+    fin = InStr(resultado, """,""done""")
     
     If fin > 0 Then
         resultado = Left(resultado, fin - 1)
@@ -3415,5 +3451,242 @@ Function ExtraerRespuesta(jsonResponse As String) As String
 
     ExtraerRespuesta = Trim(resultado)
 End Function
+
+
+Function ExtraerCVSS(jsonResponse As String) As String
+    Dim resultado As String
+    Dim inicio As Integer
+    Dim fin As Integer
+    
+    ' Eliminar posibles caracteres de escape y limpiar el JSON
+    resultado = Replace(jsonResponse, "\u003c", "<")
+    resultado = Replace(resultado, "\u003e", ">")
+    resultado = Replace(resultado, "\n", "")
+    resultado = Replace(resultado, "\t", "")
+    
+    ' Buscar la clave "text": "
+    inicio = InStr(resultado, """text"": """)
+    
+    If inicio > 0 Then
+        ' Extraer el texto después de "text": "
+        resultado = Mid(resultado, inicio + Len("""text"": """))
+        
+        ' Buscar la posición final antes del cierre de comillas
+        fin = InStr(resultado, """")
+        If fin > 0 Then
+            resultado = Left(resultado, fin - 1)
+        End If
+    Else
+        resultado = "No se encontró CVSS"
+    End If
+
+    ' Retornar el CVSS extraído
+    ExtraerCVSS = Trim(resultado)
+End Function
+
+
+
+Sub GetGeminiResponsesCVSS4()
+    Dim cell As Range
+    Dim http As Object
+    Dim json As Object
+    Dim apiUrl As String
+    Dim apiKey As String
+    Dim requestData As String
+    Dim responseText As String
+    Dim answerID As String
+    
+    ' Clave de API de Gemini (reemplázala con la tuya) AIzaSyBbd_upGJ2JzdsmWSzNBvSr3mXiPo9h4bs  AIzaSyADfixgVHPBXyY60ivLUYo3rCJTQtZ_M7g
+    apiKey = "AIzaSyBbd_upGJ2JzdsmWSzNBvSr3mXiPo9h4bs"
+    apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" & apiKey
+
+       ' Crear el objeto HTTP
+    Set http = CreateObject("MSXML2.XMLHTTP")
+
+    ' Iterar sobre cada celda seleccionada
+    For Each cell In Selection
+     
+     Dim promptvalue As String
+     promptvalue = ConstruirPrompt(cell.value)
+    
+    
+        ' Construir el prompt con la pregunta de la celda
+        requestData = "{""contents"": [{""parts"": [{""text"": """ & promptvalue & """}]}]}"
+
+
+        ' Enviar la solicitud HTTP
+        With http
+            .Open "POST", apiUrl, False
+            .setRequestHeader "Content-Type", "application/json"
+            .Send requestData
+        End With
+
+        ' Procesar la respuesta
+        If http.Status = 200 Then
+            responseText = http.responseText
+            Debug.Print "Response: " & responseText ' Imprime la respuesta completa en la ventana inmediata
+
+            ' Intentar analizar JSON
+            On Error Resume Next
+            Set json = JsonConverter.ParseJson(responseText)
+            On Error GoTo 0
+
+            ' Validar JSON
+            If Not json Is Nothing Then
+                If json.Exists("candidates") And json("candidates").Count > 0 Then
+                    If json("candidates")(0).Exists("content") And json("candidates")(0)("content").Exists("parts") Then
+                        If json("candidates")(0)("content")("parts").Count > 0 Then
+                            answerID = json("candidates")(0)("content")("parts")(0)("text")
+                        Else
+                            answerID = "No CVSS data"
+                        End If
+                    Else
+                        answerID = "Invalid response format"
+                    End If
+                Else
+                    answerID = "No candidates found"
+                End If
+            Else
+                answerID = "Error parsing JSON"
+            End If
+        Else
+            answerID = "HTTP Error: " & http.Status
+            Debug.Print "Response: " & responseText ' Imprime la respuesta completa en la ventana inmediata
+        End If
+
+        ' Colocar la respuesta en la celda adyacente
+        cell.Offset(0, 1).value = ExtraerCVSS(responseText)
+    Next cell
+
+    ' Liberar objetos
+    Set http = Nothing
+    Set json = Nothing
+
+    MsgBox "Procesamiento completado.", vbInformation
+End Sub
+
+
+Sub CYB071_PreparePromptFromSelection_DescripcionVuln_OnVPN()
+    Dim celda As Range
+    Dim listaVulnerabilidades As String
+    Dim prompt As String
+    
+    ' Inicializar la variable que almacenará las vulnerabilidades
+    listaVulnerabilidades = ""
+    
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de línea y comas
+    For Each celda In Selection
+        If Not IsEmpty(celda.value) Then
+            If listaVulnerabilidades <> "" Then
+                listaVulnerabilidades = listaVulnerabilidades & "," & vbCrLf
+            End If
+            listaVulnerabilidades = listaVulnerabilidades & celda.value
+        End If
+    Next celda
+    
+    ' Construir el prompt final
+    If listaVulnerabilidades <> "" Then
+        prompt = "Redacta un párrafo técnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistema…-. Explica en qué consiste la debilidad de seguridad de manera técnica. No incluyas escenarios de explotación, ya que eso corresponde a otro campo. No describas cómo se explota, solo en qué consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
+        prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
+        prompt = prompt & "Contexto de análisis: Análisis de vulnerabilidades de infraestructura a partir conexion a red VPN. Vulnerabilidad detectada mediante escaneo e interacciones desde red privada VPN."
+
+        
+        ' Copiar el prompt generado al portapapeles
+        CopyToClipboard prompt
+        
+        ' Mostrar un mensaje informativo
+        MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
+    Else
+        MsgBox "No se encontraron valores en la selección.", vbExclamation, "Sin Datos"
+    End If
+End Sub
+
+
+
+Sub CYB072_PreparePromptFromSelection_AmenazaVuln_OnVPN()
+    Dim celda As Range
+    Dim listaVulnerabilidades As String
+    Dim prompt As String
+    
+    ' Inicializar la variable que almacenará las vulnerabilidades
+    listaVulnerabilidades = ""
+    
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de línea y comas
+    For Each celda In Selection
+        If Not IsEmpty(celda.value) Then
+            If listaVulnerabilidades <> "" Then
+                listaVulnerabilidades = listaVulnerabilidades & "," & vbCrLf
+            End If
+            listaVulnerabilidades = listaVulnerabilidades & celda.value
+        End If
+    Next celda
+    
+    ' Construir el prompt final
+    If listaVulnerabilidades <> "" Then
+        ' prompt = prompt & ""
+        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podría (obtener, realizar, ejecutar, visualizar, identificar, listar)… Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): •  Malware: Un malware diseñado para automatizar intentos de fuerza bruta podría explotar la vulnerabilidad para… •    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podría aprovecharla para… •    Personal interno: Un empleado con acceso y conocimientos técnicos podría, intencionalmente o por error,… •  Delincuente cibernético: Un atacante externo en busca de vulnerabilidades podría intentar explotar esta debilidad para… Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque más relevantes, ya que no todos aplican en todos los casos. "
+        prompt = prompt & "2.   Redacta una descripción de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podría…-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el más realista o probable. 4.   En las viñetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un análisis de vulnerabilidades de infraestructura desde una red privada, específicamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde red privada-. Formato de respuesta: •    Responde en una tabla de dos columnas. •    Para cada vulnerabilidad, redacta un párrafo descriptivo en la primera columna (mínimo 75 palabras). •  En la segunda columna, lista los vectores de ataque con viñetas (usando guiones  - ). • No uses HTML, solo texto plano. Ejemplo de estructura: Descripción de la amenaza    Vectores de ataque Un atacante podría explotar esta vulnerabilidad para acceder a información"
+        prompt = prompt & "confidencial Esta amenaza es particularmente crítica en sistemas internos donde los controles de seguridad son menos estrictos."
+        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podría ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podría... (probabilidad baja). - Delincuente cibernético: Un atacante externo podría... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VIÑETAS DENTRO DE ALS CELDAS"
+        prompt = prompt & "Se detecto mediante VPN red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
+        prompt = prompt & "SOLO DOS columnas, nombre y amenaza"
+        prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
+          
+        ' Copiar el prompt generado al portapapeles
+        CopyToClipboard prompt
+        
+        ' Mostrar un mensaje informativo
+        MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
+    Else
+        MsgBox "No se encontraron valores en la selección.", vbExclamation, "Sin Datos"
+    End If
+End Sub
+
+
+Sub CYB073_PreparePromptFromSelection_PropuestaRemediacionVuln_OnVPN()
+    Dim celda As Range
+    Dim listaVulnerabilidades As String
+    Dim prompt As String
+    
+    ' Inicializar la variable que almacenará las vulnerabilidades
+    listaVulnerabilidades = ""
+    
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de línea y comas
+    For Each celda In Selection
+        If Not IsEmpty(celda.value) Then
+            If listaVulnerabilidades <> "" Then
+                listaVulnerabilidades = listaVulnerabilidades & "," & vbCrLf
+            End If
+            listaVulnerabilidades = listaVulnerabilidades & celda.value
+        End If
+    Next celda
+    
+    ' Construir el prompt final
+    If listaVulnerabilidades <> "" Then
+        ' prompt = prompt & ""
+        prompt = "Hola, por favor Redacta como un pentester un párrafo técnico de propuesta de remediación que comience con la frase: -Se recomienda…-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera más puntual que se pod´ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducción y luego viñetas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomienda…- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
+           prompt = prompt & "Se detecto mediante VPN red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
+          prompt = prompt & "Menciona solo soluciones corporativas"
+          prompt = prompt & "Solo dos columnas, nombre y propuesat remediacion"
+        prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
+          
+        ' Copiar el prompt generado al portapapeles
+        CopyToClipboard prompt
+        
+        ' Mostrar un mensaje informativo
+        MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
+    Else
+        MsgBox "No se encontraron valores en la selección.", vbExclamation, "Sin Datos"
+    End If
+End Sub
+
+Sub CopyToClipboard(Text As String)
+    ' Copiar texto al portapapeles usando Microsoft Forms
+    Dim MSForms_DataObject As Object
+    Set MSForms_DataObject = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    MSForms_DataObject.SetText Text
+    MSForms_DataObject.PutInClipboard
+    Set MSForms_DataObject = Nothing
+End Sub
 
 
