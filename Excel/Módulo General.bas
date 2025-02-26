@@ -361,7 +361,7 @@ Function ParseTranslationResponse(responseText As String) As String
     ParseTranslationResponse = spanishText
 End Function
 
-Function GEN011_translate_text(text_str As String, src_lang As String, trgt_lang As String, ByVal service_url As String) As String
+Function translate_text(text_str As String, src_lang As String, trgt_lang As String, ByVal service_url As String) As String
     Dim url_str As String
     Dim xmlhttp As Object
     Dim responseText As String
