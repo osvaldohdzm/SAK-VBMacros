@@ -170,6 +170,41 @@ Sub GEN006_FormatoNegritaViñetas()
 End Sub
 
 
+Sub GEN007_FormatoNegritaViñetasGuion()
+    Dim p As Paragraph
+    Dim strTexto As String
+    Dim posDosPuntos As Integer
+    Dim rng As Range
+    
+    ' Recorrer cada párrafo en la selección
+    For Each p In Selection.Paragraphs
+        ' Asignar el texto del párrafo a una cadena
+        strTexto = p.Range.Text
+        
+        ' Verificar si el párrafo comienza con "- "
+        If Left(Trim(strTexto), 2) = "- " Then
+            ' Buscar la posición de los dos puntos
+            posDosPuntos = InStr(strTexto, ":")
+            
+            ' Si se encuentran los dos puntos
+            If posDosPuntos > 0 Then
+                ' Seleccionar el rango desde el inicio hasta los dos puntos
+                Set rng = p.Range
+                rng.Start = p.Range.Start
+                rng.End = p.Range.Start + posDosPuntos - 1
+                rng.Font.Bold = True ' Aplicar negrita
+                
+                ' Seleccionar el rango después de los dos puntos y quitar la negrita
+                Set rng = p.Range
+                rng.Start = p.Range.Start + posDosPuntos
+                rng.End = p.Range.End
+                rng.Font.Bold = False ' Quitar negrita
+            End If
+        End If
+    Next p
+End Sub
+
+
 
 Sub BuscarPalabrasYGenerarCSV()
     Dim dlgOpen As FileDialog

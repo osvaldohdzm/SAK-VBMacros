@@ -13,7 +13,7 @@ End Sub
 
 Sub GEN004_CopyAsListSpaces()
     Dim cell As Range
-    Dim Text As String
+    Dim text As String
     Dim clipboard As Object
     
     ' Crear el objeto para el portapapeles
@@ -22,15 +22,15 @@ Sub GEN004_CopyAsListSpaces()
     ' Recorre las celdas seleccionadas
     For Each cell In Selection
         ' Añadir el contenido de cada celda a la cadena, separado por un espacio
-        If Len(Text) > 0 Then
-            Text = Text & " " & cell.value
+        If Len(text) > 0 Then
+            text = text & " " & cell.value
         Else
-            Text = cell.value
+            text = cell.value
         End If
     Next cell
     
     ' Colocar el texto en el portapapeles
-    clipboard.SetText Text
+    clipboard.SetText text
     clipboard.PutInClipboard
     
     ' Confirmación (opcional)
@@ -183,7 +183,7 @@ End Sub
 
 
 
-Function RegExpReplace(ByVal Text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
+Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
     ' Función para reemplazar utilizando expresiones regulares
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
@@ -195,7 +195,7 @@ Function RegExpReplace(ByVal Text As String, ByVal replacePattern As String, ByV
         .pattern = replacePattern
     End With
     
-    RegExpReplace = regex.Replace(Text, replaceWith)
+    RegExpReplace = regex.Replace(text, replaceWith)
 End Function
 
 
@@ -386,7 +386,7 @@ Function translate_text(text_str As String, src_lang As String, trgt_lang As Str
     translate_text = ParseTranslationResponse(responseText)
 End Function
 
-Function CheckIfHash(Text As String) As Boolean
+Function CheckIfHash(text As String) As Boolean
     ' Verificar si el texto parece un hash MD5 (32 caracteres hexadecimales)
     Dim pattern As String
     Dim regex As Object
@@ -403,7 +403,7 @@ Function CheckIfHash(Text As String) As Boolean
     End With
     
     ' Devolver True si el texto coincide con el patrón de hash
-    CheckIfHash = regex.Test(Text)
+    CheckIfHash = regex.Test(text)
 End Function
 
 
@@ -516,4 +516,47 @@ Sub GEN013_VaciarTablaAFilaEjemplo()
     Set tbl = Nothing
     Set rng = Nothing
 End Sub
+
+
+
+
+Sub GEN014_VaciarTodasTablasAFilaEjemplo()
+    Dim ws As Worksheet
+    Dim tbl As ListObject
+    Dim excludeTables As Object
+    
+    ' Crear diccionario con las tablas a excluir
+    Set excludeTables = CreateObject("Scripting.Dictionary")
+    excludeTables.Add "Tbl_pruebas_seguridad", True
+    excludeTables.Add "Tbl_pruebas_seleccionadas", True
+    excludeTables.Add "Tabla_pruebas_seguridad", True
+    excludeTables.Add "Tbl_general", True
+    excludeTables.Add "Tbl_Catalogo_vulnerabilidades", True
+    excludeTables.Add "Tbl_falses_positives", True
+    excludeTables.Add "Tbl_vulnerabilidades", True
+    
+    ' Recorrer todas las hojas del archivo
+    For Each ws In ThisWorkbook.Worksheets
+        ' Recorrer todas las tablas de la hoja actual
+        For Each tbl In ws.ListObjects
+            ' Verificar si la tabla está en la lista de exclusión
+            If Not excludeTables.exists(tbl.Name) Then
+                ' Verificar que la tabla tenga más de una fila
+                If tbl.ListRows.Count > 1 Then
+                    ' Eliminar todas las filas excepto la primera
+                    On Error Resume Next
+                    tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
+                    On Error GoTo 0
+                End If
+            End If
+        Next tbl
+    Next ws
+    
+    ' Mensaje de finalización
+    MsgBox "Se han vaciado todas las tablas excepto las excluidas.", vbInformation, "Proceso completado"
+    
+    ' Liberar variables
+    Set excludeTables = Nothing
+End Sub
+
 
