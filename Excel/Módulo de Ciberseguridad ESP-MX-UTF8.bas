@@ -1,4 +1,5 @@
 Attribute VB_Name = "ExcelModuloCiberseguridad"
+
 Sub CYB008_LimpiarTextoYAgregarGuion()
     Dim celda As Range
     Dim Texto As String
@@ -14,18 +15,18 @@ Sub CYB008_LimpiarTextoYAgregarGuion()
         If Not IsEmpty(celda.value) Then
             Texto = celda.value
             
-            ' Mantener las lÌneas vacÌas pero eliminar saltos de lÌnea innecesarios dentro del texto
+            ' Mantener las l√≠neas vac√≠as pero eliminar saltos de l√≠nea innecesarios dentro del texto
             lineas = Split(Texto, vbLf)
             textoLimpio = ""
             
-            ' Eliminar las lÌneas vacÌas (CHAR(10)) pero mantener los saltos de lÌnea necesarios
+            ' Eliminar las l√≠neas vac√≠as (CHAR(10)) pero mantener los saltos de l√≠nea necesarios
             For i = LBound(lineas) To UBound(lineas)
                 If Len(Trim(lineas(i))) > 0 Then
                     textoLimpio = textoLimpio & lineas(i) & vbLf
                 End If
             Next i
             
-            ' Eliminar el salto de lÌnea final extra
+            ' Eliminar el salto de l√≠nea final extra
             If Len(textoLimpio) > 0 Then
                 textoLimpio = Left(textoLimpio, Len(textoLimpio) - 1)
             End If
@@ -35,27 +36,27 @@ Sub CYB008_LimpiarTextoYAgregarGuion()
             lineas = Split(textoLimpio, vbLf)
             incluirGuion = False
             
-            ' Recorrer las lÌneas y agregar guiones a partir del primer ":"
+            ' Recorrer las l√≠neas y agregar guiones a partir del primer ":"
             For i = LBound(lineas) To UBound(lineas)
                 If InStr(1, lineas(i), ":", vbTextCompare) > 0 And Not incluirGuion Then
-                    ' Agregamos la lÌnea con los ":" pero sin guiÛn
+                    ' Agregamos la l√≠nea con los ":" pero sin guiÔøΩn
                     textoConGuiones = textoConGuiones & lineas(i) & vbLf
-                    incluirGuion = True ' Habilitamos la adiciÛn de guiones despuÈs de encontrar el ":"
+                    incluirGuion = True ' Habilitamos la adiciÔøΩn de guiones despuÔøΩs de encontrar el ":"
                 ElseIf incluirGuion Then
-                    ' DespuÈs del primer ":", agregamos un guion
+                    ' DespuÔøΩs del primer ":", agregamos un guion
                     If Len(Trim(lineas(i))) > 0 Then
                         textoConGuiones = textoConGuiones & " - " & lineas(i) & vbLf
                     Else
-                        ' Si la lÌnea est· vacÌa, solo agregamos el salto de lÌnea
+                        ' Si la l√≠nea estÔøΩ vac√≠a, solo agregamos el salto de l√≠nea
                         textoConGuiones = textoConGuiones & vbLf
                     End If
                 Else
-                    ' Si a˙n no hemos encontrado el ":", no agregamos guiones
+                    ' Si a√∫n no hemos encontrado el ":", no agregamos guiones
                     textoConGuiones = textoConGuiones & lineas(i) & vbLf
                 End If
             Next i
             
-            ' Eliminar el salto de lÌnea final extra
+            ' Eliminar el salto de l√≠nea final extra
             If Len(textoConGuiones) > 0 Then
                 textoConGuiones = Left(textoConGuiones, Len(textoConGuiones) - 1)
             End If
@@ -81,13 +82,13 @@ Sub CYB020_ExportarHojaConFormatoINAI()
     Dim colSeveridad As ListColumn
     Dim selectedRange As Range
     
-    ' Mostrar cuadro de di·logo para seleccionar la carpeta de destino
+    ' Mostrar cuadro de diÔøΩlogo para seleccionar la carpeta de destino
     With Application.FileDialog(msoFileDialogFolderPicker)
         .Title = "Selecciona la carpeta de salida"
         If .Show = -1 Then
             carpetaSalida = .SelectedItems(1)
         Else
-            MsgBox "No se seleccionÛ ninguna carpeta.", vbExclamation
+            MsgBox "No se seleccionÔøΩ ninguna carpeta.", vbExclamation
             Exit Sub
         End If
     End With
@@ -104,7 +105,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
             .Cells.Select
             Selection.RowHeight = 15
             
-            ' Centrar la columna A (ajustar seg˙n las necesidades)
+            ' Centrar la columna A (ajustar seg√∫n las necesidades)
             Columns("A:A").Select
             With Selection
                 .HorizontalAlignment = xlCenter
@@ -127,13 +128,13 @@ Sub CYB020_ExportarHojaConFormatoINAI()
             Set colSeveridad = tbl.ListColumns("Severidad")
             On Error GoTo 0
             
-            ' Verificar si se encontrÛ la columna "Severidad"
+            ' Verificar si se encontrÔøΩ la columna "Severidad"
             If Not colSeveridad Is Nothing Then
                 ' Aplicar formato condicional a la columna "Severidad"
                 Set selectedRange = colSeveridad.DataBodyRange
                 With selectedRange
-                    ' CRÕTICA
-                    .FormatConditions.Add Type:=xlTextString, String:="CRÕTICA", TextOperator:=xlContains
+                    ' CR√çTICA
+                    .FormatConditions.Add Type:=xlTextString, String:="CR√çTICA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)        ' Blanco
@@ -183,7 +184,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                     End With
                 End With
             Else
-                MsgBox "No se encontrÛ la columna        'Severidad'.", vbExclamation
+                MsgBox "No se encontrÔøΩ la columna        'Severidad'.", vbExclamation
             End If
         End With
         
@@ -234,13 +235,13 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
             Set colSeveridad = tbl.ListColumns("Severidad")
             On Error GoTo 0
             
-            ' Verificar si se encontrÛ la columna "Severidad"
+            ' Verificar si se encontrÔøΩ la columna "Severidad"
             If Not colSeveridad Is Nothing Then
                 ' Aplicar formato condicional a la columna "Severidad"
                 Set selectedRange = colSeveridad.DataBodyRange
                 With selectedRange
-                    ' CRÕTICA
-                    .FormatConditions.Add Type:=xlTextString, String:="CRÕTICA", TextOperator:=xlContains
+                    ' CR√çTICA
+                    .FormatConditions.Add Type:=xlTextString, String:="CR√çTICA", TextOperator:=xlContains
                     .FormatConditions(.FormatConditions.Count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)        ' Blanco
@@ -290,7 +291,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                     End With
                 End With
             Else
-                MsgBox "No se encontrÛ la columna        'Severidad'.", vbExclamation
+                MsgBox "No se encontrÔøΩ la columna        'Severidad'.", vbExclamation
             End If
         End With
         
@@ -301,7 +302,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
         wb.Close False
         
         FunExportarHojaActivaAExcelINAI = True
-        MsgBox "La hoja ha sido exportada con Èxito a " & tempFileName, vbInformation
+        MsgBox "La hoja ha sido exportada con ÔøΩxito a " & tempFileName, vbInformation
     Else
         FunExportarHojaActivaAExcelINAI = False
         MsgBox "No hay ninguna hoja activa para exportar.", vbExclamation
@@ -311,7 +312,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
     
 ErrorHandler:
     FunExportarHojaActivaAExcelINAI = False
-    MsgBox "OcurriÛ un error: " & Err.Description, vbCritical
+    MsgBox "OcurriÔøΩ un error: " & Err.Description, vbCritical
 End Function
 
 Sub CYB032_ReemplazarCadenasSeveridades()
@@ -320,7 +321,7 @@ Sub CYB032_ReemplazarCadenasSeveridades()
     Dim valorActual As String
     
     For Each c In Selection
-        valorActual = Trim(UCase(c.value))        ' Convertimos a may˙sculas y eliminamos espacios adicionales
+        valorActual = Trim(UCase(c.value))        ' Convertimos a may√∫sculas y eliminamos espacios adicionales
         
         Select Case valorActual
             Case "0", "NONE", "INFORMATIVA", "INFO"
@@ -341,10 +342,10 @@ Sub CYB032_ReemplazarCadenasSeveridades()
                 c.value = "ALTA"
             Case "8", "ALTA", "HIGH"
                 c.value = "ALTA"
-            Case "9", "CRÕTICA", "CRITICAL", "CRÕTICO"
-                c.value = "CRÕTICA"
-            Case "10", "CRÕTICA", "CRITICAL", "CRÕTICO"
-                c.value = "CRÕTICA"
+            Case "9", "CR√çTICA", "CRITICAL", "CR√çTICO"
+                c.value = "CR√çTICA"
+            Case "10", "CR√çTICA", "CRITICAL", "CR√çTICO"
+                c.value = "CR√çTICA"
                 ' Mantener el contenido actual si no coincide con las palabras a reemplazar
             Case Else
                 ' No hacer nada
@@ -371,15 +372,15 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
         ' Obtiene el contenido de la celda
         content = cell.value
         
-        ' Comprueba si el contenido es vacÌo
+        ' Comprueba si el contenido es vac√≠o
         If content <> "" Then
-            ' Convierte el contenido en un array separado por el car·cter de nueva lÌnea
+            ' Convierte el contenido en un array separado por el carÔøΩcter de nueva l√≠nea
             contentArray = Split(content, Chr(10))
             
-            ' Inicializa el diccionario para almacenar las URL ˙nicas
+            ' Inicializa el diccionario para almacenar las URL √∫nicas
             Set uniqueUrls = CreateObject("Scripting.Dictionary")
             
-            ' Agrega las URL ˙nicas al diccionario
+            ' Agrega las URL √∫nicas al diccionario
             For i = LBound(contentArray) To UBound(contentArray)
                 If contentArray(i) <> "" Then
                     ' Elimina espacios en blanco, Chr(10) y Chr(13) del elemento
@@ -394,7 +395,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
                 End If
             Next i
             
-            ' Convertir la colecciÛn de claves en un array
+            ' Convertir la colecciÔøΩn de claves en un array
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
@@ -414,7 +415,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
                 Next j
             Next i
             
-            ' Convierte el array nuevamente en una cadena concatenada por el car·cter de nueva lÌnea
+            ' Convierte el array nuevamente en una cadena concatenada por el carÔøΩcter de nueva l√≠nea
             content = Join(uniqueArray, Chr(10))
             
             ' Asigna el contenido filtrado a la celda
@@ -423,7 +424,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
     Next cell
 End Sub
 
-Sub CYB029_ReplaceWithURLs()
+Sub CYB029_ReemplazarConURLs()
     Dim cell        As Range
     Dim parts       As Variant
     Dim url         As String
@@ -435,18 +436,18 @@ Sub CYB029_ReplaceWithURLs()
             ' Separa la cadena por comas
             parts = Split(cell.value, ",")
             
-            ' Inicializa una cadena vacÌa para las URLs
+            ' Inicializa una cadena vac√≠a para las URLs
             url = ""
             
             ' Recorre cada parte de la cadena
             For i = LBound(parts) To UBound(parts)
-                ' Separa cada parte por el sÌmbolo |
+                ' Separa cada parte por el s√≠mbolo |
                 If InStr(parts(i), "|") > 0 Then
                     url = url & Mid(parts(i), InStr(parts(i), "|") + 1) & vbLf
                 End If
             Next i
             
-            ' Elimina el ˙ltimo salto de lÌnea
+            ' Elimina el √∫ltimo salto de l√≠nea
             If Len(url) > 0 Then
                 url = Left(url, Len(url) - 1)
             End If
@@ -454,7 +455,7 @@ Sub CYB029_ReplaceWithURLs()
             ' Reemplaza las comillas dobles sobrantes
             url = Replace(url, """", "")
             
-            ' Reemplaza el valor de la celda con las URLs y saltos de lÌnea
+            ' Reemplaza el valor de la celda con las URLs y saltos de l√≠nea
             cell.value = url
         End If
     Next cell
@@ -474,9 +475,9 @@ Sub CYB037_AplicarFormatoCondicional()
         Exit Sub
     End If
     
-    ' Aplicar formato condicional seg˙n el contenido de las celdas seleccionadas
+    ' Aplicar formato condicional seg√∫n el contenido de las celdas seleccionadas
     With selectedRange
-        .FormatConditions.Add Type:=xlTextString, String:="CRÕTICA", TextOperator:=xlContains
+        .FormatConditions.Add Type:=xlTextString, String:="CR√çTICA", TextOperator:=xlContains
         .FormatConditions(.FormatConditions.Count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)        ' Blanco
@@ -533,13 +534,13 @@ Sub CYB033_ConvertirATextoEnOracion()
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             Texto = celda.value
-            ' Convierte todo el texto a min˙sculas
+            ' Convierte todo el texto a min√∫sculas
             Texto = LCase(Texto)
             ' Extrae la primera letra
             primeraLetra = UCase(Left(Texto, 1))
             ' Extrae el resto del texto
             restoTexto = Mid(Texto, 2)
-            ' Combina la primera letra en may˙sculas con el resto del texto en min˙sculas
+            ' Combina la primera letra en may√∫sculas con el resto del texto en min√∫sculas
             celda.value = primeraLetra & restoTexto
         End If
     Next celda
@@ -580,31 +581,31 @@ Sub CYB009_LimpiarSalida()
 
     For Each celda In rng
         If Not IsEmpty(celda.value) Then
-            If Not celda.HasFormula Then ' Ignora celdas con fÛrmulas
+            If Not celda.HasFormula Then ' Ignora celdas con fÔøΩrmulas
 
                 ' Reemplazar tabulaciones con espacios
                 celda.value = Replace(celda.value, Chr(9), " ")
                 ' Eliminar espacios innecesarios
                 celda.value = Application.Trim(celda.value)
 
-                ' Reemplazar <li> por saltos de lÌnea
-                celda.value = RegExpReplace(celda.value, liPattern, vbLf)
+                ' Reemplazar <li> por saltos de l√≠nea
+                celda.value = RegExpReemplazar(celda.value, liPattern, vbLf)
 
                 ' Eliminar etiquetas HTML dejando solo texto
-                celda.value = RegExpReplace(celda.value, cleanHtmlPattern, vbNullString)
+                celda.value = RegExpReemplazar(celda.value, cleanHtmlPattern, vbNullString)
 
-                ' Separar el contenido en lÌneas
+                ' Separar el contenido en l√≠neas
                 lineas = Split(celda.value, vbLf)
                 cleanOutput = ""
                 lastLineWasEmpty = False
 
-                ' Remover saltos de lÌnea al inicio del texto
+                ' Remover saltos de l√≠nea al inicio del texto
                 i = LBound(lineas)
                 Do While i <= UBound(lineas) And Trim(lineas(i)) = ""
                     i = i + 1
                 Loop
 
-                ' Unificar lÌneas sin duplicar saltos de lÌnea innecesarios
+                ' Unificar l√≠neas sin duplicar saltos de l√≠nea innecesarios
                 For i = i To UBound(lineas)
                     If Trim(lineas(i)) <> "" Then
                         cleanOutput = cleanOutput & lineas(i) & vbLf
@@ -615,15 +616,15 @@ Sub CYB009_LimpiarSalida()
                     End If
                 Next i
 
-                ' Eliminar el ˙ltimo salto de lÌnea si existe
+                ' Eliminar el √∫ltimo salto de l√≠nea si existe
                 If Len(cleanOutput) > 0 And Right(cleanOutput, 1) = vbLf Then
                     cleanOutput = Left(cleanOutput, Len(cleanOutput) - 1)
                 End If
 
                 ' Reemplazar caracteres de control innecesarios
-                Texto = ReplaceHtmlEntities(cleanOutput)
+                Texto = ReemplazarEntidadesHtml(cleanOutput)
 
-                ' Asegurar formato limpio sin saltos de lÌnea redundantes
+                ' Asegurar formato limpio sin saltos de l√≠nea redundantes
                 NuevoTexto = Trim(Texto)
 
                 ' Asignar el texto limpio a la celda
@@ -632,7 +633,7 @@ Sub CYB009_LimpiarSalida()
         End If
     Next celda
 
-    MsgBox "Proceso completado: Se han eliminado los saltos de lÌnea al inicio y limpiado el texto.", vbInformation
+    MsgBox "Proceso completado: Se han eliminado los saltos de l√≠nea al inicio y limpiado el texto.", vbInformation
 End Sub
 
 
@@ -654,11 +655,11 @@ Sub CYB010_AgregarSaltosLineaATextoGuiones()
                 ' Divide el texto usando el guion como delimitador
                 partes = Split(Texto, "-")
                 
-                ' Reconstruye el texto con saltos de lÌnea apropiados
+                ' Reconstruye el texto con saltos de l√≠nea apropiados
                 Texto = partes(0) ' Primer parte (sin cambio)
                 
                 For i = 1 To UBound(partes)
-                    ' Agrega salto de lÌnea solo si no es la primera parte
+                    ' Agrega salto de l√≠nea solo si no es la primera parte
                     Texto = Texto & vbNewLine & "- " & partes(i)
                 Next i
                 
@@ -676,7 +677,7 @@ Sub CYB011_BulletsAGuiones()
  Dim celda As Range
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
-            celda.value = Replace(celda.value, "ï", "-")
+            celda.value = Replace(celda.value, "‚Ä¢", "-")
         End If
     Next celda
     MsgBox "Reemplazo completado.", vbInformation, "Proceso Finalizado"
@@ -701,13 +702,13 @@ Sub CYB011_MantererSoloURLSEnLinea()
     For Each celda In Selection
         ' Verificar si la celda tiene texto
         If Not IsEmpty(celda.value) Then
-            ' Inicializar resultado vacÌo para cada celda
+            ' Inicializar resultado vac√≠o para cada celda
             resultado = ""
             
             ' Reemplazar comillas dobles por nada
             contenido = Replace(celda.value, """", "")
             
-            ' Reemplazar diferentes saltos de lÌnea con vbLf
+            ' Reemplazar diferentes saltos de l√≠nea con vbLf
             contenido = Replace(Replace(Replace(contenido, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
             
             ' Si el contenido comienza con vbLf, quitarlo
@@ -720,20 +721,20 @@ Sub CYB011_MantererSoloURLSEnLinea()
                 contenido = Left(contenido, Len(contenido) - 1)
             End If
             
-            ' Dividir el contenido de la celda en un array de lÌneas
+            ' Dividir el contenido de la celda en un array de l√≠neas
             lineas = Split(contenido, vbLf)
             
-            ' Verificar si el array no est· vacÌo antes de redimensionar
+            ' Verificar si el array no estÔøΩ vac√≠o antes de redimensionar
             If UBound(lineas) >= 0 Then
-                ' Crear un nuevo array para almacenar las lÌneas no vacÌas
+                ' Crear un nuevo array para almacenar las l√≠neas no vac√≠as
                 ReDim lineasSinVacias(0 To UBound(lineas))
                 idx = 0
                 
-                ' Iterar sobre cada lÌnea del array
+                ' Iterar sobre cada l√≠nea del array
                 For i = LBound(lineas) To UBound(lineas)
-                    ' Verificar si la lÌnea est· vacÌa y no agregarla al nuevo array
+                    ' Verificar si la l√≠nea estÔøΩ vac√≠a y no agregarla al nuevo array
                     If Trim(lineas(i)) <> "" Then
-                        ' Encontrar las URLs dentro de cada lÌnea
+                        ' Encontrar las URLs dentro de cada l√≠nea
                         startPos = InStr(1, lineas(i), "http")
                         Do While startPos > 0
                             ' Encontrar el final de la URL buscando un espacio o coma
@@ -751,7 +752,7 @@ Sub CYB011_MantererSoloURLSEnLinea()
                             ' Extraer la URL
                             url = Mid(lineas(i), startPos, endPos - startPos)
                             
-                            ' AÒadir la URL al resultado
+                            ' A√±adir la URL al resultado
                             resultado = resultado & url & vbCrLf
                             
                             ' Buscar la siguiente URL
@@ -760,7 +761,7 @@ Sub CYB011_MantererSoloURLSEnLinea()
                     End If
                 Next i
                 
-                ' Eliminar lÌneas vacÌas que podrÌan quedar al final
+                ' Eliminar l√≠neas vac√≠as que podr√≠an quedar al final
                 If Len(resultado) > 0 Then
                     If Right(resultado, 1) = vbCrLf Then
                         resultado = Left(resultado, Len(resultado) - 1)
@@ -796,7 +797,7 @@ Sub CYB012_PingIPs()
         ' Obtener la IP de la celda
         ip = Trim(celda.value)
         
-        ' Verificar que la celda no estÈ vacÌa
+        ' Verificar que la celda no estÔøΩ vac√≠a
         If ip <> "" Then
             respuesta = False ' Inicializar como no respondida
             
@@ -806,16 +807,16 @@ Sub CYB012_PingIPs()
                 Set objExec = objShell.Exec("ping -n 1 -w 500 " & ip)
                 resultado = objExec.StdOut.ReadAll
                 
-                ' Si encuentra "TTL=", la IP respondiÛ
+                ' Si encuentra "TTL=", la IP respondiÔøΩ
                 If InStr(1, resultado, "TTL=", vbTextCompare) > 0 Then
                     respuesta = True
-                    Exit For ' Salir del bucle si ya respondiÛ
+                    Exit For ' Salir del bucle si ya respondiÔøΩ
                 End If
             Next i
             
-            ' Cambiar color de celda seg˙n el resultado
+            ' Cambiar color de celda seg√∫n el resultado
             If respuesta Then
-                celda.Interior.Color = RGB(144, 238, 144) ' Verde claro (IP en lÌnea)
+                celda.Interior.Color = RGB(144, 238, 144) ' Verde claro (IP en l√≠nea)
             Else
                 celda.Interior.Color = RGB(169, 169, 169) ' Gris oscuro (No responde)
             End If
@@ -834,8 +835,8 @@ End Sub
 
 
 
-Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
-    ' FunciÛn para reemplazar utilizando expresiones regulares
+Function RegExpReemplazar(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
+    ' FunciÔøΩn para reemplazar utilizando expresiones regulares
     Dim regex       As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -846,11 +847,11 @@ Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByV
         .pattern = replacePattern
     End With
     
-    RegExpReplace = regex.Replace(text, replaceWith)
+    RegExpReemplazar = regex.Replace(text, replaceWith)
 End Function
 
-Function ReplaceHtmlEntities(ByVal text As String) As String
-    ' FunciÛn para reemplazar entidades HTML con caracteres correspondientes
+Function ReemplazarEntidadesHtml(ByVal text As String) As String
+    ' FunciÔøΩn para reemplazar entidades HTML con caracteres correspondientes
     text = Replace(text, "&lt;", "<")
     text = Replace(text, "&gt;", ">")
     text = Replace(text, "&amp;", "&")
@@ -861,7 +862,7 @@ Function ReplaceHtmlEntities(ByVal text As String) As String
     text = Replace(text, "&#39;", "'")         ' Comillas simples
     text = Replace(text, "&#160;", Chr(160))   ' Espacio no separable
     
-    ReplaceHtmlEntities = text
+    ReemplazarEntidadesHtml = text
 End Function
 
 Sub CYB026_OrdenaSegunColorRelleno()
@@ -879,24 +880,24 @@ Sub CYB026_OrdenaSegunColorRelleno()
     Set celdaActual = ActiveCell
     Set ws = ActiveSheet
     
-    ' Verificar si la celda seleccionada est· dentro de una tabla
+    ' Verificar si la celda seleccionada estÔøΩ dentro de una tabla
     On Error Resume Next
     Set tabla = celdaActual.ListObject
     On Error GoTo 0
     
     If tabla Is Nothing Then
-        MsgBox "Debes seleccionar una celda dentro de una tabla para ejecutar la ordenaciÛn.", vbExclamation, "Error"
+        MsgBox "Debes seleccionar una celda dentro de una tabla para ejecutar la ordenaciÔøΩn.", vbExclamation, "Error"
         Exit Sub
     End If
     
     ' Confirmar con el usuario antes de proceder
-    respuesta = MsgBox("Se ordenar· la tabla por la columna 'Severidad' seg˙n el color de relleno." & vbCrLf & _
+    respuesta = MsgBox("Se ordenarÔøΩ la tabla por la columna 'Severidad' seg√∫n el color de relleno." & vbCrLf & _
                        "Orden: Morado ? Rojo ? Amarillo ? Verde." & vbCrLf & vbCrLf & _
-                       "øDeseas continuar?", vbYesNo + vbQuestion, "ConfirmaciÛn")
+                       "¬øDeseas continuar?", vbYesNo + vbQuestion, "ConfirmaciÔøΩn")
     
     If respuesta <> vbYes Then Exit Sub
     
-    ' Aplicar ordenaciÛn por color en el orden definido
+    ' Aplicar ordenaciÔøΩn por color en el orden definido
     With ws.ListObjects(tabla.Name).Sort
         .SortFields.Clear
         For i = LBound(colores) To UBound(colores)
@@ -909,7 +910,7 @@ Sub CYB026_OrdenaSegunColorRelleno()
         Next i
     End With
     
-    MsgBox "OrdenaciÛn completada: Morado ? Rojo ? Amarillo ? Verde.", vbInformation, "Proceso finalizado"
+    MsgBox "OrdenaciÔøΩn completada: Morado ? Rojo ? Amarillo ? Verde.", vbInformation, "Proceso finalizado"
 End Sub
 
 ' GenerarDocumentosWord
@@ -925,10 +926,10 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
     Dim lastCell As Object
     Dim internalTable As Object
 
-    salidaPruebaSeguridadKey = "´Salidas de herramientaª"
-    metodoDeteccionKey = "´MÈtodo de detecciÛnª"
+    salidaPruebaSeguridadKey = "¬´Salidas de herramienta¬ª"
+    metodoDeteccionKey = "¬´MÔøΩtodo de detecciÔøΩn¬ª"
     
-    ' Verificar si las claves est·n presentes en el diccionario
+    ' Verificar si las claves estÔøΩn presentes en el diccionario
     If replaceDic.exists(salidaPruebaSeguridadKey) And replaceDic.exists(metodoDeteccionKey) Then
         ' Obtener los valores de las claves
         salidaPruebaSeguridadValue = CStr(replaceDic(salidaPruebaSeguridadKey))
@@ -938,19 +939,19 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
         Set firstTable = WordDoc.Tables(1)
         numRows = firstTable.Rows.Count
         
-        ' Verificar si ambos valores est·n vacÌos
+        ' Verificar si ambos valores estÔøΩn vac√≠os
         If Len(Trim(salidaPruebaSeguridadValue)) = 0 And Len(Trim(metodoDeteccionValue)) = 0 Then
-            ' Si ambos est·n vacÌos, eliminar las ˙ltimas filas de la tabla principal
+            ' Si ambos estÔøΩn vac√≠os, eliminar las √∫ltimas filas de la tabla principal
             If numRows > 0 Then
-                ' Eliminar la ˙ltima fila
+                ' Eliminar la √∫ltima fila
                 firstTable.Rows(numRows).Delete
-                ' Eliminar la pen˙ltima fila si hay m·s de una fila
+                ' Eliminar la pen√∫ltima fila si hay mÔøΩs de una fila
                 If numRows > 1 Then
                     firstTable.Rows(numRows - 1).Delete
                 End If
             End If
       ElseIf Len(Trim(salidaPruebaSeguridadValue)) = 0 Then
-            ' Si "MÈtodo de detecciÛn" tiene texto, eliminar la tabla interna dentro de la ˙ltima celda
+            ' Si "MÔøΩtodo de detecciÔøΩn" tiene texto, eliminar la tabla interna dentro de la √∫ltima celda
             If numRows > 0 Then
                 firstTable.Tables(1).Delete
             End If
@@ -975,7 +976,7 @@ End Function
 Sub CYB015_CrearEstilo(docWord As Object, estilo As String)
     Dim nuevoEstilo As Object
     On Error Resume Next
-    Set nuevoEstilo = docWord.Styles.Add(Name:=estilo, Type:=1)        ' Tipo 1 = Estilo de p·rrafo
+    Set nuevoEstilo = docWord.Styles.Add(Name:=estilo, Type:=1)        ' Tipo 1 = Estilo de pÔøΩrrafo
     If Err.Number <> 0 Then
         MsgBox "No se pudo crear el estilo        '" & estilo & "'. " & Err.Description, vbExclamation
         Err.Clear
@@ -1003,7 +1004,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
     ' Obtener la hoja activa
     Set ws = ActiveSheet
     
-    ' Obtener la ruta de la carpeta donde est· la hoja activa
+    ' Obtener la ruta de la carpeta donde estÔøΩ la hoja activa
     rutaBase = ws.Parent.Path & "\"
     
     ' Inicializar Word
@@ -1024,9 +1025,9 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
     ' Procesar cada fila de la tabla
     For Each r In tbl.ListRows
         estilo = r.Range.Cells(1, tbl.ListColumns("Estilo").Index).value
-        seccion = r.Range.Cells(1, tbl.ListColumns("SecciÛn").Index).value
-        descripcion = r.Range.Cells(1, tbl.ListColumns("DescripciÛn").Index).value
-        imagen = r.Range.Cells(1, tbl.ListColumns("Im·genes").Index).value
+        seccion = r.Range.Cells(1, tbl.ListColumns("SecciÔøΩn").Index).value
+        descripcion = r.Range.Cells(1, tbl.ListColumns("DescripciÔøΩn").Index).value
+        imagen = r.Range.Cells(1, tbl.ListColumns("ImÔøΩgenes").Index).value
         parrafoResultados = r.Range.Cells(1, tbl.ListColumns("Resultado").Index).value
         
         ' Obtener la ruta completa de la imagen
@@ -1047,12 +1048,12 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
             
         End If
         
-        ' Agregar un p·rrafo con la descripciÛn
+        ' Agregar un pÔøΩrrafo con la descripciÔøΩn
         If Trim(descripcion) <> "" Then
             With docWord.content.Paragraphs.Add
                 .Range.text = descripcion
-                .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el p·rrafo de descripciÛn
-                .Format.SpaceBefore = 12        ' Espacio antes del p·rrafo para separaciÛn
+                .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el pÔøΩrrafo de descripciÔøΩn
+                .Format.SpaceBefore = 12        ' Espacio antes del pÔøΩrrafo para separaciÔøΩn
             End With
         End If
         
@@ -1063,17 +1064,17 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
         If imagen <> "" Then
             ' Verificar si la imagen existe
             If Dir(imagenRutaCompleta) <> "" Then
-                ' Agregar un p·rrafo vacÌo para la imagen
+                ' Agregar un pÔøΩrrafo vac√≠o para la imagen
                 docWord.content.InsertParagraphAfter
                 Set rng = docWord.content.Paragraphs.Last.Range
                 
-                ' Insertar la imagen en el p·rrafo vacÌo
+                ' Insertar la imagen en el pÔøΩrrafo vac√≠o
                 Set shape = docWord.InlineShapes.AddPicture(fileName:=imagenRutaCompleta, LinkToFile:=False, SaveWithDocument:=True, Range:=rng)
                 
                 ' Centrar la imagen
                 shape.Range.ParagraphFormat.Alignment = 1        ' 1 = wdAlignParagraphCenter
                 
-                ' Agregar un p·rrafo vacÌo despuÈs de la imagen para el caption
+                ' Agregar un pÔøΩrrafo vac√≠o despuÔøΩs de la imagen para el caption
                 docWord.content.InsertParagraphAfter
                 Set rng = docWord.content.Paragraphs.Last.Range
                 
@@ -1082,13 +1083,13 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
                 captionRange.Select
                 appWord.Selection.MoveLeft Unit:=1, Count:=1, Extend:=0        ' wdCharacter
                 appWord.CaptionLabels.Add Name:="Imagen"
-                appWord.Selection.InsertCaption Label:="Imagen", TitleAutoText:="InsertarTÌtulo1", _
+                appWord.Selection.InsertCaption Label:="Imagen", TitleAutoText:="InsertarT√≠tulo1", _
                                                 Title:="", Position:=1        ' wdCaptionPositionBelow, ExcludeLabel:=0
                 appWord.Selection.ParagraphFormat.Alignment = 1        ' wdAlignParagraphCenter
                 
                 docWord.content.InsertAfter text:=" " & seccion
                 
-                ' Agregar un p·rrafo vacÌo despuÈs del caption para separaciÛn
+                ' Agregar un pÔøΩrrafo vac√≠o despuÔøΩs del caption para separaciÔøΩn
                 docWord.content.InsertParagraphAfter
                 
             Else
@@ -1096,12 +1097,12 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
             End If
         End If
         
-        ' Agregar el p·rrafo de resultados si no est· vacÌo
+        ' Agregar el pÔøΩrrafo de resultados si no estÔøΩ vac√≠o
         If Trim(parrafoResultados) <> "" Then
             With docWord.content.Paragraphs.Add
                 .Range.text = parrafoResultados
-                .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el p·rrafo de resultados
-                .Format.SpaceBefore = 12        ' Espacio antes del p·rrafo para separaciÛn
+                .Range.Style = docWord.Styles("Normal")        ' Aplicar un estilo predeterminado para el pÔøΩrrafo de resultados
+                .Format.SpaceBefore = 12        ' Espacio antes del pÔøΩrrafo para separaciÔøΩn
             End With
         End If
     Next r
@@ -1136,18 +1137,18 @@ Sub CYB017_LimpiarColumnaReferencias()
         ' Obtiene el contenido de la celda
         content = cell.value
         
-        ' Sustituye comillas dobles con saltos de lÌnea (Char 10)
+        ' Sustituye comillas dobles con saltos de l√≠nea (Char 10)
         content = Replace(content, """", Chr(10))
         
-        ' Comprueba si el contenido es vacÌo
+        ' Comprueba si el contenido es vac√≠o
         If content <> "" Then
-            ' Convierte el contenido en un array separado por el car·cter de nueva lÌnea
+            ' Convierte el contenido en un array separado por el carÔøΩcter de nueva l√≠nea
             contentArray = Split(content, Chr(10))
             
-            ' Inicializa el diccionario para almacenar las URL ˙nicas
+            ' Inicializa el diccionario para almacenar las URL √∫nicas
             Set uniqueUrls = CreateObject("Scripting.Dictionary")
             
-            ' Agrega las URL ˙nicas al diccionario
+            ' Agrega las URL √∫nicas al diccionario
             For i = LBound(contentArray) To UBound(contentArray)
                 If Trim(contentArray(i)) <> "" Then
                     ' Elimina espacios en blanco, Chr(10) y Chr(13) del elemento
@@ -1161,7 +1162,7 @@ Sub CYB017_LimpiarColumnaReferencias()
                 End If
             Next i
             
-            ' Convertir la colecciÛn de claves en un array
+            ' Convertir la colecciÔøΩn de claves en un array
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
@@ -1181,13 +1182,13 @@ Sub CYB017_LimpiarColumnaReferencias()
                 Next j
             Next i
             
-            ' Convierte el array nuevamente en una cadena concatenada por el car·cter de nueva lÌnea
+            ' Convierte el array nuevamente en una cadena concatenada por el carÔøΩcter de nueva l√≠nea
             newContent = Join(uniqueArray, Chr(10))
             
-            ' Elimina saltos de lÌnea iniciales y finales
+            ' Elimina saltos de l√≠nea iniciales y finales
             newContent = Trim(newContent)
             
-            ' Filtra lÌneas para conservar solo las que contienen "//"
+            ' Filtra l√≠neas para conservar solo las que contienen "//"
             contentArray = Split(newContent, Chr(10))
             filteredContent = ""
             
@@ -1218,12 +1219,12 @@ Sub CYB018_LeerArchivoTXT(txtFilePath As String, dataDict As Object)
     
     Do While Not EOF(fileNumber)
         Line Input #fileNumber, line
-        ' Divide la lÌnea en clave y valor
+        ' Divide la l√≠nea en clave y valor
         keyValue = Split(line, ":")
         If UBound(keyValue) = 1 Then
             key = Trim(keyValue(0))
             value = Trim(Mid(keyValue(1), 2, Len(keyValue(1)) - 2))        ' Extrae el valor entre comillas dobles
-            ' AÒadir al diccionario
+            ' A√±adir al diccionario
             dataDict(key) = value
         End If
     Loop
@@ -1238,7 +1239,7 @@ Sub CYB019_WordAppAlternativeReplaceParagraph(WordApp As Object, WordDoc As Obje
     ' Establecer el rango al contenido del documento
     Set rng = WordDoc.content
     
-    ' Configurar la b˙squeda
+    ' Configurar la b√∫squeda
     With rng.Find
         .text = wordToFind
         .Replacement.text = replaceWord
@@ -1271,20 +1272,20 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
     
     On Error GoTo ErrorHandler
     
-    ' Verificar que el Ìndice del gr·fico es v·lido
+    ' Verificar que el √≠ndice del grÔøΩfico es vÔøΩlido
     If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.Count Then
-        MsgBox "Õndice de gr·fico fuera de rango."
+        MsgBox "√çndice de grÔøΩfico fuera de rango."
         ActualizarGraficoSegunDicionario = False
         Exit Function
     End If
     
-    ' Obtener el InlineShape correspondiente al Ìndice
+    ' Obtener el InlineShape correspondiente al √≠ndice
     Set ils = WordDoc.InlineShapes(graficoIndex)
     
     If ils.Type = 12 And ils.HasChart Then
         Set Chart = ils.Chart
         If Not Chart Is Nothing Then
-            ' Activar el libro de trabajo asociado al gr·fico
+            ' Activar el libro de trabajo asociado al grÔøΩfico
             Set ChartData = Chart.ChartData
             If Not ChartData Is Nothing Then
                 ChartData.Activate
@@ -1306,12 +1307,12 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
                         categoryRow = categoryRow + 1
                     Next category
                     
-                    ' Construir el rango din·mico como una cadena
+                    ' Construir el rango dinÔøΩmico como una cadena
                     sheetIndex = 1
                     dataRangeAddress = CStr(ChartWorkbook.Sheets(sheetIndex).Name & "$A$1:$B$" & CStr(categoryRow - 1))
                     Debug.Print dataRangeAddress
                     
-                    ' Actualizar el gr·fico con el nuevo rango de datos
+                    ' Actualizar el grÔøΩfico con el nuevo rango de datos
                     On Error Resume Next
                     ChartWorkbook.Sheets(sheetIndex).ChartObjects(1).Chart.SetSourceData Source:=Range(dataRangeAddress)
                     If Err.Number <> 0 Then
@@ -1322,11 +1323,11 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
                     End If
                     On Error GoTo 0
                     
-                    ' Actualizar el gr·fico
+                    ' Actualizar el grÔøΩfico
                     On Error Resume Next
                     Chart.Refresh
                     If Err.Number <> 0 Then
-                        MsgBox "Error al actualizar el gr·fico: " & Err.Description
+                        MsgBox "Error al actualizar el grÔøΩfico: " & Err.Description
                         Err.Clear
                         ActualizarGraficoSegunDicionario = False
                         Exit Function
@@ -1340,18 +1341,18 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
                 End If
             End If
         Else
-            MsgBox "El InlineShape seleccionado no contiene un gr·fico v·lido."
+            MsgBox "El InlineShape seleccionado no contiene un grÔøΩfico vÔøΩlido."
             ActualizarGraficoSegunDicionario = False
         End If
     Else
-        MsgBox "El InlineShape seleccionado no contiene un gr·fico."
+        MsgBox "El InlineShape seleccionado no contiene un grÔøΩfico."
         ActualizarGraficoSegunDicionario = False
     End If
     
     Exit Function
     
 ErrorHandler:
-    MsgBox "OcurriÛ un error: " & Err.Description, vbCritical
+    MsgBox "OcurriÔøΩ un error: " & Err.Description, vbCritical
     ActualizarGraficoSegunDicionario = False
 End Function
 
@@ -1379,17 +1380,17 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
     On Error GoTo 0
     
     If selectedRange Is Nothing Then
-        MsgBox "No se ha seleccionado un rango v·lido.", vbExclamation
+        MsgBox "No se ha seleccionado un rango vÔøΩlido.", vbExclamation
         Exit Sub
     End If
     
-    ' Verifica si el rango seleccionado est· dentro de una tabla
+    ' Verifica si el rango seleccionado estÔøΩ dentro de una tabla
     On Error Resume Next
     Set rng = selectedRange.ListObject.Range
     On Error GoTo 0
     
     If rng Is Nothing Then
-        MsgBox "El rango seleccionado no est· dentro de una tabla.", vbExclamation
+        MsgBox "El rango seleccionado no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
@@ -1407,7 +1408,7 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
         End If
     End With
     
-    ' Crea una instancia de la aplicaciÛn de Word
+    ' Crea una instancia de la aplicaciÔøΩn de Word
     Set WordApp = CreateObject("Word.Application")
     WordApp.Visible = True
     
@@ -1420,7 +1421,7 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
     ' Llena el diccionario de reemplazo con los datos de la tabla de Excel
     rowCount = rng.Rows.Count
     For Each cell In selectedRange.Rows(1).Cells        ' Tomamos la primera fila para los nombres de los campos
-        replaceDic("´" & cell.value & "ª") = ""
+        replaceDic("¬´" & cell.value & "¬ª") = ""
     Next cell
     
     ' Crea una carpeta temporal en la carpeta de archivos temporales del sistema
@@ -1438,7 +1439,7 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
         
         ' Llena el diccionario de reemplazo con los datos de la fila actual de la tabla de Excel
         For Each cell In selectedRange.Rows(1).Cells        ' Tomamos la primera fila para los nombres de los campos
-            replaceDic("´" & cell.value & "ª") = rng.Cells(i, cell.Column).value
+            replaceDic("¬´" & cell.value & "¬ª") = rng.Cells(i, cell.Column).value
         Next cell
         
         ' Crea una copia del documento de Word en la carpeta temporal
@@ -1449,24 +1450,24 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
         For Each key In replaceDic.keys
         
             Debug.Print CStr(key)
-            If CStr(key) = "´DescripciÛnª" Then
-                ' Aplicar la funciÛn especÌfica para la clave ´Descripcionª
-                replaceDic(key) = TransformText(replaceDic(key))
+            If CStr(key) = "¬´DescripciÔøΩn¬ª" Then
+                ' Aplicar la funciÔøΩn espec√≠fica para la clave ¬´Descripcion¬ª
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
-            If CStr(key) = "Propuesta de remediaciÛn" Then
-                ' Aplicar la funciÛn especÌfica para la clave ´Descripcionª
-                replaceDic(key) = TransformText(replaceDic(key))
+            If CStr(key) = "Propuesta de remediaciÔøΩn" Then
+                ' Aplicar la funciÔøΩn espec√≠fica para la clave ¬´Descripcion¬ª
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
             If CStr(key) = "Referencias" Then
-                ' Aplicar la funciÛn especÌfica para la clave ´Descripcionª
-                replaceDic(key) = TransformText(replaceDic(key))
+                ' Aplicar la funciÔøΩn espec√≠fica para la clave ¬´Descripcion¬ª
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
             ' Reemplazar en el documento de Word
-            WordAppReplaceParagraph WordApp, WordDoc, CStr(key), CStr(replaceDic(key))
+            WordAppReemplazarParrafo WordApp, WordDoc, CStr(key), CStr(replaceDic(key))
         Next key
-        FormatRiskLevelCell WordDoc.Tables(1).cell(1, 2)
-        FormatDashParagraphsCell WordDoc.Tables(1).cell(4, 2)
-        FormatDashParagraphsCell WordDoc.Tables(1).cell(5, 2)
+        FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
+        FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(4, 2)
+        FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(5, 2)
         ' Guarda y cierra el documento de Word
         ' Antes de guardar el documento de Word
         EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
@@ -1481,16 +1482,16 @@ Sub CYB006_GenerarDocumentosVulnerabilidiadesWord()
     ' Combina todos los archivos en uno solo
     Dim finalDocumentPath As String
     finalDocumentPath = saveFolder & "\Documento_Consolidado.docx"
-    MergeDocuments WordApp, documentsList, finalDocumentPath
+    FusionarDocumentos WordApp, documentsList, finalDocumentPath
     
     ' Mueve la carpeta temporal a la carpeta seleccionada por el usuario
     fs.MoveFolder tempFolder, saveFolder & "\DocumentosGenerados"
     
-    ' Cerrar la aplicaciÛn de Word
+    ' Cerrar la aplicaciÔøΩn de Word
     WordApp.Quit
     Set WordApp = Nothing
     
-    ' Muestra un mensaje de Èxito
+    ' Muestra un mensaje de ÔøΩxito
     MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
 
@@ -1545,10 +1546,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Dim ChartData   As Object
     Dim ChartWorkbook As Object
     
-    ' Crear un di·logo para seleccionar el archivo CSV
+    ' Crear un diÔøΩlogo para seleccionar el archivo CSV
     campoArchivoPath = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", , "Seleccionar archivo CSV")
     If campoArchivoPath = "Falso" Then
-        MsgBox "No se seleccionÛ ning˙n archivo CSV. La macro se detendr·."
+        MsgBox "No se seleccionÔøΩ ning√∫n archivo CSV. La macro se detendrÔøΩ."
         Exit Sub
     End If
     
@@ -1557,7 +1558,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set fileSystem = CreateObject("Scripting.FileSystemObject")
     Set ts = fileSystem.OpenTextFile(campoArchivoPath, 1, False, 0)
     
-    ' Leer el archivo lÌnea por lÌnea
+    ' Leer el archivo l√≠nea por l√≠nea
     Do Until ts.AtEndOfStream
         csvLine = ts.ReadLine
         partes = Split(csvLine, ",", 2)        ' Divide en dos partes (clave, valor)
@@ -1566,30 +1567,30 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
             key = Trim(partes(0))
             value = Trim(partes(1))
             
-            ' AÒadir al diccionario
+            ' A√±adir al diccionario
             replaceDic(key) = value
         End If
     Loop
     ts.Close
     
-    ' Extraer el nombre de la AplicaciÛn del diccionario
-    If replaceDic.exists("´AplicaciÛnª") Then
-        appName = replaceDic("´AplicaciÛnª")
+    ' Extraer el nombre de la AplicaciÔøΩn del diccionario
+    If replaceDic.exists("¬´AplicaciÔøΩn¬ª") Then
+        appName = replaceDic("¬´AplicaciÔøΩn¬ª")
     Else
-        MsgBox "No se encontrÛ el campo        'AplicaciÛn' en el archivo CSV.", vbExclamation
+        MsgBox "No se encontrÔøΩ el campo        'AplicaciÔøΩn' en el archivo CSV.", vbExclamation
         Exit Sub
     End If
     
-    ' Crear di·logos para seleccionar plantillas y carpeta de salida
+    ' Crear diÔøΩlogos para seleccionar plantillas y carpeta de salida
     Set dlg = Application.FileDialog(msoFileDialogFilePicker)
     
-    dlg.Title = "Seleccionar la plantilla de reporte tÈcnico"
+    dlg.Title = "Seleccionar la plantilla de reporte tÔøΩcnico"
     dlg.Filters.Clear
     dlg.Filters.Add "Archivos de Word", "*.docx"
     If dlg.Show = -1 Then
         plantillaReportePath = dlg.SelectedItems(1)
     Else
-        MsgBox "No se seleccionÛ ning˙n archivo. La macro se detendr·."
+        MsgBox "No se seleccionÔøΩ ning√∫n archivo. La macro se detendrÔøΩ."
         Exit Sub
     End If
     
@@ -1597,7 +1598,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     If dlg.Show = -1 Then
         plantillaReportePath2 = dlg.SelectedItems(1)
     Else
-        MsgBox "No se seleccionÛ ning˙n archivo. La macro se detendr·."
+        MsgBox "No se seleccionÔøΩ ning√∫n archivo. La macro se detendrÔøΩ."
         Exit Sub
     End If
     
@@ -1605,7 +1606,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     If dlg.Show = -1 Then
         plantillaVulnerabilidadesPath = dlg.SelectedItems(1)
     Else
-        MsgBox "No se seleccionÛ ning˙n archivo. La macro se detendr·."
+        MsgBox "No se seleccionÔøΩ ning√∫n archivo. La macro se detendrÔøΩ."
         Exit Sub
     End If
     
@@ -1615,12 +1616,12 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         If .Show = -1 Then
             carpetaSalida = .SelectedItems(1)
         Else
-            MsgBox "No se seleccionÛ ninguna carpeta. La macro se detendr·."
+            MsgBox "No se seleccionÔøΩ ninguna carpeta. La macro se detendrÔøΩ."
             Exit Sub
         End If
     End With
     
-    ' Crear una subcarpeta con el nombre de la AplicaciÛn
+    ' Crear una subcarpeta con el nombre de la AplicaciÔøΩn
     carpetaSalida = carpetaSalida & "\AV " & appName
     On Error Resume Next
     MkDir carpetaSalida
@@ -1648,7 +1649,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     MkDir tempFolderGenerados
     On Error GoTo 0
     
-    ' Crear y abrir documentos de reporte tÈcnico y ejecutivo
+    ' Crear y abrir documentos de reporte tÔøΩcnico y ejecutivo
     For Each plantilla In Array(plantillaReportePath, plantillaReportePath2)
         archivoTemp = tempFolder & "\" & fileSystem.GetFileName(plantilla)
         fileSystem.CopyFile plantilla, archivoTemp
@@ -1656,10 +1657,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         Set WordDoc = WordApp.Documents.Open(archivoTemp)
         WordApp.Visible = False
         
-        ReplaceFields WordDoc, replaceDic
+        ReemplazarCampos WordDoc, replaceDic
         
         If plantilla = plantillaReportePath Then
-            tempDocPath = tempFolder & "\SSIFO14-03 Informe tÈcnico.docx"
+            tempDocPath = tempFolder & "\SSIFO14-03 Informe tÔøΩcnico.docx"
             WordDoc.SaveAs2 tempDocPath
         Else
             tempDocPath2 = tempFolder & "\SSIFO15-03 Informe Ejecutivo.docx"
@@ -1675,22 +1676,22 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     On Error GoTo 0
     
     If selectedRange Is Nothing Then
-        MsgBox "No se ha seleccionado un rango v·lido.", vbExclamation
+        MsgBox "No se ha seleccionado un rango vÔøΩlido.", vbExclamation
         Exit Sub
     End If
     
     Dim resultado As Boolean
     
-    ' Llamar a la funci·n para exportar la hoja activa a Excel
+    ' Llamar a la funciÔøΩn para exportar la hoja activa a Excel
     resultado = FunExportarHojaActivaAExcelINAI(carpetaSalida, appName)
     
-    ' Verifica si el rango seleccionado est· dentro de una tabla
+    ' Verifica si el rango seleccionado estÔøΩ dentro de una tabla
     On Error Resume Next
     Set rng = selectedRange.ListObject.Range
     On Error GoTo 0
     
     If rng Is Nothing Then
-        MsgBox "El rango seleccionado no est· dentro de una tabla.", vbExclamation
+        MsgBox "El rango seleccionado no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
@@ -1707,7 +1708,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Next i
     
     If severidadColumna = -1 Then
-        MsgBox "No se encontr· la columna        'Severidad' en el rango seleccionado.", vbExclamation
+        MsgBox "No se encontrÔøΩ la columna        'Severidad' en el rango seleccionado.", vbExclamation
         Exit Sub
     End If
     
@@ -1736,7 +1737,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Next i
     
     If tiposvulnerabilidadColumna = -1 Then
-        MsgBox "No se encontr· la columna        'Tipo de vulnerabilidad' en el rango seleccionado.", vbExclamation
+        MsgBox "No se encontrÔøΩ la columna        'Tipo de vulnerabilidad' en el rango seleccionado.", vbExclamation
         Exit Sub
     End If
     
@@ -1756,7 +1757,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     countBAJA = IIf(severityCounts.exists("BAJA"), severityCounts("BAJA"), 0)
     countMEDIA = IIf(severityCounts.exists("MEDIA"), severityCounts("MEDIA"), 0)
     countALTA = IIf(severityCounts.exists("ALTA"), severityCounts("ALTA"), 0)
-    countCRITICAS = IIf(severityCounts.exists("CRÕTICOS"), severityCounts("CRÕTICOS"), 0)
+    countCRITICAS = IIf(severityCounts.exists("CR√çTICOS"), severityCounts("CR√çTICOS"), 0)
     
     ' Calcular total de vulnerabilidades
     totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
@@ -1771,7 +1772,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
         For Each cell In selectedRange.Rows(1).Cells
-            replaceDic("´" & cell.value & "ª") = rng.Cells(i, cell.Column).value
+            replaceDic("¬´" & cell.value & "¬ª") = rng.Cells(i, cell.Column).value
         Next cell
         
         tempFileName = "Documento_" & i & ".docx"
@@ -1786,8 +1787,8 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         End If
         On Error GoTo 0
         
-        ReplaceFields WordDoc, replaceDic
-        FormatRiskLevelCell WordDoc.Tables(1).cell(1, 2)
+        ReemplazarCampos WordDoc, replaceDic
+        FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
         EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
         WordDoc.Save
         WordDoc.Close
@@ -1799,11 +1800,11 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     
     ' Combina todos los archivos en uno solo
     finalDocumentPath = tempFolder & "\Tablas_vulnerabilidades.docx"
-    MergeDocuments WordApp, documentsList, finalDocumentPath
+    FusionarDocumentos WordApp, documentsList, finalDocumentPath
     
-    ' Actualizar el documento de reporte tÈcnico
+    ' Actualizar el documento de reporte tÔøΩcnico
     Set WordDoc = WordApp.Documents.Open(tempDocPath)
-    secVulnerabilidades = "{{SecciÛn de tablas de vulnerabilidades}}"
+    secVulnerabilidades = "{{SecciÔøΩn de tablas de vulnerabilidades}}"
     
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
@@ -1829,7 +1830,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
     With rngReplace.Find
-        .text = "´Total de vulnerabilidadesª"
+        .text = "¬´Total de vulnerabilidades¬ª"
         .Replacement.text = totalVulnerabilidades
         .Forward = True
         .Wrap = 1        ' wdFindStop
@@ -1845,21 +1846,21 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         rngReplace.text = totalVulnerabilidades
     End If
     
-    ' Actualizar el gr·fico InlineShape n·mero 1 en reporte tÈcnico
+    ' Actualizar el grÔøΩfico InlineShape nÔøΩmero 1 en reporte tÔøΩcnico
     FunActualizarGraficoSegunDicionario WordDoc, severityCounts, 1
     
-    ' Actualizar todos los gr·ficos en el documento
+    ' Actualizar todos los grÔøΩficos en el documento
     ActualizarGraficos WordDoc
     ' Update the Table of Contents
     On Error Resume Next
     WordDoc.TablesOfContents(1).Update
     On Error GoTo 0
     
-    ' Guardar el documento de reporte tÈcnico final en la subcarpeta
-    WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe tÈcnico.docx"
+    ' Guardar el documento de reporte tÔøΩcnico final en la subcarpeta
+    WordDoc.SaveAs2 carpetaSalida & "\SSIFO14-03 Informe tÔøΩcnico.docx"
     
     ' Guardar como PDF
-    nombrePDF = carpetaSalida & "\SSIFO14-03 Informe tÈcnico.pdf"
+    nombrePDF = carpetaSalida & "\SSIFO14-03 Informe tÔøΩcnico.pdf"
     WordDoc.ExportAsFixedFormat OutputFileName:= _
                                 nombrePDF, ExportFormat:= _
                                 17, OpenAfterExport:=True, OptimizeFor:= _
@@ -1875,7 +1876,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Set rngReplace = WordDoc.content
     rngReplace.Find.ClearFormatting
     With rngReplace.Find
-        .text = "´Total de vulnerabilidadesª"
+        .text = "¬´Total de vulnerabilidades¬ª"
         .Replacement.text = totalVulnerabilidades
         .Forward = True
         .Wrap = 1        ' wdFindStop
@@ -1891,10 +1892,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
         rngReplace.text = totalVulnerabilidades
     End If
     
-    ' Actualizar el gr·fico InlineShape n·mero 1 en reporte ejecutivo
+    ' Actualizar el grÔøΩfico InlineShape nÔøΩmero 1 en reporte ejecutivo
     FunActualizarGraficoSegunDicionario WordDoc, severityCounts, 1
     
-    ' Actualizar el gr·fico InlineShape n·mero 2 en reporte ejecutivo
+    ' Actualizar el grÔøΩfico InlineShape nÔøΩmero 2 en reporte ejecutivo
     FunActualizarGraficoSegunDicionario WordDoc, vulntypesCounts, 2
     
     ActualizarGraficos WordDoc
@@ -1917,13 +1918,13 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
                                 BitmapMissingFonts:=True, UseISO19005_1:=False
     WordDoc.Close False
     
-    ' Cerrar la AplicaciÛn de Word
+    ' Cerrar la AplicaciÔøΩn de Word
     WordApp.Quit
     Set WordDoc = Nothing
     Set WordApp = Nothing
     Set fileSystem = Nothing
     
-    ' Mostrar mensaje de ·xito
+    ' Mostrar mensaje de ÔøΩxito
     MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Sub
 
@@ -1964,7 +1965,7 @@ Sub CYB003_GenerarReportesVulns()
     On Error GoTo 0
     
     If selectedRange Is Nothing Then
-        MsgBox "No se ha seleccionado un rango v·lido.", vbExclamation
+        MsgBox "No se ha seleccionado un rango vÔøΩlido.", vbExclamation
         Exit Sub
     End If
     
@@ -1974,7 +1975,7 @@ Sub CYB003_GenerarReportesVulns()
         Set tableRange = selectedRange.ListObject.Range
     Else
         ' Si no es parte de una tabla, mostrar un mensaje y salir
-        MsgBox "El rango seleccionado no est· dentro de una tabla.", vbExclamation
+        MsgBox "El rango seleccionado no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
@@ -1994,7 +1995,7 @@ Sub CYB003_GenerarReportesVulns()
     
     ' Obtener los encabezados y sus valores de la fila seleccionada
     For i = 1 To selectedRange.Columns.Count
-        key = "´" & headerRow.Cells(1, i).value & "ª"
+        key = "¬´" & headerRow.Cells(1, i).value & "¬ª"
         
         ' Verificar si la clave ya existe en el diccionario
         If replaceDic.exists(key) Then
@@ -2008,46 +2009,46 @@ Sub CYB003_GenerarReportesVulns()
         replaceDic.Add key, value
     Next i
     
-    ' Extraer el nombre de la AplicaciÛn
-    If replaceDic.exists("´Nombre de carpetaª") Then
-        folderName = replaceDic("´Nombre de carpetaª")
+    ' Extraer el nombre de la AplicaciÔøΩn
+    If replaceDic.exists("¬´Nombre de carpeta¬ª") Then
+        folderName = replaceDic("¬´Nombre de carpeta¬ª")
     Else
-        MsgBox "No se encontrÛ el campo        'Nombre de carpeta'.", vbExclamation
+        MsgBox "No se encontrÔøΩ el campo        'Nombre de carpeta'.", vbExclamation
         Exit Sub
     End If
     
-    ' Crear una subcarpeta con el nombre de la AplicaciÛn
+    ' Crear una subcarpeta con el nombre de la AplicaciÔøΩn
     carpetaSalida = carpetaSalida & "\" & folderName
     On Error Resume Next
     MkDir carpetaSalida
     On Error GoTo 0
     
-    If replaceDic.exists("´Tipo de reporteª") Then
-        Select Case replaceDic("´Tipo de reporteª")
-            Case "TÈcnico"
+    If replaceDic.exists("¬´Tipo de reporte¬ª") Then
+        Select Case replaceDic("¬´Tipo de reporte¬ª")
+            Case "TÔøΩcnico"
                 
                 ' Obtener la ruta de la plantilla directamente de la celda de la tabla
-                If replaceDic.exists("´Ruta de la plantillaª") Then
-                    plantillaReportePath = replaceDic("´Ruta de la plantillaª")
+                If replaceDic.exists("¬´Ruta de la plantilla¬ª") Then
+                    plantillaReportePath = replaceDic("¬´Ruta de la plantilla¬ª")
                 Else
-                    MsgBox "No se encontrÛ el campo        'Ruta de la plantilla'.", vbExclamation
+                    MsgBox "No se encontrÔøΩ el campo        'Ruta de la plantilla'.", vbExclamation
                     Exit Sub
                 End If
                 
                 ' Verificar que la ruta de la plantilla exista
                 If Len(Dir(plantillaReportePath)) = 0 Then
-                    MsgBox "La ruta de la plantilla no es v·lida o el archivo no existe: " & plantillaReportePath, vbExclamation
+                    MsgBox "La ruta de la plantilla no es vÔøΩlida o el archivo no existe: " & plantillaReportePath, vbExclamation
                     Exit Sub
                 End If
                 
                 Set dlg = Application.FileDialog(msoFileDialogFilePicker)
-                ' Crear di·logos para seleccionar la carpeta de salida
+                ' Crear diÔøΩlogos para seleccionar la carpeta de salida
                 With Application.FileDialog(msoFileDialogFolderPicker)
                     .Title = "Seleccionar Carpeta de Salida"
                     If .Show = -1 Then
                         carpetaSalida = .SelectedItems(1)
                     Else
-                        MsgBox "No se seleccionÛ ninguna carpeta. La macro se detendr·."
+                        MsgBox "No se seleccionÔøΩ ninguna carpeta. La macro se detendrÔøΩ."
                         Exit Sub
                     End If
                 End With
@@ -2060,7 +2061,7 @@ Sub CYB003_GenerarReportesVulns()
                 If dlg.Show = -1 Then
                     plantillaVulnerabilidadesPath = dlg.SelectedItems(1)
                 Else
-                    MsgBox "No se seleccionÛ ning˙n archivo. La macro se detendr·."
+                    MsgBox "No se seleccionÔøΩ ning√∫n archivo. La macro se detendrÔøΩ."
                     Exit Sub
                 End If
                 
@@ -2092,8 +2093,8 @@ Sub CYB003_GenerarReportesVulns()
                 
                 Set WordDoc = WordApp.Documents.Open(archivoTemp)
                 WordApp.Visible = False
-                ReplaceFields WordDoc, replaceDic
-                finalDocumentPath = carpetaSalida & "\" & "Informe TÈcnico.docx"
+                ReemplazarCampos WordDoc, replaceDic
+                finalDocumentPath = carpetaSalida & "\" & "Informe TÔøΩcnico.docx"
                 WordDoc.SaveAs finalDocumentPath
                 WordDoc.Close
                 Set WordDoc = Nothing
@@ -2108,7 +2109,7 @@ Sub CYB003_GenerarReportesVulns()
                 On Error GoTo 0
                 
                 If selectedRange Is Nothing Then
-                    MsgBox "No se ha seleccionado un rango v·lido.", vbExclamation
+                    MsgBox "No se ha seleccionado un rango vÔøΩlido.", vbExclamation
                     Exit Sub
                 End If
                 
@@ -2118,25 +2119,25 @@ Sub CYB003_GenerarReportesVulns()
                     Set tableRange = selectedRange.ListObject.Range
                 Else
                     ' Si no es parte de una tabla, mostrar un mensaje y salir
-                    MsgBox "El rango seleccionado no est· dentro de una tabla.", vbExclamation
+                    MsgBox "El rango seleccionado no estÔøΩ dentro de una tabla.", vbExclamation
                     Exit Sub
                 End If
                 
                 Dim resultado As Boolean
                 
-                ' Llamar a la funci·n para exportar la hoja activa a Excel
-                resultado = FunExportarHojaActivaAExcelINAI(carpetaSalida, folderName, tableRange.Worksheet, replaceDic("´Nombre del reporteª"))
+                ' Llamar a la funciÔøΩn para exportar la hoja activa a Excel
+                resultado = FunExportarHojaActivaAExcelINAI(carpetaSalida, folderName, tableRange.Worksheet, replaceDic("¬´Nombre del reporte¬ª"))
                 
             Case "Tablas de vulnerabilidades"
                 
-                GenerarDocumentosVulnerabilidiadesWord (replaceDic("´Nombre del reporteª"))
+                GenerarDocumentosVulnerabilidiadesWord (replaceDic("¬´Nombre del reporte¬ª"))
                 
             Case Else
                 MsgBox "El tipo de reporte no es reconocido.", vbExclamation
                 Exit Sub
         End Select
     Else
-        MsgBox "No se encontrÛ el campo        'Tipo de reporte'.", vbExclamation
+        MsgBox "No se encontrÔøΩ el campo        'Tipo de reporte'.", vbExclamation
         Exit Sub
     End If
     
@@ -2170,13 +2171,13 @@ Sub CYB039_KillAllWordInstances()
     MsgBox "All Microsoft Word instances have been terminated.", vbInformation
 End Sub
 
-Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
+Sub ReemplazarCampos(WordDoc As Object, replaceDic As Object)
     Dim key         As Variant
     Dim WordApp     As Object
     Dim docContent  As Object
     Dim findInRange As Boolean
     
-    ' Obtener la aplicaciÛn de Word
+    ' Obtener la aplicaciÔøΩn de Word
     Set WordApp = WordDoc.Application
     
     ' Obtener el contenido del documento
@@ -2184,12 +2185,12 @@ Sub ReplaceFields(WordDoc As Object, replaceDic As Object)
     
     ' Bucle para buscar y reemplazar todas las ocurrencias en el diccionario
     For Each key In replaceDic.keys
-        ' Configurar la b˙squeda
+        ' Configurar la b√∫squeda
         With WordApp.Selection.Find
             .ClearFormatting
             .text = key
             .Forward = True
-            .Wrap = 1        ' wdFindStop (detiene la b˙squeda al final)
+            .Wrap = 1        ' wdFindStop (detiene la b√∫squeda al final)
             .Format = False
             .MatchCase = False
             .MatchWholeWord = False
@@ -2215,7 +2216,7 @@ End Sub
 
 
 Sub ActualizarGraficos(ByRef WordDoc As Object)
-    ' Actualizar todos los gr·ficos en el documento de Word
+    ' Actualizar todos los grÔøΩficos en el documento de Word
     On Error Resume Next
     
     ' Recorrer todos los InlineShapes en el documento
@@ -2226,11 +2227,11 @@ Sub ActualizarGraficos(ByRef WordDoc As Object)
     
     For i = 1 To WordDoc.InlineShapes.Count
         With WordDoc.InlineShapes(i)
-            ' Verificar si el InlineShape es un gr·fico (wdInlineShapeChart = 12)
+            ' Verificar si el InlineShape es un grÔøΩfico (wdInlineShapeChart = 12)
             If .Type = 12 And .HasChart Then
                 Set Chart = .Chart
                 If Not Chart Is Nothing Then
-                    ' Activar los datos del gr·fico
+                    ' Activar los datos del grÔøΩfico
                     Set ChartData = Chart.ChartData
                     If Not ChartData Is Nothing Then
                         ChartData.Activate
@@ -2241,7 +2242,7 @@ Sub ActualizarGraficos(ByRef WordDoc As Object)
                             ' Cerrar el libro de trabajo sin guardar cambios
                             ChartWorkbook.Close SaveChanges:=False
                         End If
-                        ' Refrescar el gr·fico
+                        ' Refrescar el grÔøΩfico
                         Chart.Refresh
                     End If
                 End If
@@ -2274,17 +2275,17 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
     On Error GoTo 0
     
     If selectedRange Is Nothing Then
-        MsgBox "No se ha seleccionado un rango v·lido.", vbExclamation
+        MsgBox "No se ha seleccionado un rango vÔøΩlido.", vbExclamation
         Exit Function
     End If
     
-    ' Verifica si el rango seleccionado est· dentro de una tabla
+    ' Verifica si el rango seleccionado estÔøΩ dentro de una tabla
     On Error Resume Next
     Set rng = selectedRange.ListObject.Range
     On Error GoTo 0
     
     If rng Is Nothing Then
-        MsgBox "El rango seleccionado no est· dentro de una tabla.", vbExclamation
+        MsgBox "El rango seleccionado no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Function
     End If
     
@@ -2302,7 +2303,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
         End If
     End With
     
-    ' Crea una instancia de la aplicaciÛn de Word
+    ' Crea una instancia de la aplicaciÔøΩn de Word
     Set WordApp = CreateObject("Word.Application")
     WordApp.Visible = True
     
@@ -2315,7 +2316,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
     ' Llena el diccionario de reemplazo con los datos de la tabla de Excel
     rowCount = rng.Rows.Count
     For Each cell In selectedRange.Rows(1).Cells        ' Tomamos la primera fila para los nombres de los campos
-        replaceDic("´" & cell.value & "ª") = ""
+        replaceDic("¬´" & cell.value & "¬ª") = ""
     Next cell
     
     ' Crea una carpeta temporal en la carpeta de archivos temporales del sistema
@@ -2333,7 +2334,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
         
         ' Llena el diccionario de reemplazo con los datos de la fila actual de la tabla de Excel
         For Each cell In selectedRange.Rows(1).Cells        ' Tomamos la primera fila para los nombres de los campos
-            replaceDic("´" & cell.value & "ª") = rng.Cells(i, cell.Column).value
+            replaceDic("¬´" & cell.value & "¬ª") = rng.Cells(i, cell.Column).value
         Next cell
         
         ' Crea una copia del documento de Word en la carpeta temporal
@@ -2344,22 +2345,22 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
         For Each key In replaceDic.keys
             
             Debug.Print CStr(key)
-            If CStr(key) = "´DescripciÛnª" Then
-                ' Aplicar la funciÛn especÌfica para la clave ´Descripcionª
-                replaceDic(key) = TransformText(replaceDic(key))
+            If CStr(key) = "¬´DescripciÔøΩn¬ª" Then
+                ' Aplicar la funciÔøΩn espec√≠fica para la clave ¬´Descripcion¬ª
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
-            If CStr(key) = "´Propuesta de remediaciÛnª" Then
-                replaceDic(key) = TransformText(replaceDic(key))
+            If CStr(key) = "¬´Propuesta de remediaciÔøΩn¬ª" Then
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
             If CStr(key) = "Referencias" Then
-                replaceDic(key) = TransformText(replaceDic(key))
+                replaceDic(key) = TransformarTexto(replaceDic(key))
             End If
             ' Reemplazar en el documento de Word
-            WordAppReplaceParagraph WordApp, WordDoc, CStr(key), CStr(replaceDic(key))
+            WordAppReemplazarParrafo WordApp, WordDoc, CStr(key), CStr(replaceDic(key))
             
            
         Next key
-        FormatRiskLevelCell WordDoc.Tables(1).cell(1, 2)
+        FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
         ' Guarda y cierra el documento de Word
         ' Antes de guardar el documento de Word
         'EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
@@ -2374,22 +2375,22 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
     ' Combina todos los archivos en uno solo
     Dim finalDocumentPath As String
     finalDocumentPath = saveFolder & "\" & fileName & ".docx"
-    MergeDocuments WordApp, documentsList, finalDocumentPath
+    FusionarDocumentos WordApp, documentsList, finalDocumentPath
     
     ' Mueve la carpeta temporal a la carpeta seleccionada por el usuario
     fs.MoveFolder tempFolder, saveFolder & "\Documentos_generados"
     
-    ' Cerrar la aplicaciÛn de Word
+    ' Cerrar la aplicaciÔøΩn de Word
     WordApp.Quit
     Set WordApp = Nothing
     
-    ' Muestra un mensaje de Èxito
+    ' Muestra un mensaje de ÔøΩxito
     MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
 End Function
 
 
 
-Sub FormatDashParagraphsCell(cell As Object)
+Sub FormatearParrafosGuionesCelda(cell As Object)
     Dim cellText As String
     Dim p As Object
     Dim rng As Object
@@ -2402,11 +2403,11 @@ Sub FormatDashParagraphsCell(cell As Object)
     cellText = Trim(Replace(cellText, vbLf, ""))
     cellText = Trim(Replace(cellText, Chr(7), ""))
 
-    ' Recorre cada p·rrafo dentro de la celda
+    ' Recorre cada pÔøΩrrafo dentro de la celda
     For Each p In cell.Range.Paragraphs
         strTexto = p.Range.text
         
-        ' Si el p·rrafo comienza con "- "
+        ' Si el pÔøΩrrafo comienza con "- "
         If Left(Trim(strTexto), 2) = "- " Then
             posDosPuntos = InStr(strTexto, ":")
             
@@ -2418,7 +2419,7 @@ Sub FormatDashParagraphsCell(cell As Object)
                 rng.End = p.Range.Start + posDosPuntos - 1
                 rng.Font.Bold = True
                 
-                ' El texto despuÈs de los dos puntos no tendr· negrita
+                ' El texto despuÔøΩs de los dos puntos no tendrÔøΩ negrita
                 Set rng = p.Range
                 rng.Start = p.Range.Start + posDosPuntos
                 rng.End = p.Range.End
@@ -2428,7 +2429,7 @@ Sub FormatDashParagraphsCell(cell As Object)
     Next p
 End Sub
 
-Sub FormatRiskLevelCell(cell As Object)
+Sub FormatearCeldaNivelRiesgo(cell As Object)
     Dim cellText As String
     Dim cvssScore As Double
     Dim isNumber As Boolean
@@ -2439,17 +2440,17 @@ Sub FormatRiskLevelCell(cell As Object)
     cellText = Trim(Replace(cellText, vbLf, ""))
     cellText = Trim(Replace(cellText, Chr(7), ""))
     
-    ' Intentar convertir el texto en un n˙mero
+    ' Intentar convertir el texto en un n√∫mero
     On Error Resume Next
     cvssScore = CDbl(cellText)
     isNumber = (Err.Number = 0)
     On Error GoTo 0
     
-    ' Si es un n˙mero, aplicar el formato seg˙n el rango del CVSS
+    ' Si es un n√∫mero, aplicar el formato seg√∫n el rango del CVSS
     If isNumber Then
         Select Case cvssScore
             Case Is >= 9
-                cell.Shading.BackgroundPatternColor = 10498160 ' CRÕTICA
+                cell.Shading.BackgroundPatternColor = 10498160 ' CR√çTICA
                 cell.Range.Font.Color = 16777215
             Case Is >= 7
                 cell.Shading.BackgroundPatternColor = 255 ' ALTA
@@ -2464,9 +2465,9 @@ Sub FormatRiskLevelCell(cell As Object)
                 cell.Shading.BackgroundPatternColor = wdColorAutomatic ' Sin color
         End Select
     Else
-        ' Si no es un n˙mero, usar la clasificaciÛn por texto
+        ' Si no es un n√∫mero, usar la clasificaciÔøΩn por texto
         Select Case UCase(cellText)
-            Case "CRÕTICA"
+            Case "CR√çTICA"
                 cell.Shading.BackgroundPatternColor = 10498160
                 cell.Range.Font.Color = 16777215
             Case "ALTA"
@@ -2483,20 +2484,20 @@ Sub FormatRiskLevelCell(cell As Object)
 End Sub
 
 
-Function TransformText(text As String) As String
+Function TransformarTexto(text As String) As String
     Dim regex       As Object
     Set regex = CreateObject("VBScript.RegExp")
     
-    ' Configurar la expresiÛn regular para encontrar saltos de lÌnea o saltos de carro sin un punto antes y no seguidos de parÈntesis ni de guiÛn
+    ' Configurar la expresiÔøΩn regular para encontrar saltos de l√≠nea o saltos de carro sin un punto antes y no seguidos de parÔøΩntesis ni de guiÔøΩn
     With regex
         .Global = True
         .MultiLine = True
         .IgnoreCase = True
-        .pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+"        ' ExpresiÛn regular para encontrar saltos de lÌnea o saltos de carro sin un punto antes y no seguidos de parÈntesis ni de guiÛn
+        .pattern = "([^.()\r\n-])(?![^(]*\)|[-])[^\S\r\n]*[\r\n]+"        ' ExpresiÔøΩn regular para encontrar saltos de l√≠nea o saltos de carro sin un punto antes y no seguidos de parÔøΩntesis ni de guiÔøΩn
     End With
     
-    ' Realizar la transformaciÛn: quitar caracteres especiales y aplicar la expresiÛn regular
-    TransformText = regex.Replace(Replace(text, Chr(7), ""), "$1 ")
+    ' Realizar la transformaciÔøΩn: quitar caracteres especiales y aplicar la expresiÔøΩn regular
+    TransformarTexto = regex.Replace(Replace(text, Chr(7), ""), "$1 ")
 End Function
 
 Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Object, graficoIndex As Integer) As Boolean
@@ -2517,20 +2518,20 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
     
     On Error GoTo ErrorHandler
     
-    ' Verificar que el ·ndice del gr·fico es v·lido
+    ' Verificar que el ÔøΩndice del grÔøΩfico es vÔøΩlido
     If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.Count Then
-        MsgBox "Õndice de gr·fico fuera de rango."
+        MsgBox "√çndice de grÔøΩfico fuera de rango."
         FunActualizarGraficoSegunDicionario = False
         Exit Function
     End If
     
-    ' Obtener el InlineShape correspondiente al ·ndice
+    ' Obtener el InlineShape correspondiente al ÔøΩndice
     Set ils = WordDoc.InlineShapes(graficoIndex)
     
     If ils.Type = 12 And ils.HasChart Then
         Set Chart = ils.Chart
         If Not Chart Is Nothing Then
-            ' Activar el libro de trabajo asociado al gr·fico
+            ' Activar el libro de trabajo asociado al grÔøΩfico
             Set ChartData = Chart.ChartData
             If Not ChartData Is Nothing Then
                 ChartData.Activate
@@ -2552,13 +2553,13 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
                         categoryRow = categoryRow + 1
                     Next category
                     
-                    ' Construir el rango din·mico como una cadena
+                    ' Construir el rango dinÔøΩmico como una cadena
                     dataRangeAddress =        '" & SourceSheet.Name & "'!$A$1:$B$" & (categoryRow - 1)
                     Debug.Print dataRangeAddress
                     
-                    ' Verifica si la tabla existe usando el ·ndice
+                    ' Verifica si la tabla existe usando el ÔøΩndice
                     On Error Resume Next
-                    Set DataTable = SourceSheet.ListObjects(tableIndex)        ' Obtiene el objeto de la tabla por ·ndice
+                    Set DataTable = SourceSheet.ListObjects(tableIndex)        ' Obtiene el objeto de la tabla por ÔøΩndice
                     On Error GoTo 0
                     
                     ' Verifica que el objeto de la tabla no sea Nothing
@@ -2566,12 +2567,12 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
                         ' Redimensiona la tabla al nuevo rango usando el objeto Worksheet
                         DataTable.Resize SourceSheet.Range("A1:B" & (categoryRow - 1))
                     Else
-                        MsgBox "La tabla en el Ìndice " & tableIndex & " no se encontrÛ en la hoja."
+                        MsgBox "La tabla en el √≠ndice " & tableIndex & " no se encontrÔøΩ en la hoja."
                     End If
                     
                     WordDoc.InlineShapes(graficoIndex).Chart.SetSourceData Source:=dataRangeAddress
                     
-                    ' Actualizar el gr·fico
+                    ' Actualizar el grÔøΩfico
                     Chart.Refresh
                     
                     ' Cerrar el libro de trabajo sin guardar cambios
@@ -2581,25 +2582,25 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
                 End If
             End If
         Else
-            MsgBox "El InlineShape seleccionado no contiene un gr·fico v·lido."
+            MsgBox "El InlineShape seleccionado no contiene un grÔøΩfico vÔøΩlido."
             FunActualizarGraficoSegunDicionario = False
         End If
     Else
-        MsgBox "El InlineShape seleccionado no contiene un gr·fico."
+        MsgBox "El InlineShape seleccionado no contiene un grÔøΩfico."
         FunActualizarGraficoSegunDicionario = False
     End If
     
     Exit Function
     
 ErrorHandler:
-    MsgBox "OcurriÛ un error: " & Err.Description, vbCritical
+    MsgBox "OcurriÔøΩ un error: " & Err.Description, vbCritical
     FunActualizarGraficoSegunDicionario = False
 End Function
 
 
 
 
-Sub MergeDocuments(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
+Sub FusionarDocumentos(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
     Dim baseDoc     As Object
     Dim sFile       As String
     Dim oRng        As Object
@@ -2619,11 +2620,11 @@ Sub MergeDocuments(WordApp As Object, documentsList As Variant, finalDocumentPat
         oRng.Collapse 0        ' Colapsar el rango al final del documento base
         oRng.InsertFile sFile        ' Insertar el contenido del archivo actual
         
-        ' Insertar un salto de p·gina despuÈs de cada documento insertado (excepto el ˙ltimo)
+        ' Insertar un salto de pÔøΩgina despuÔøΩs de cada documento insertado (excepto el √∫ltimo)
         If i < UBound(documentsList) Then
             Set oRng = baseDoc.Range
             oRng.Collapse 0        ' Colapsar el rango al final del documento base
-            'oRng.InsertBreak Type:=6 ' Insertar un salto de p·gina
+            'oRng.InsertBreak Type:=6 ' Insertar un salto de pÔøΩgina
         End If
     Next i
     
@@ -2646,14 +2647,14 @@ err_Handler:
 End Sub
 
 
-Sub WordAppReplaceParagraph(WordApp As Object, WordDoc As Object, wordToFind As String, replaceWord As String)
+Sub WordAppReemplazarParrafo(WordApp As Object, WordDoc As Object, wordToFind As String, replaceWord As String)
     Dim findInRange As Boolean
     Dim searchRange As Object
     
     ' Configurar el rango para todo el documento
     Set searchRange = WordDoc.content
     
-    ' Configurar las opciones de b˙squeda
+    ' Configurar las opciones de b√∫squeda
     With searchRange.Find
         .text = wordToFind
         .Replacement.text = ""
@@ -2698,7 +2699,7 @@ Sub CYB013_DesglosarIPs()
     ' Obtener la celda seleccionada
     Set celda = Selection
 
-    ' Verificar si la celda no est· vacÌa
+    ' Verificar si la celda no estÔøΩ vac√≠a
     If IsEmpty(celda) Then
         MsgBox "Seleccione una celda con un rango de IPs.", vbExclamation, "Error"
         Exit Sub
@@ -2711,24 +2712,24 @@ Sub CYB013_DesglosarIPs()
     
     ' Verificar que haya dos partes en el rango
     If UBound(partes) <> 1 Then
-        MsgBox "Formato inv·lido. Use: 10.0.1.60-10.0.1.78", vbExclamation, "Error"
+        MsgBox "Formato invÔøΩlido. Use: 10.0.1.60-10.0.1.78", vbExclamation, "Error"
         Exit Sub
     End If
 
     ipInicio = partes(0)
     ipFin = partes(1)
 
-    ' Extraer el ˙ltimo n˙mero de las IPs
+    ' Extraer el √∫ltimo n√∫mero de las IPs
     numInicio = CInt(Split(ipInicio, ".")(3))
     numFin = CInt(Split(ipFin, ".")(3))
 
     ' Validar que el inicio es menor o igual que el fin
     If numInicio > numFin Then
-        MsgBox "El rango de IPs es inv·lido.", vbExclamation, "Error"
+        MsgBox "El rango de IPs es invÔøΩlido.", vbExclamation, "Error"
         Exit Sub
     End If
 
-    ' Obtener la parte fija de la IP (sin el ˙ltimo octeto)
+    ' Obtener la parte fija de la IP (sin el √∫ltimo octeto)
     Dim baseIP As String
     baseIP = Left(ipInicio, InStrRev(ipInicio, "."))
 
@@ -2765,7 +2766,7 @@ Sub CYB034_CargarDatosDesdeCSVNessus()
     Set wb = ThisWorkbook
     Set ws = wb.ActiveSheet
     
-    ' Verificar si la celda activa est· dentro de una tabla
+    ' Verificar si la celda activa estÔøΩ dentro de una tabla
     Dim celdaEnTabla As Boolean
     celdaEnTabla = False
     For Each tbl In ws.ListObjects
@@ -2777,13 +2778,13 @@ Sub CYB034_CargarDatosDesdeCSVNessus()
         End If
     Next tbl
     
-    ' Si no est· dentro de una tabla, salir
+    ' Si no estÔøΩ dentro de una tabla, salir
     If Not celdaEnTabla Then
-        MsgBox "La celda seleccionada no est· dentro de una tabla.", vbExclamation
+        MsgBox "La celda seleccionada no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
-    ' Seleccionar m˙ltiples archivos CSV
+    ' Seleccionar m√∫ltiples archivos CSV
     archivos = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", MultiSelect:=True, Title:="Seleccionar archivos CSV")
     If IsArray(archivos) = False Then Exit Sub
     
@@ -2811,8 +2812,8 @@ Sub CYB034_CargarDatosDesdeCSVNessus()
                     Case "Host": columnaCorrespondiente = "IPv4 Interna"
                     Case "CVE": columnaCorrespondiente = "CVE"
                     Case "CVSS v3.0 Base Score": columnaCorrespondiente = "CVSSScore"
-                    Case "Description": columnaCorrespondiente = "DescripciÛn ampliada"
-                    Case "Metasploit": columnaCorrespondiente = "Exploits p˙blicos"
+                    Case "Description": columnaCorrespondiente = "DescripciÔøΩn ampliada"
+                    Case "Metasploit": columnaCorrespondiente = "Exploits p√∫blicos"
                     Case "Plugin ID": columnaCorrespondiente = "Identificador original de la vulnerabilidad"
                     Case "Name": columnaCorrespondiente = "Nombre de vulnerabilidad"
                     Case "Protocol": columnaCorrespondiente = "Protocolo de transporte"
@@ -2836,7 +2837,7 @@ Sub CYB034_CargarDatosDesdeCSVNessus()
         Next j
     Next i
     
-    MsgBox "Datos cargados con Èxito en la tabla.", vbInformation
+    MsgBox "Datos cargados con ÔøΩxito en la tabla.", vbInformation
 End Sub
 
 
@@ -2860,7 +2861,7 @@ Sub CYB035_CargarDatosDesdeCSVNexPose()
     Set wb = ThisWorkbook
     Set ws = wb.ActiveSheet
     
-    ' Verificar si la celda activa est· dentro de una tabla
+    ' Verificar si la celda activa estÔøΩ dentro de una tabla
     Dim celdaEnTabla As Boolean
     celdaEnTabla = False
     For Each tbl In ws.ListObjects
@@ -2872,20 +2873,20 @@ Sub CYB035_CargarDatosDesdeCSVNexPose()
         End If
     Next tbl
     
-    ' Si no est· dentro de una tabla, salir
+    ' Si no estÔøΩ dentro de una tabla, salir
     If Not celdaEnTabla Then
-        MsgBox "La celda seleccionada no est· dentro de una tabla.", vbExclamation
+        MsgBox "La celda seleccionada no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
-    ' Preguntar al usuario si est· seguro de cargar los datos
-    mensaje = "øEst· seguro que desea cargar datos de los archivos CSV en la tabla '" & tbl.Name & "'?"
-    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "ConfirmaciÛn")
+    ' Preguntar al usuario si estÔøΩ seguro de cargar los datos
+    mensaje = "¬øEstÔøΩ seguro que desea cargar datos de los archivos CSV en la tabla '" & tbl.Name & "'?"
+    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "ConfirmaciÔøΩn")
     If respuesta = vbNo Then Exit Sub
     
-    ' Seleccionar m˙ltiples archivos CSV
+    ' Seleccionar m√∫ltiples archivos CSV
     archivos = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", MultiSelect:=True, Title:="Seleccionar archivos CSV")
-    If Not IsArray(archivos) Then Exit Sub ' Si el usuario cancela la selecciÛn
+    If Not IsArray(archivos) Then Exit Sub ' Si el usuario cancela la selecciÔøΩn
     
     ' Iterar sobre los archivos seleccionados
     For Each archivo In archivos
@@ -2897,7 +2898,7 @@ Sub CYB035_CargarDatosDesdeCSVNexPose()
         
         ' Abrir el archivo CSV
         Set wbCSV = Workbooks.Open(fileName:=archivo, Local:=True)
-        Set wsCSV = wbCSV.Sheets(1) ' Asumimos que los datos est·n en la primera hoja
+        Set wsCSV = wbCSV.Sheets(1) ' Asumimos que los datos estÔøΩn en la primera hoja
         
         ' Leer los encabezados desde la primera fila del archivo CSV
         encabezados = wsCSV.UsedRange.Rows(1).value
@@ -2916,7 +2917,7 @@ Sub CYB035_CargarDatosDesdeCSVNexPose()
                 Select Case encabezados(1, colCSVIndex)
                     Case "Asset IP Address"
                         tbl.ListColumns("IPv4 Interna").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
-                        tbl.ListColumns("Identificador de detecciÛn usado").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
+                        tbl.ListColumns("Identificador de detecciÔøΩn usado").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
                     Case "Service Port"
                         columnaCorrespondiente = "Puerto"
                     Case "Vulnerability Title"
@@ -2940,7 +2941,7 @@ Sub CYB035_CargarDatosDesdeCSVNexPose()
         Next i
     Next archivo
     
-    MsgBox "Datos cargados con Èxito en la tabla.", vbInformation
+    MsgBox "Datos cargados con ÔøΩxito en la tabla.", vbInformation
 End Sub
 
 
@@ -2959,7 +2960,7 @@ Set regex = CreateObject("VBScript.RegExp")
     Set wb = ThisWorkbook
     Set ws = wb.ActiveSheet
     
-    ' Verificar si la celda activa est· dentro de alguna tabla y asignarla a tbl
+    ' Verificar si la celda activa estÔøΩ dentro de alguna tabla y asignarla a tbl
     Dim celdaEnTabla As Boolean, t As ListObject
     celdaEnTabla = False
     For Each t In ws.ListObjects
@@ -2972,13 +2973,13 @@ Set regex = CreateObject("VBScript.RegExp")
         End If
     Next t
     If Not celdaEnTabla Then
-        MsgBox "La celda seleccionada no est· dentro de una tabla.", vbExclamation
+        MsgBox "La celda seleccionada no estÔøΩ dentro de una tabla.", vbExclamation
         Exit Sub
     End If
     
     ' Confirmar con el usuario
-    mensaje = "øEst· seguro que desea cargar datos del archivo XML en la tabla '" & tbl.Name & "'?"
-    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "ConfirmaciÛn")
+    mensaje = "¬øEstÔøΩ seguro que desea cargar datos del archivo XML en la tabla '" & tbl.Name & "'?"
+    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "ConfirmaciÔøΩn")
     If respuesta = vbNo Then Exit Sub
     
     ' Seleccionar el archivo XML
@@ -3005,7 +3006,7 @@ Set regex = CreateObject("VBScript.RegExp")
         Exit Sub
     End If
     
-    ' Crear un diccionario para mapear los encabezados de la tabla a sus Ìndices relativos
+    ' Crear un diccionario para mapear los encabezados de la tabla a sus √≠ndices relativos
     Set dict = CreateObject("Scripting.Dictionary")
     For Each header In tbl.HeaderRowRange.Cells
         dict(Trim(header.value)) = header.Column - tbl.Range.Cells(1, 1).Column + 1
@@ -3015,7 +3016,7 @@ Set regex = CreateObject("VBScript.RegExp")
     requiredFields = Array("Severidad", "Nombre de vulnerabilidad", "Salidas de herramienta", "IPv4 Interna", "Puerto")
     For Each field In requiredFields
         If Not dict.exists(field) Then
-            MsgBox "La columna '" & field & "' no se encontrÛ en la tabla.", vbExclamation
+            MsgBox "La columna '" & field & "' no se encontrÔøΩ en la tabla.", vbExclamation
             Exit Sub
         End If
     Next field
@@ -3041,7 +3042,7 @@ For Each resultNode In resultNodes
     On Error GoTo 0
 Next resultNode
 
-    MsgBox "Datos cargados con Èxito.", vbInformation
+    MsgBox "Datos cargados con ÔøΩxito.", vbInformation
 End Sub
 
 
@@ -3074,16 +3075,16 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
 
     ' Si no se encuentra la tabla, mostrar mensaje y salir
     If Not encontrada Then
-        MsgBox "No se encontrÛ la tabla 'Tbl_falses_positives' en ninguna hoja.", vbExclamation
+        MsgBox "No se encontrÔøΩ la tabla 'Tbl_falses_positives' en ninguna hoja.", vbExclamation
         Exit Sub
     End If
 
-    ' Obtener el Ìndice de la columna "Vulnerability Name"
+    ' Obtener el √≠ndice de la columna "Vulnerability Name"
     On Error Resume Next
     columnaIndex = tbl.ListColumns("Vulnerability Name").Index
     On Error GoTo 0
     If columnaIndex = 0 Then
-        MsgBox "La columna 'Vulnerability Name' no se encontrÛ en la tabla.", vbExclamation
+        MsgBox "La columna 'Vulnerability Name' no se encontrÔøΩ en la tabla.", vbExclamation
         Exit Sub
     End If
 
@@ -3098,7 +3099,7 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
     coincidencias = False
     For Each celda In Selection
         If valoresTabla.exists(celda.value) Then
-            celda.Interior.Color = RGB(0, 255, 0) ' Verde chillÛn
+            celda.Interior.Color = RGB(0, 255, 0) ' Verde chillÔøΩn
             coincidencias = True
         End If
     Next celda
@@ -3124,16 +3125,16 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     
     ' Definir las hojas
     Set wsOrigen = ActiveSheet ' La hoja actual donde se ejecuta la macro
-    Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades") ' Hoja donde est· la tabla de cat·logo
+    Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades") ' Hoja donde estÔøΩ la tabla de catÔøΩlogo
     
     ' Identificar la tabla en la hoja actual (se asume que solo hay una tabla)
     If wsOrigen.ListObjects.Count = 0 Then
-        MsgBox "No se encontrÛ una tabla en la hoja actual.", vbExclamation, "Error"
+        MsgBox "No se encontrÔøΩ una tabla en la hoja actual.", vbExclamation, "Error"
         Exit Sub
     End If
     Set tblOrigen = wsOrigen.ListObjects(1) ' Toma la primera tabla de la hoja actual
     
-    ' Crear diccionario con los nombres de columnas seg˙n el tipo de origen
+    ' Crear diccionario con los nombres de columnas seg√∫n el tipo de origen
     Set dictColumnas = CreateObject("Scripting.Dictionary")
     dictColumnas.Add "Nessus", "NessusPluginId"
     dictColumnas.Add "Invicti", "InvictiName"
@@ -3153,7 +3154,7 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     ' Obtener la celda actual
     Set rngCeldaActual = ActiveCell
     
-    ' Verificar si la celda actual est· dentro de la tabla
+    ' Verificar si la celda actual estÔøΩ dentro de la tabla
     If Intersect(rngCeldaActual, tblOrigen.DataBodyRange) Is Nothing Then
         MsgBox "Por favor, selecciona una celda dentro de la tabla de vulnerabilidades.", vbExclamation, "Error"
         Exit Sub
@@ -3165,22 +3166,22 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     idVulnerabilidad = tblOrigen.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange.Cells(rngCeldaActual.Row - tblOrigen.DataBodyRange.Row + 1, 1).value
     On Error GoTo 0
     
-    ' Validar si se obtuvo un tipo de origen y un ID v·lido
+    ' Validar si se obtuvo un tipo de origen y un ID vÔøΩlido
     If tipoOrigen = "" Or IsEmpty(idVulnerabilidad) Then
-        MsgBox "No se encontrÛ un Tipo de Origen o Identificador v·lido en la fila actual.", vbExclamation, "Error"
+        MsgBox "No se encontrÔøΩ un Tipo de Origen o Identificador vÔøΩlido en la fila actual.", vbExclamation, "Error"
         Exit Sub
     End If
     
-    ' Verificar si el tipo de origen est· en el diccionario
+    ' Verificar si el tipo de origen estÔøΩ en el diccionario
     If Not dictColumnas.exists(tipoOrigen) Then
-        MsgBox "El tipo de origen '" & tipoOrigen & "' no tiene una columna asignada en la tabla de cat·logo.", vbExclamation, "Error"
+        MsgBox "El tipo de origen '" & tipoOrigen & "' no tiene una columna asignada en la tabla de catÔøΩlogo.", vbExclamation, "Error"
         Exit Sub
     End If
 
-    ' Obtener el nombre de la columna de b˙squeda en el cat·logo
+    ' Obtener el nombre de la columna de b√∫squeda en el catÔøΩlogo
     colBusqueda = dictColumnas(tipoOrigen)
 
-    ' Obtener la tabla de cat·logo
+    ' Obtener la tabla de catÔøΩlogo
     On Error Resume Next
     Set tblCatalogo = wsCatalogo.ListObjects("Tbl_Catalogo_vulnerabilidades")
     On Error GoTo 0
@@ -3190,24 +3191,24 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
         Exit Sub
     End If
 
-    ' Buscar la columna correspondiente en el cat·logo
+    ' Buscar la columna correspondiente en el catÔøΩlogo
     Set rngBusqueda = tblCatalogo.ListColumns(colBusqueda).DataBodyRange
 
     ' Buscar el identificador en la columna correspondiente
     Set celdaEncontrada = rngBusqueda.Find(What:=idVulnerabilidad, LookAt:=xlWhole)
 
-    ' Si se encontrÛ, seleccionar la fila correspondiente en el cat·logo
+    ' Si se encontrÔøΩ, seleccionar la fila correspondiente en el catÔøΩlogo
     If Not celdaEncontrada Is Nothing Then
         wsCatalogo.Activate
         celdaEncontrada.EntireRow.Select
-        MsgBox "Registro encontrado. Se ha seleccionado la fila correspondiente en el cat·logo.", vbInformation, "…xito"
+        MsgBox "Registro encontrado. Se ha seleccionado la fila correspondiente en el catÔøΩlogo.", vbInformation, "√âxito"
     Else
-        MsgBox "No se encontrÛ el identificador en la tabla de cat·logo.", vbExclamation, "Registro no encontrado"
+        MsgBox "No se encontrÔøΩ el identificador en la tabla de catÔøΩlogo.", vbExclamation, "Registro no encontrado"
     End If
 End Sub
 
 
-Sub CYB042_Standardize()
+Sub CYB042_Estandarizar()
     Dim ws As Worksheet
     Dim lastRow As Long, lastCol As Long
     Dim rng As Range, cell As Range
@@ -3221,7 +3222,7 @@ Sub CYB042_Standardize()
     Set dict = CreateObject("Scripting.Dictionary")
     Set colIndex = CreateObject("Scripting.Dictionary")
     
-    ' Encontrar la ˙ltima fila y ˙ltima columna con datos
+    ' Encontrar la √∫ltima fila y √∫ltima columna con datos
     lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
     lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
     
@@ -3233,7 +3234,7 @@ Sub CYB042_Standardize()
         If ws.Cells(1, i).value = "StandardVulnerabilityName" Then
             stdCol = i
         End If
-        ' Guardar Ìndices de columnas relevantes
+        ' Guardar √≠ndices de columnas relevantes
         If Not IsEmpty(ws.Cells(1, i).value) Then
             colIndex(ws.Cells(1, i).value) = i
         End If
@@ -3252,7 +3253,7 @@ Sub CYB042_Standardize()
                 dict.Add key, CreateObject("Scripting.Dictionary")
             End If
             
-            ' Guardar valores no vacÌos en cada columna relevante
+            ' Guardar valores no vac√≠os en cada columna relevante
             For Each colName In colIndex.keys
                 Dim colNum As Integer
                 colNum = colIndex(colName)
@@ -3276,7 +3277,7 @@ Sub CYB042_Standardize()
         End If
     Next i
     
-    MsgBox "EstandarizaciÛn completada.", vbInformation
+    MsgBox "EstandarizaciÔøΩn completada.", vbInformation
 End Sub
 
 
@@ -3296,9 +3297,9 @@ Sub CYB043_AplicarFormatoCondicional()
         Exit Sub
     End If
 
-    ' Aplicar formato condicional seg˙n el contenido de las celdas seleccionadas
+    ' Aplicar formato condicional seg√∫n el contenido de las celdas seleccionadas
     With selectedRange
-        .FormatConditions.Add Type:=xlTextString, String:="CRÕTICA", TextOperator:=xlContains
+        .FormatConditions.Add Type:=xlTextString, String:="CR√çTICA", TextOperator:=xlContains
         .FormatConditions(.FormatConditions.Count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255) ' Blanco
@@ -3362,13 +3363,13 @@ Sub CYB061_LLM_llama3_2_1b()
     ' Crear objeto HTTP
     Set http = CreateObject("MSXML2.XMLHTTP")
     
-    ' Recorrer cada celda en la selecciÛn
+    ' Recorrer cada celda en la selecciÔøΩn
     For Each cell In Selection
-        ' Verificar si la celda no est· vacÌa
+        ' Verificar si la celda no estÔøΩ vac√≠a
         If Not IsEmpty(cell.value) Then
             Vulnerabilidad = cell.value
             
-            ' ConstrucciÛn del prompt
+            ' ConstrucciÔøΩn del prompt
             Dim prompt As String
             prompt = ConstruirPrompt(Vulnerabilidad)
             
@@ -3413,13 +3414,13 @@ Sub CYB060_LLLM_deepseek_r1_1_5b()
     ' Crear objeto HTTP
     Set http = CreateObject("MSXML2.XMLHTTP")
     
-    ' Recorrer cada celda en la selecciÛn
+    ' Recorrer cada celda en la selecciÔøΩn
     For Each cell In Selection
-        ' Verificar si la celda no est· vacÌa
+        ' Verificar si la celda no estÔøΩ vac√≠a
         If Not IsEmpty(cell.value) Then
             Vulnerabilidad = cell.value
             
-            ' ConstrucciÛn del prompt
+            ' ConstrucciÔøΩn del prompt
             Dim prompt As String
             prompt = ConstruirPrompt(Vulnerabilidad)
             
@@ -3449,17 +3450,17 @@ End Sub
 
 
 
-' FunciÛn para construir el prompt de forma m·s clara y estructurada
+' FunciÔøΩn para construir el prompt de forma mÔøΩs clara y estructurada
 Function ConstruirPrompt(Vulnerabilidad As String) As String
     Dim prompt As String
-    prompt = "GeneraciÛn de Vector CVSS 4.0 Considera este ejemplo de URL de CVSS 4.0 https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N "
-    prompt = prompt & "Esta cadena est· compuesta por distintos campos de evaluaciÛn, los cuales deben ajustarse seg˙n corresponda. Exploitability Metrics Attack Vector (AV): "
+    prompt = "GeneraciÔøΩn de Vector CVSS 4.0 Considera este ejemplo de URL de CVSS 4.0 https://www.first.org/cvss/calculator/4.0#CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N "
+    prompt = prompt & "Esta cadena estÔøΩ compuesta por distintos campos de evaluaciÔøΩn, los cuales deben ajustarse seg√∫n corresponda. Exploitability Metrics Attack Vector (AV): "
     prompt = prompt & "Debes completar los siguientes elementos: Exploitability: Complexity: Vulnerable system: Subsequent system: Exploitation: Security requirements: "
-    prompt = prompt & "SÈ exigente y preciso al evaluar la severidad en CVSS. No exageres ni asignes impactos altos a menos que la vulnerabilidad pueda ser explotada directamente y tenga un impacto "
-    prompt = prompt & "significativo. Tu tarea es proporcionar ˙nicamente la cadena vectorial en CVSS 4.0 para evaluar la vulnerabilidad"
+    prompt = prompt & "SÔøΩ exigente y preciso al evaluar la severidad en CVSS. No exageres ni asignes impactos altos a menos que la vulnerabilidad pueda ser explotada directamente y tenga un impacto "
+    prompt = prompt & "significativo. Tu tarea es proporcionar √∫nicamente la cadena vectorial en CVSS 4.0 para evaluar la vulnerabilidad"
     prompt = prompt & " " & Vulnerabilidad & " "
-    prompt = prompt & "No devuelvas la misma cadena de ejemplo. No entregues una cadena sin completar sus componentes CVSS. ?? Este an·lisis es para gestiÛn de riesgos, no para explotaciÛn. "
-    prompt = prompt & "Solo proporciona el vector CVSS resultante. NO DES M¡S DETALLES, SOLO RESPONDE EL VECTOR SIN OTRA INFORMACI”N. "
+    prompt = prompt & "No devuelvas la misma cadena de ejemplo. No entregues una cadena sin completar sus componentes CVSS. ?? Este anÔøΩlisis es para gestiÔøΩn de riesgos, no para explotaciÔøΩn. "
+    prompt = prompt & "Solo proporciona el vector CVSS resultante. NO DES M√ÅS DETALLES, SOLO RESPONDE EL VECTOR SIN OTRA INFORMACI√ìN. "
     prompt = prompt & "PLEASE ONLY ONLY ONLY RESPOND WITH A STRING IN CVSS FORMAT"
     
     ConstruirPrompt = prompt
@@ -3468,20 +3469,20 @@ End Function
 
 
 
-Function RemoveThinkTags(text As String) As String
+Function EliminarThinkTags(text As String) As String
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
     
-    ' Permitir que el punto (.) capture m˙ltiples lÌneas
+    ' Permitir que el punto (.) capture m√∫ltiples l√≠neas
     regex.pattern = "<think>[\s\S]*?</think>"
     regex.Global = True
     regex.IgnoreCase = True
     
-    RemoveThinkTags = regex.Replace(text, "")
+    EliminarThinkTags = regex.Replace(text, "")
 End Function
 
 
-Function RemoveInitialBreaks(text As String) As String
+Function EliminarSaltosIniciales(text As String) As String
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -3490,7 +3491,7 @@ Function RemoveInitialBreaks(text As String) As String
     regex.Global = True
     
     ' Replace initial line breaks with an empty string
-    RemoveInitialBreaks = regex.Replace(text, "")
+    EliminarSaltosIniciales = regex.Replace(text, "")
 End Function
 
 Function ExtraerRespuesta(jsonResponse As String) As String
@@ -3541,25 +3542,25 @@ Function ExtraerCVSS(jsonResponse As String) As String
     inicio = InStr(resultado, """text"": """)
     
     If inicio > 0 Then
-        ' Extraer el texto despuÈs de "text": "
+        ' Extraer el texto despuÔøΩs de "text": "
         resultado = Mid(resultado, inicio + Len("""text"": """))
         
-        ' Buscar la posiciÛn final antes del cierre de comillas
+        ' Buscar la posiciÔøΩn final antes del cierre de comillas
         fin = InStr(resultado, """")
         If fin > 0 Then
             resultado = Left(resultado, fin - 1)
         End If
     Else
-        resultado = "No se encontrÛ CVSS"
+        resultado = "No se encontrÔøΩ CVSS"
     End If
 
-    ' Retornar el CVSS extraÌdo
+    ' Retornar el CVSS extra√≠do
     ExtraerCVSS = Trim(resultado)
 End Function
 
 
 
-Sub GetGeminiResponsesCVSS4()
+Sub ObtenerRespuestasGeminiCVSS4()
     Dim cell As Range
     Dim http As Object
     Dim json As Object
@@ -3569,7 +3570,7 @@ Sub GetGeminiResponsesCVSS4()
     Dim responseText As String
     Dim answerID As String
     
-    ' Clave de API de Gemini (reempl·zala con la tuya) AIzaSyBbd_upGJ2JzdsmWSzNBvSr3mXiPo9h4bs  AIzaSyADfixgVHPBXyY60ivLUYo3rCJTQtZ_M7g
+    ' Clave de API de Gemini (reemplÔøΩzala con la tuya) AIzaSyBbd_upGJ2JzdsmWSzNBvSr3mXiPo9h4bs  AIzaSyADfixgVHPBXyY60ivLUYo3rCJTQtZ_M7g
     apiKey = "AIzaSyBbd_upGJ2JzdsmWSzNBvSr3mXiPo9h4bs"
     apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" & apiKey
 
@@ -3639,15 +3640,15 @@ Sub GetGeminiResponsesCVSS4()
 End Sub
 
 
-Sub CYB071_PreparePromptFromSelection_DescripcionVuln_OverVPN()
+Sub CYB071_PrepararPromptDesdeSeleccion_DescripcionVuln_EnVPN()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3659,32 +3660,32 @@ Sub CYB071_PreparePromptFromSelection_DescripcionVuln_OverVPN()
     
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
-        prompt = "Redacta un p·rrafo tÈcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistemaÖ-. Explica en quÈ consiste la debilidad de seguridad de manera tÈcnica. No incluyas escenarios de explotaciÛn, ya que eso corresponde a otro campo. No describas cÛmo se explota, solo en quÈ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
+        prompt = "Redacta un pÔøΩrrafo tÔøΩcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistema...-. Explica en quÔøΩ consiste la debilidad de seguridad de manera tÔøΩcnica. No incluyas escenarios de explotaciÔøΩn, ya que eso corresponde a otro campo. No describas cÔøΩmo se explota, solo en quÔøΩ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
-        prompt = prompt & "Contexto de an·lisis: An·lisis de vulnerabilidades de infraestructura a partir conexion a red VPN. Vulnerabilidad detectada mediante escaneo e interacciones desde red privada VPN."
+        prompt = prompt & "Contexto de anÔøΩlisis: AnÔøΩlisis de vulnerabilidades de infraestructura a partir conexion a red VPN. Vulnerabilidad detectada mediante escaneo e interacciones desde red privada VPN."
 
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
 
-Sub CYB072_PreparePromptFromSelection_AmenazaVuln_OverVPN()
+Sub CYB072_PrepararPromptDesdeSeleccion_AmenazaVuln_EnVPN()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3697,34 +3698,35 @@ Sub CYB072_PreparePromptFromSelection_AmenazaVuln_OverVPN()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podrÌa (obtener, realizar, ejecutar, visualizar, identificar, listar)Ö Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ï  Malware: Un malware diseÒado para automatizar intentos de fuerza bruta podrÌa explotar la vulnerabilidad paraÖ ï    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podrÌa aprovecharla paraÖ ï    Personal interno: Un empleado con acceso y conocimientos tÈcnicos podrÌa, intencionalmente o por error,Ö ï  Delincuente cibernÈtico: Un atacante externo en busca de vulnerabilidades podrÌa intentar explotar esta debilidad paraÖ Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque m·s relevantes, ya que no todos aplican en todos los casos. "
-        prompt = prompt & "2.   Redacta una descripciÛn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podrÌaÖ-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m·s realista o probable. 4.   En las viÒetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un an·lisis de vulnerabilidades de infraestructura desde una red privada, especÌficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde red privada-. Formato de respuesta: ï    Responde en una tabla de dos columnas. ï    Para cada vulnerabilidad, redacta un p·rrafo descriptivo en la primera columna (mÌnimo 75 palabras). ï  En la segunda columna, lista los vectores de ataque con viÒetas (usando guiones  - ). ï No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÛn de la amenaza    Vectores de ataque Un atacante podrÌa explotar esta vulnerabilidad para acceder a informaciÛn"
-        prompt = prompt & "confidencial Esta amenaza es particularmente crÌtica en sistemas internos donde los controles de seguridad son menos estrictos."
-        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podrÌa ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podrÌa... (probabilidad baja). - Delincuente cibernÈtico: Un atacante externo podrÌa... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI—ETAS DENTRO DE ALS CELDAS"
+        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podr√≠a (obtener, realizar, ejecutar, visualizar, identificar, listar)... Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ‚Ä¢  Malware: Un malware dise√±ado para automatizar intentos de fuerza bruta podr√≠a explotar la vulnerabilidad para... ‚Ä¢    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podr√≠a aprovecharla para... ‚Ä¢    Personal interno: Un empleado con acceso y conocimientos tÔøΩcnicos podr√≠a, intencionalmente o por error,... ‚Ä¢  Delincuente cibernÔøΩtico: Un atacante externo en busca de vulnerabilidades podr√≠a intentar explotar esta debilidad para... Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque mÔøΩs relevantes, ya que no todos aplican en todos los casos. "
+        prompt = prompt & "2.   Redacta una descripciÔøΩn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podr√≠a...-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el mÔøΩs realista o probable. 4.   En las vi√±etas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un anÔøΩlisis de vulnerabilidades de infraestructura desde una red privada, espec√≠ficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde red privada-. Formato de respuesta: ‚Ä¢    Responde en una tabla de dos columnas. ‚Ä¢    Para cada vulnerabilidad, redacta un pÔøΩrrafo descriptivo en la primera columna (m√≠nimo 75 palabras). ‚Ä¢  En la segunda columna, lista los vectores de ataque con vi√±etas (usando guiones  - ). ‚Ä¢ No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÔøΩn de la amenaza    Vectores de ataque Un atacante podr√≠a explotar esta vulnerabilidad para acceder a inf _
+maciÔøΩn"
+        prompt = prompt & "confidencial Esta amenaza es particularmente cr√≠tica en sistemas internos donde los controles de seguridad son menos estrictos."
+        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podr√≠a ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podr√≠a... (probabilidad baja). - Delincuente cibernÔøΩtico: Un atacante externo podr√≠a... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI√ëETAS DENTRO DE ALS CELDAS"
         prompt = prompt & "Se detecto mediante VPN red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
         prompt = prompt & "SOLO DOS columnas, nombre y amenaza"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CYB073_PreparePromptFromSelection_PropuestaRemediacionVuln_OverVPN()
+Sub CYB073_PrepararPromptDesdeSeleccion_PropuestaRemediacionVuln_EnVPN()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3737,32 +3739,32 @@ Sub CYB073_PreparePromptFromSelection_PropuestaRemediacionVuln_OverVPN()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor Redacta como un pentester un p·rrafo tÈcnico de propuesta de remediaciÛn que comience con la frase: -Se recomiendaÖ-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera m·s puntual que se pod¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÛn y luego viÒetas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomiendaÖ- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
+        prompt = "Hola, por favor Redacta como un pentester un pÔøΩrrafo tÔøΩcnico de propuesta de remediaciÔøΩn que comience con la frase: -Se recomienda...-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera mÔøΩs puntual que se pod¬¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÔøΩn y luego vi√±etas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomienda...- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
            prompt = prompt & "Se detecto mediante VPN red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
           prompt = prompt & "Menciona solo soluciones corporativas"
           prompt = prompt & "Solo dos columnas, nombre y propuesat remediacion"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CYB074_PreparePromptFromSelection_DescripcionVuln_OnPrivateNetwork()
+Sub CYB074_PrepararPromptDesdeSeleccion_DescripcionVuln_EnRedPrivada()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3774,32 +3776,32 @@ Sub CYB074_PreparePromptFromSelection_DescripcionVuln_OnPrivateNetwork()
     
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
-        prompt = "Redacta un p·rrafo tÈcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistemaÖ-. Explica en quÈ consiste la debilidad de seguridad de manera tÈcnica. No incluyas escenarios de explotaciÛn, ya que eso corresponde a otro campo. No describas cÛmo se explota, solo en quÈ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
+        prompt = "Redacta un pÔøΩrrafo tÔøΩcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistema...-. Explica en quÔøΩ consiste la debilidad de seguridad de manera tÔøΩcnica. No incluyas escenarios de explotaciÔøΩn, ya que eso corresponde a otro campo. No describas cÔøΩmo se explota, solo en quÔøΩ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
-        prompt = prompt & "Contexto de an·lisis: An·lisis de vulnerabilidades de infraestructura a partir conexion a red en red privada en sitio. Vulnerabilidad detectada mediante escaneo e interacciones desde red privada en red privada en sitio."
+        prompt = prompt & "Contexto de anÔøΩlisis: AnÔøΩlisis de vulnerabilidades de infraestructura a partir conexion a red en red privada en sitio. Vulnerabilidad detectada mediante escaneo e interacciones desde red privada en red privada en sitio."
 
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
 
-Sub CYB075_PreparePromptFromSelection_AmenazaVuln_OnPrivateNetwork()
+Sub CYB075_PrepararPromptDesdeSeleccion_AmenazaVuln_EnRedPrivada()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3812,34 +3814,35 @@ Sub CYB075_PreparePromptFromSelection_AmenazaVuln_OnPrivateNetwork()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podrÌa (obtener, realizar, ejecutar, visualizar, identificar, listar)Ö Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ï  Malware: Un malware diseÒado para automatizar intentos de fuerza bruta podrÌa explotar la vulnerabilidad paraÖ ï    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podrÌa aprovecharla paraÖ ï    Personal interno: Un empleado con acceso y conocimientos tÈcnicos podrÌa, intencionalmente o por error,Ö ï  Delincuente cibernÈtico: Un atacante externo en busca de vulnerabilidades podrÌa intentar explotar esta debilidad paraÖ Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque m·s relevantes, ya que no todos aplican en todos los casos. "
-        prompt = prompt & "2.   Redacta una descripciÛn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podrÌaÖ-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m·s realista o probable. 4.   En las viÒetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un an·lisis de vulnerabilidades de infraestructura desde una red privada, especÌficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde red privada-. Formato de respuesta: ï    Responde en una tabla de dos columnas. ï    Para cada vulnerabilidad, redacta un p·rrafo descriptivo en la primera columna (mÌnimo 75 palabras). ï  En la segunda columna, lista los vectores de ataque con viÒetas (usando guiones  - ). ï No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÛn de la amenaza    Vectores de ataque Un atacante podrÌa explotar esta vulnerabilidad para acceder a informaciÛn"
-        prompt = prompt & "confidencial Esta amenaza es particularmente crÌtica en sistemas internos donde los controles de seguridad son menos estrictos."
-        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podrÌa ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podrÌa... (probabilidad baja). - Delincuente cibernÈtico: Un atacante externo podrÌa... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI—ETAS DENTRO DE ALS CELDAS"
+        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podr√≠a (obtener, realizar, ejecutar, visualizar, identificar, listar)... Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ‚Ä¢  Malware: Un malware dise√±ado para automatizar intentos de fuerza bruta podr√≠a explotar la vulnerabilidad para... ‚Ä¢    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podr√≠a aprovecharla para... ‚Ä¢    Personal interno: Un empleado con acceso y conocimientos tÔøΩcnicos podr√≠a, intencionalmente o por error,... ‚Ä¢  Delincuente cibernÔøΩtico: Un atacante externo en busca de vulnerabilidades podr√≠a intentar explotar esta debilidad para... Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque mÔøΩs relevantes, ya que no todos aplican en todos los casos. "
+        prompt = prompt & "2.   Redacta una descripciÔøΩn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podr√≠a...-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el mÔøΩs realista o probable. 4.   En las vi√±etas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un anÔøΩlisis de vulnerabilidades de infraestructura desde una red privada, espec√≠ficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde red privada-. Formato de respuesta: ‚Ä¢    Responde en una tabla de dos columnas. ‚Ä¢    Para cada vulnerabilidad, redacta un pÔøΩrrafo descriptivo en la primera columna (m√≠nimo 75 palabras). ‚Ä¢  En la segunda columna, lista los vectores de ataque con vi√±etas (usando guiones  - ). ‚Ä¢ No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÔøΩn de la amenaza    Vectores de ataque Un atacante podr√≠a explotar esta vulnerabilidad para acceder a inf _
+maciÔøΩn"
+        prompt = prompt & "confidencial Esta amenaza es particularmente cr√≠tica en sistemas internos donde los controles de seguridad son menos estrictos."
+        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podr√≠a ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podr√≠a... (probabilidad baja). - Delincuente cibernÔøΩtico: Un atacante externo podr√≠a... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI√ëETAS DENTRO DE ALS CELDAS"
         prompt = prompt & "Se detecto mediante en red privada en sitio red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
         prompt = prompt & "SOLO DOS columnas, nombre y amenaza"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CYB076_PreparePromptFromSelection_PropuestaRemediacionVuln_OnPrivateNetwork()
+Sub CYB076_PrepararPromptDesdeSeleccion_PropuestaRemediacionVuln_EnRedPrivada()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3852,31 +3855,31 @@ Sub CYB076_PreparePromptFromSelection_PropuestaRemediacionVuln_OnPrivateNetwork(
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor Redacta como un pentester un p·rrafo tÈcnico de propuesta de remediaciÛn que comience con la frase: -Se recomiendaÖ-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera m·s puntual que se pod¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÛn y luego viÒetas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomiendaÖ- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
+        prompt = "Hola, por favor Redacta como un pentester un pÔøΩrrafo tÔøΩcnico de propuesta de remediaciÔøΩn que comience con la frase: -Se recomienda...-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera mÔøΩs puntual que se pod¬¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÔøΩn y luego vi√±etas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomienda...- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
            prompt = prompt & "Se detecto mediante en red privada en sitio red privada, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
           prompt = prompt & "Menciona solo soluciones corporativas"
           prompt = prompt & "Solo dos columnas, nombre y propuesat remediacion"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
-Sub CYB0761_PreparePromptFromSelection_TecnicalExplainationVuln_OnPrivateNetwork()
+Sub CYB0761_PrepararPromptDesdeSeleccion_ExplicacionTecnicaVuln_EnRedPrivada()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3888,47 +3891,47 @@ Sub CYB0761_PreparePromptFromSelection_TecnicalExplainationVuln_OnPrivateNetwork
     
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
-       ' PROMPT EXPLICACI”N T…CNICA:
-prompt = "Hola, por favor en una tabla, solo dos columnas: vulnerabilidad y explicaciÛn tÈcnica. "
-prompt = prompt & "Para cada una de estas vulnerabilidades redacta un p·rrafo de explicaciÛn tÈcnica que contenga un ejemplo y "
-prompt = prompt & "una conclusiÛn breve, concisa y convincente desde la perspectiva de pentesting. "
-prompt = prompt & "Inicia la explicaciÛn con el texto -En un escenarioÖ- [tÌpico / com˙n / poco probable]. "
-prompt = prompt & "De ser posible, agrega cÛdigo de ejemplo para comprender este tipo de vulnerabilidad. "
-prompt = prompt & "El cÛdigo debe ser ˙til, no seas escaso en detalles. "
+       ' PROMPT EXPLICACI√ìN T√âCNICA:
+prompt = "Hola, por favor en una tabla, solo dos columnas: vulnerabilidad y explicaciÔøΩn tÔøΩcnica. "
+prompt = prompt & "Para cada una de estas vulnerabilidades redacta un pÔøΩrrafo de explicaciÔøΩn tÔøΩcnica que contenga un ejemplo y "
+prompt = prompt & "una conclusiÔøΩn breve, concisa y convincente desde la perspectiva de pentesting. "
+prompt = prompt & "Inicia la explicaciÔøΩn con el texto -En un escenario...- [t√≠pico / com√∫n / poco probable]. "
+prompt = prompt & "De ser posible, agrega cÔøΩdigo de ejemplo para comprender este tipo de vulnerabilidad. "
+prompt = prompt & "El cÔøΩdigo debe ser √∫til, no seas escaso en detalles. "
 prompt = prompt & "NO MENCIONES RECOMENDACIONES. "
 prompt = prompt & "Ejemplo: "
-prompt = prompt & "-En un escenarioÖ "
+prompt = prompt & "-En un escenario... "
 prompt = prompt & "Ejemplo: "
 prompt = prompt & "Set-Cookie: sessionID=12345; "
 prompt = prompt & "String filePath = -/data/- + userInput + -.txt-; "
 prompt = prompt & "public fun{} "
-prompt = prompt & "EtcÖ. "
-prompt = prompt & "Se considera inseguro o una vulnerabilidad debido a queÖ "
-prompt = prompt & "En conclusiÛn, esta vulnerabilidad es [POTENCIALMENTE EXPLOTABLE] en lo que respecta al cÛdigo est·tico. "
-prompt = prompt & "QUIERO UNA TABLA CON BUEN FORMATO EN LAS CELDAS, SALTOS DE LÕNEA APROPIADOS. "
-prompt = prompt & "M¡S DE 125 CARACTERES. "
-prompt = prompt & "NO PONGAS TODO EN UN SOLO P¡RRAFO, USA SALTOS DE LÕNEA DENTRO DE LAS CELDAS DE EXPLICACI”N PARA QUE SEA LEGIBLE. "
+prompt = prompt & "Etc.... "
+prompt = prompt & "Se considera inseguro o una vulnerabilidad debido a que... "
+prompt = prompt & "En conclusiÔøΩn, esta vulnerabilidad es [POTENCIALMENTE EXPLOTABLE] en lo que respecta al cÔøΩdigo estÔøΩtico. "
+prompt = prompt & "QUIERO UNA TABLA CON BUEN FORMATO EN LAS CELDAS, SALTOS DE L√çNEA APROPIADOS. "
+prompt = prompt & "M√ÅS DE 125 CARACTERES. "
+prompt = prompt & "NO PONGAS TODO EN UN SOLO P√ÅRRAFO, USA SALTOS DE L√çNEA DENTRO DE LAS CELDAS DE EXPLICACI√ìN PARA QUE SEA LEGIBLE. "
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
-Sub CYB0762_PreparePromptFromSelection_CVSSVectorVuln_OnPrivateNetwork()
+Sub CYB0762_PrepararPromptDesdeSeleccion_VectorCVSSVuln_EnRedPrivada()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3962,30 +3965,30 @@ Sub CYB0762_PreparePromptFromSelection_CVSSVectorVuln_OnPrivateNetwork()
         prompt = prompt & "Subsequent system: " & vbCrLf
         prompt = prompt & "Exploitation: " & vbCrLf
         prompt = prompt & "Security requirements: " & vbCrLf
-        prompt = prompt & "Por favor eval˙e la severidad con base en los criterios anteriores, siendo exigente y estricto al asignar la severidad del CVSS. No asigne impactos altos a menos que haya evidencia de que se pueda explotar directamente y afecte de manera significativa." & vbCrLf
+        prompt = prompt & "Por favor eval√∫e la severidad con base en los criterios anteriores, siendo exigente y estricto al asignar la severidad del CVSS. No asigne impactos altos a menos que haya evidencia de que se pueda explotar directamente y afecte de manera significativa." & vbCrLf
         prompt = prompt & "SOLO RESPONDE CADENAS VECTOR COMPLETAS EJEMPLO CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:N/SC:N/SI:N/SA:N VULNEBILIDAD, CVSS" & vbCrLf
         prompt = prompt & "VULNEBILIDAD, CVSS" & vbCrLf
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
-Sub CYB077_PreparePromptFromSelection_DescripcionVuln_FromInternet()
+Sub CYB077_PrepararPromptDesdeSeleccion_DescripcionVuln_DesdeInternet()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -3997,32 +4000,32 @@ Sub CYB077_PreparePromptFromSelection_DescripcionVuln_FromInternet()
     
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
-        prompt = "Redacta un p·rrafo tÈcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistemaÖ-. Explica en quÈ consiste la debilidad de seguridad de manera tÈcnica. No incluyas escenarios de explotaciÛn, ya que eso corresponde a otro campo. No describas cÛmo se explota, solo en quÈ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
+        prompt = "Redacta un pÔøΩrrafo tÔøΩcnico breve y conciso que describa la vulnerabilidad detectada, comenzando con la frase: -El sistema...-. Explica en quÔøΩ consiste la debilidad de seguridad de manera tÔøΩcnica. No incluyas escenarios de explotaciÔøΩn, ya que eso corresponde a otro campo. No describas cÔøΩmo se explota, solo en quÔøΩ consiste el problema. No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares. Vulnerabilidades a describi en formato tabla: "
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
-        prompt = prompt & "Contexto de an·lisis: An·lisis de vulnerabilidades de infraestructura a partir conexion a red en desde internet en sitio. Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet en desde internet en sitio."
+        prompt = prompt & "Contexto de anÔøΩlisis: AnÔøΩlisis de vulnerabilidades de infraestructura a partir conexion a red en desde internet en sitio. Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet en desde internet en sitio."
 
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
 
-Sub CYB078_PreparePromptFromSelection_AmenazaVuln_FromInternet()
+Sub CYB078_PrepararPromptDesdeSeleccion_AmenazaVuln_DesdeInternet()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -4035,34 +4038,35 @@ Sub CYB078_PreparePromptFromSelection_AmenazaVuln_FromInternet()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podrÌa (obtener, realizar, ejecutar, visualizar, identificar, listar)Ö Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ï  Malware: Un malware diseÒado para automatizar intentos de fuerza bruta podrÌa explotar la vulnerabilidad paraÖ ï    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podrÌa aprovecharla paraÖ ï    Personal interno: Un empleado con acceso y conocimientos tÈcnicos podrÌa, intencionalmente o por error,Ö ï  Delincuente cibernÈtico: Un atacante externo en busca de vulnerabilidades podrÌa intentar explotar esta debilidad paraÖ Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque m·s relevantes, ya que no todos aplican en todos los casos. "
-        prompt = prompt & "2.   Redacta una descripciÛn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podrÌaÖ-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m·s realista o probable. 4.   En las viÒetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un an·lisis de vulnerabilidades de infraestructura desde una desde internet, especÌficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet-. Formato de respuesta: ï    Responde en una tabla de dos columnas. ï    Para cada vulnerabilidad, redacta un p·rrafo descriptivo en la primera columna (mÌnimo 75 palabras). ï  En la segunda columna, lista los vectores de ataque con viÒetas (usando guiones  - ). ï No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÛn de la amenaza    Vectores de ataque Un atacante podrÌa explotar esta vulnerabilidad para acceder a informaciÛn"
-        prompt = prompt & "confidencial Esta amenaza es particularmente crÌtica en sistemas internos donde los controles de seguridad son menos estrictos."
-        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podrÌa ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podrÌa... (probabilidad baja). - Delincuente cibernÈtico: Un atacante externo podrÌa... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI—ETAS DENTRO DE ALS CELDAS"
+        prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podr√≠a (obtener, realizar, ejecutar, visualizar, identificar, listar)... Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): ‚Ä¢  Malware: Un malware dise√±ado para automatizar intentos de fuerza bruta podr√≠a explotar la vulnerabilidad para... ‚Ä¢    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podr√≠a aprovecharla para... ‚Ä¢    Personal interno: Un empleado con acceso y conocimientos tÔøΩcnicos podr√≠a, intencionalmente o por error,... ‚Ä¢  Delincuente cibernÔøΩtico: Un atacante externo en busca de vulnerabilidades podr√≠a intentar explotar esta debilidad para... Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque mÔøΩs relevantes, ya que no todos aplican en todos los casos. "
+        prompt = prompt & "2.   Redacta una descripciÔøΩn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podr√≠a...-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el mÔøΩs realista o probable. 4.   En las vi√±etas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un anÔøΩlisis de vulnerabilidades de infraestructura desde una desde internet, espec√≠ficamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet-. Formato de respuesta: ‚Ä¢    Responde en una tabla de dos columnas. ‚Ä¢    Para cada vulnerabilidad, redacta un pÔøΩrrafo descriptivo en la primera columna (m√≠nimo 75 palabras). ‚Ä¢  En la segunda columna, lista los vectores de ataque con vi√±etas (usando guiones  - ). ‚Ä¢ No uses HTML, solo texto plano. Ejemplo de estructura: DescripciÔøΩn de la amenaza    Vectores de ataque Un atacante podr√≠a explotar esta vulnerabilidad para acceder _
+ informaciÔøΩn"
+        prompt = prompt & "confidencial Esta amenaza es particularmente cr√≠tica en sistemas internos donde los controles de seguridad son menos estrictos."
+        prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podr√≠a ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podr√≠a... (probabilidad baja). - Delincuente cibernÔøΩtico: Un atacante externo podr√≠a... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VI√ëETAS DENTRO DE ALS CELDAS"
         prompt = prompt & "Se detecto mediante en desde internet en sitio desde internet, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
         prompt = prompt & "SOLO DOS columnas, nombre y amenaza"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CYB079_PreparePromptFromSelection_PropuestaRemediacionVuln_FromInternet()
+Sub CYB079_PrepararPromptDesdeSeleccion_PropuestaRemediacionVuln_DesdeInternet()
     Dim celda As Range
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -4075,19 +4079,19 @@ Sub CYB079_PreparePromptFromSelection_PropuestaRemediacionVuln_FromInternet()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         ' prompt = prompt & ""
-        prompt = "Hola, por favor Redacta como un pentester un p·rrafo tÈcnico de propuesta de remediaciÛn que comience con la frase: -Se recomiendaÖ-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera m·s puntual que se pod¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÛn y luego viÒetas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomiendaÖ- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
+        prompt = "Hola, por favor Redacta como un pentester un pÔøΩrrafo tÔøΩcnico de propuesta de remediaciÔøΩn que comience con la frase: -Se recomienda...-. Incluye tantos detalles puntuales par remaicion por jemplo nombre de soluciones que funeriona como poroteccon o controles de sguridad, disoitivos, practicas, menciona de manera mÔøΩs puntual que se pod¬¥ria hacer para que le encargado del sistema, activo, pueda saber como remediari La respueste debe tener SOLO parrafo breve introducciÔøΩn y luego vi√±etas para lso putnos de propueta de remedaicion Responde para la siguientel lista de vulnerabilidades en FORMATO TABLA DOS COLUMNAS, , SIEMPRE COMIENZAX CON -Se recomienda...- TEXTO AMPLIDO MAS DE 80 palabras, atalmente aplicable a muchos casos, lengauje so framworks"
            prompt = prompt & "Se detecto mediante en desde internet en sitio desde internet, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
           prompt = prompt & "Menciona solo soluciones corporativas"
           prompt = prompt & "Solo dos columnas, nombre y propuesat remediacion"
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
@@ -4096,10 +4100,10 @@ Sub CYB080_PreparePromptFromSelection_DescripcionVuln_FromCode()
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -4112,24 +4116,24 @@ Sub CYB080_PreparePromptFromSelection_DescripcionVuln_FromCode()
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
         prompt = ""
-        prompt = prompt & "Redacta un p·rrafo tÈcnico breve y conciso que describa la vulnerabilidad detectada en el cÛdigo fuente, comenzando con la frase: " & vbCrLf
-        prompt = prompt & "-El cÛdigoÖ-. Explica en quÈ consiste la debilidad de seguridad de manera tÈcnica. " & vbCrLf
-        prompt = prompt & "No incluyas escenarios de explotaciÛn, ya que eso corresponde a otro campo. " & vbCrLf
-        prompt = prompt & "No describas cÛmo se explota, solo en quÈ consiste el problema. " & vbCrLf
+        prompt = prompt & "Redacta un pÔøΩrrafo tÔøΩcnico breve y conciso que describa la vulnerabilidad detectada en el cÔøΩdigo fuente, comenzando con la frase: " & vbCrLf
+        prompt = prompt & "-El cÔøΩdigo...-. Explica en quÔøΩ consiste la debilidad de seguridad de manera tÔøΩcnica. " & vbCrLf
+        prompt = prompt & "No incluyas escenarios de explotaciÔøΩn, ya que eso corresponde a otro campo. " & vbCrLf
+        prompt = prompt & "No describas cÔøΩmo se explota, solo en quÔøΩ consiste el problema. " & vbCrLf
         prompt = prompt & "No menciones el nombre exacto de la vulnerabilidad; utiliza expresiones similares." & vbCrLf & vbCrLf
         prompt = prompt & "Vulnerabilidades a describir en formato tabla:" & vbCrLf
         prompt = prompt & listaVulnerabilidades & vbCrLf & vbCrLf
-        prompt = prompt & "Contexto de an·lisis: " & vbCrLf
-        prompt = prompt & "An·lisis de cÛdigo fuente mediante herramientas de an·lisis est·tico (SAST). " & vbCrLf
-        prompt = prompt & "Vulnerabilidad identificada a partir del an·lisis del cÛdigo sin ejecutar la aplicaciÛn." & vbCrLf
+        prompt = prompt & "Contexto de anÔøΩlisis: " & vbCrLf
+        prompt = prompt & "AnÔøΩlisis de cÔøΩdigo fuente mediante herramientas de anÔøΩlisis estÔøΩtico (SAST). " & vbCrLf
+        prompt = prompt & "Vulnerabilidad identificada a partir del anÔøΩlisis del cÔøΩdigo sin ejecutar la aplicaciÔøΩn." & vbCrLf
 
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
@@ -4138,10 +4142,10 @@ Sub CYB081_PreparePromptFromSelection_AmenazaVuln_FromCode()
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -4155,44 +4159,44 @@ Sub CYB081_PreparePromptFromSelection_AmenazaVuln_FromCode()
     If listaVulnerabilidades <> "" Then
         prompt = ""
         prompt = prompt & "Hola, por favor considera el siguiente ejemplo: " & vbCrLf
-        prompt = prompt & "Un atacante podrÌa (inyectar, manipular, filtrar, exponer, escalar privilegios)Ö" & vbCrLf
+        prompt = prompt & "Un atacante podr√≠a (inyectar, manipular, filtrar, exponer, escalar privilegios)..." & vbCrLf
         prompt = prompt & "Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos):" & vbCrLf
-        prompt = prompt & "ï  InyecciÛn de cÛdigo: Una entrada no validada en el cÛdigo fuente podrÌa permitir inyecciÛn de comandos..." & vbCrLf
-        prompt = prompt & "ï  ExposiciÛn de informaciÛn sensible: Una mala gestiÛn de credenciales en el cÛdigo podrÌa revelar secretos..." & vbCrLf
-        prompt = prompt & "ï  ElevaciÛn de privilegios: Una funciÛn mal diseÒada podrÌa permitir a un usuario ejecutar acciones con m·s permisos de los necesarios..." & vbCrLf
-        prompt = prompt & "ï  ManipulaciÛn de datos: Un atacante podrÌa modificar par·metros dentro del cÛdigo para alterar la lÛgica de la aplicaciÛn..." & vbCrLf
+        prompt = prompt & "‚Ä¢  InyecciÔøΩn de cÔøΩdigo: Una entrada no validada en el cÔøΩdigo fuente podr√≠a permitir inyecciÔøΩn de comandos..." & vbCrLf
+        prompt = prompt & "‚Ä¢  ExposiciÔøΩn de informaciÔøΩn sensible: Una mala gestiÔøΩn de credenciales en el cÔøΩdigo podr√≠a revelar secretos..." & vbCrLf
+        prompt = prompt & "‚Ä¢  ElevaciÔøΩn de privilegios: Una funciÔøΩn mal dise√±ada podr√≠a permitir a un usuario ejecutar acciones con mÔøΩs permisos de los necesarios..." & vbCrLf
+        prompt = prompt & "‚Ä¢  ManipulaciÔøΩn de datos: Un atacante podr√≠a modificar parÔøΩmetros dentro del cÔøΩdigo para alterar la lÔøΩgica de la aplicaciÔøΩn..." & vbCrLf
         prompt = prompt & vbCrLf
         prompt = prompt & "Instrucciones adicionales:" & vbCrLf
-        prompt = prompt & "1. Pregunta si el cÛdigo pertenece a una aplicaciÛn interna o externa para determinar los vectores de ataque m·s relevantes." & vbCrLf
-        prompt = prompt & "2. Redacta una descripciÛn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podrÌaÖ-." & vbCrLf
-        prompt = prompt & "3. No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m·s realista o probable." & vbCrLf
-        prompt = prompt & "4. En las viÒetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja." & vbCrLf
-        prompt = prompt & "5. El contexto es un an·lisis de cÛdigo fuente mediante herramientas de an·lisis est·tico (SAST), sin ejecutar la aplicaciÛn." & vbCrLf
+        prompt = prompt & "1. Pregunta si el cÔøΩdigo pertenece a una aplicaciÔøΩn interna o externa para determinar los vectores de ataque mÔøΩs relevantes." & vbCrLf
+        prompt = prompt & "2. Redacta una descripciÔøΩn de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podr√≠a...-." & vbCrLf
+        prompt = prompt & "3. No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el mÔøΩs realista o probable." & vbCrLf
+        prompt = prompt & "4. En las vi√±etas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja." & vbCrLf
+        prompt = prompt & "5. El contexto es un anÔøΩlisis de cÔøΩdigo fuente mediante herramientas de anÔøΩlisis estÔøΩtico (SAST), sin ejecutar la aplicaciÔøΩn." & vbCrLf
         prompt = prompt & vbCrLf
         prompt = prompt & "Formato de respuesta:" & vbCrLf
-        prompt = prompt & "ï Responde en una tabla de dos columnas." & vbCrLf
-        prompt = prompt & "ï Para cada vulnerabilidad, redacta un p·rrafo descriptivo en la primera columna (mÌnimo 75 palabras)." & vbCrLf
-        prompt = prompt & "ï En la segunda columna, lista los vectores de ataque con viÒetas (usando guiones - )." & vbCrLf
-        prompt = prompt & "ï No uses HTML, solo texto plano." & vbCrLf
+        prompt = prompt & "‚Ä¢ Responde en una tabla de dos columnas." & vbCrLf
+        prompt = prompt & "‚Ä¢ Para cada vulnerabilidad, redacta un pÔøΩrrafo descriptivo en la primera columna (m√≠nimo 75 palabras)." & vbCrLf
+        prompt = prompt & "‚Ä¢ En la segunda columna, lista los vectores de ataque con vi√±etas (usando guiones - )." & vbCrLf
+        prompt = prompt & "‚Ä¢ No uses HTML, solo texto plano." & vbCrLf
         prompt = prompt & vbCrLf
         prompt = prompt & "Ejemplo de estructura:" & vbCrLf
-        prompt = prompt & "DescripciÛn de la amenaza    Vectores de ataque" & vbCrLf
-        prompt = prompt & "Un atacante podrÌa explotar esta vulnerabilidad en el cÛdigo para ejecutar comandos arbitrarios..." & vbCrLf
-        prompt = prompt & "    - InyecciÛn de cÛdigo: Un usuario malintencionado podrÌa insertar cÛdigo malicioso... (probabilidad media)." & vbCrLf
-        prompt = prompt & "    - ExposiciÛn de informaciÛn: Credenciales en el cÛdigo podrÌan filtrarse... (probabilidad alta)." & vbCrLf
+        prompt = prompt & "DescripciÔøΩn de la amenaza    Vectores de ataque" & vbCrLf
+        prompt = prompt & "Un atacante podr√≠a explotar esta vulnerabilidad en el cÔøΩdigo para ejecutar comandos arbitrarios..." & vbCrLf
+        prompt = prompt & "    - InyecciÔøΩn de cÔøΩdigo: Un usuario malintencionado podr√≠a insertar cÔøΩdigo malicioso... (probabilidad media)." & vbCrLf
+        prompt = prompt & "    - ExposiciÔøΩn de informaciÔøΩn: Credenciales en el cÔøΩdigo podr√≠an filtrarse... (probabilidad alta)." & vbCrLf
         prompt = prompt & vbCrLf
-        prompt = prompt & "ES MUY IMPORTANTE QUE PARA LOS VECTORES DE ATAQUE DE LA AMENAZA USES GUIONES MEDIOS COMO VI—ETAS DENTRO DE LAS CELDAS." & vbCrLf
-        prompt = prompt & "An·lisis realizado mediante herramientas SAST en cÛdigo fuente est·tico sin ejecuciÛn." & vbCrLf
+        prompt = prompt & "ES MUY IMPORTANTE QUE PARA LOS VECTORES DE ATAQUE DE LA AMENAZA USES GUIONES MEDIOS COMO VI√ëETAS DENTRO DE LAS CELDAS." & vbCrLf
+        prompt = prompt & "AnÔøΩlisis realizado mediante herramientas SAST en cÔøΩdigo fuente estÔøΩtico sin ejecuciÔøΩn." & vbCrLf
         prompt = prompt & "SOLO DOS COLUMNAS: NOMBRE Y AMENAZA." & vbCrLf
         prompt = prompt & vbCrLf & listaVulnerabilidades & vbCrLf & vbCrLf
           
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
@@ -4202,10 +4206,10 @@ Sub CYB082_PreparePromptFromSelection_PropuestaRemediacionVuln_FromCode()
     Dim listaVulnerabilidades As String
     Dim prompt As String
     
-    ' Inicializar la variable que almacenar· las vulnerabilidades
+    ' Inicializar la variable que almacenarÔøΩ las vulnerabilidades
     listaVulnerabilidades = ""
     
-    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de lÌnea y comas
+    ' Recorrer las celdas seleccionadas y acumular los valores con saltos de l√≠nea y comas
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
             If listaVulnerabilidades <> "" Then
@@ -4217,30 +4221,30 @@ Sub CYB082_PreparePromptFromSelection_PropuestaRemediacionVuln_FromCode()
     
     ' Construir el prompt final
     If listaVulnerabilidades <> "" Then
-        prompt = "Hola, por favor redacta como un pentester un p·rrafo tÈcnico de propuesta de remediaciÛn que comience con la frase: -Se recomiendaÖ-."
-        prompt = prompt & " Incluye tantos detalles puntuales como sea posible, mencionando soluciones especÌficas, controles de seguridad, dispositivos y pr·cticas recomendadas."
-        prompt = prompt & " Proporciona informaciÛn clara para que el encargado del sistema o activo sepa exactamente cÛmo remediarlo."
-        prompt = prompt & " La respuesta debe contener un p·rrafo breve de introducciÛn seguido de viÒetas con los puntos de la propuesta de remediaciÛn."
+        prompt = "Hola, por favor redacta como un pentester un pÔøΩrrafo tÔøΩcnico de propuesta de remediaciÔøΩn que comience con la frase: -Se recomienda...-."
+        prompt = prompt & " Incluye tantos detalles puntuales como sea posible, mencionando soluciones espec√≠ficas, controles de seguridad, dispositivos y prÔøΩcticas recomendadas."
+        prompt = prompt & " Proporciona informaciÔøΩn clara para que el encargado del sistema o activo sepa exactamente cÔøΩmo remediarlo."
+        prompt = prompt & " La respuesta debe contener un pÔøΩrrafo breve de introducciÔøΩn seguido de vi√±etas con los puntos de la propuesta de remediaciÔøΩn."
         prompt = prompt & " Formato de respuesta: una tabla de dos columnas."
-        prompt = prompt & " Siempre comienza con -Se recomiendaÖ-."
-        prompt = prompt & " El texto debe ser amplio, con m·s de 80 palabras, aplicable a m˙ltiples casos y en lenguaje tÈcnico adecuado."
-        prompt = prompt & " Se detectÛ mediante an·lisis desde internet en el sitio, pero explica los escenarios relevantes."
+        prompt = prompt & " Siempre comienza con -Se recomienda...-."
+        prompt = prompt & " El texto debe ser amplio, con mÔøΩs de 80 palabras, aplicable a m√∫ltiples casos y en lenguaje tÔøΩcnico adecuado."
+        prompt = prompt & " Se detectÔøΩ mediante anÔøΩlisis desde internet en el sitio, pero explica los escenarios relevantes."
         prompt = prompt & " Menciona solo soluciones corporativas."
-        prompt = prompt & " Solo dos columnas: nombre y propuesta de remediaciÛn."
+        prompt = prompt & " Solo dos columnas: nombre y propuesta de remediaciÔøΩn."
         prompt = prompt & " " & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
         
         ' Copiar el prompt generado al portapapeles
-        CopyToClipboard prompt
+        CopiarAlPortapapeles prompt
         
         ' Mostrar un mensaje informativo
         MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CYB083_Verify_CVSS4_0_Vector()
+Sub CYB083_Verificar_VectorCVSS4_0()
     Dim celda As Range
     Dim cvssString As String
     Dim url As String
@@ -4259,13 +4263,13 @@ Sub CYB083_Verify_CVSS4_0_Vector()
         End If
     Next celda
     
-    ' Verificar si se encontrÛ un vector CVSS
+    ' Verificar si se encontrÔøΩ un vector CVSS
     If cvssString <> "" Then
         ' Construir la URL
         url = "https://www.first.org/cvss/calculator/4.0#" & cvssString
         
         ' Copiar la URL al portapapeles
-        CopyToClipboard url
+        CopiarAlPortapapeles url
         
         ' Mostrar un mensaje con la URL copiada
         MsgBox "La URL ha sido copiada al portapapeles: " & vbCrLf & url, vbInformation, "URL Generada"
@@ -4273,12 +4277,12 @@ Sub CYB083_Verify_CVSS4_0_Vector()
         ' Abrir la URL en el navegador
         ThisWorkbook.FollowHyperlink url
     Else
-        MsgBox "No se encontraron valores en la selecciÛn.", vbExclamation, "Sin Datos"
+        MsgBox "No se encontraron valores en la selecciÔøΩn.", vbExclamation, "Sin Datos"
     End If
 End Sub
 
 
-Sub CopyToClipboard(text As String)
+Sub CopiarAlPortapapeles(text As String)
     ' Copiar texto al portapapeles usando Microsoft Forms
     Dim MSForms_DataObject As Object
     Set MSForms_DataObject = CreateObject("new:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
@@ -4286,5 +4290,9 @@ Sub CopyToClipboard(text As String)
     MSForms_DataObject.PutInClipboard
     Set MSForms_DataObject = Nothing
 End Sub
+
+
+
+
 
 

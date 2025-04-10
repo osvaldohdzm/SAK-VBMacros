@@ -1,8 +1,5 @@
 Attribute VB_Name = "ExcelModuloGeneral"
 
-
-
-
 Sub GEN003_Lowercase()
  For Each cell In Selection
         If Not cell.HasFormula Then
@@ -21,7 +18,7 @@ Sub GEN004_CopyAsListSpaces()
     
     ' Recorre las celdas seleccionadas
     For Each cell In Selection
-        ' Añadir el contenido de cada celda a la cadena, separado por un espacio
+        ' Aï¿½adir el contenido de cada celda a la cadena, separado por un espacio
         If Len(text) > 0 Then
             text = text & " " & cell.value
         Else
@@ -33,7 +30,7 @@ Sub GEN004_CopyAsListSpaces()
     clipboard.SetText text
     clipboard.PutInClipboard
     
-    ' Confirmación (opcional)
+    ' Confirmaciï¿½n (opcional)
     clipboard.GetFromClipboard
     MsgBox clipboard.GetText
 End Sub
@@ -46,15 +43,15 @@ Sub GEN005_EliminarSaltosDeLinea()
     Dim Texto As String
     Dim NuevoTexto As String
     
-    ' Itera a través de las celdas seleccionadas en la hoja activa
+    ' Itera a travï¿½s de las celdas seleccionadas en la hoja activa
     For Each celda In Selection
-        If Not celda.HasFormula Then ' Ignora celdas con fórmulas
+        If Not celda.HasFormula Then ' Ignora celdas con fï¿½rmulas
             Texto = celda.value
             
-            ' Reemplazar diferentes tipos de saltos de línea y retornos de carro
-            NuevoTexto = Replace(Texto, vbCrLf, " ")   ' Salto de línea + retorno de carro
+            ' Reemplazar diferentes tipos de saltos de lï¿½nea y retornos de carro
+            NuevoTexto = Replace(Texto, vbCrLf, " ")   ' Salto de lï¿½nea + retorno de carro
             NuevoTexto = Replace(NuevoTexto, vbCr, " ") ' Retorno de carro
-            NuevoTexto = Replace(NuevoTexto, vbLf, " ") ' Salto de línea
+            NuevoTexto = Replace(NuevoTexto, vbLf, " ") ' Salto de lï¿½nea
             
             celda.value = NuevoTexto ' Asigna el nuevo valor a la celda
         End If
@@ -72,7 +69,7 @@ Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     For Each celda In Selection
         ' Verificar si la celda tiene texto
         If Not IsEmpty(celda.value) Then
-            ' Reemplazar diferentes saltos de línea con vbLf
+            ' Reemplazar diferentes saltos de lï¿½nea con vbLf
             Dim contenido As String
             contenido = Replace(Replace(Replace(celda.value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
             
@@ -86,18 +83,18 @@ Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
                 contenido = Left(contenido, Len(contenido) - 1)
             End If
             
-            ' Dividir el contenido de la celda en un array de líneas
+            ' Dividir el contenido de la celda en un array de lï¿½neas
             lineas = Split(contenido, vbLf)
             
-            ' Crear un nuevo array para almacenar las líneas no vacías
+            ' Crear un nuevo array para almacenar las lï¿½neas no vacï¿½as
             Dim lineasSinVacias() As String
             ReDim lineasSinVacias(0 To UBound(lineas))
             Dim idx As Integer
             idx = 0
             
-            ' Iterar sobre cada línea del array
+            ' Iterar sobre cada lï¿½nea del array
             For i = LBound(lineas) To UBound(lineas)
-                ' Verificar si la línea está vacía y no agregarla al nuevo array
+                ' Verificar si la lï¿½nea estï¿½ vacï¿½a y no agregarla al nuevo array
                 If Trim(lineas(i)) <> "" Then
                     lineasSinVacias(idx) = lineas(i)
                     idx = idx + 1
@@ -107,7 +104,7 @@ Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
             ' Redimensionar el array resultante
             ReDim Preserve lineasSinVacias(0 To idx - 1)
             
-            ' Unir el array de líneas de nuevo en una cadena y asignarlo a la celda
+            ' Unir el array de lï¿½neas de nuevo en una cadena y asignarlo a la celda
             celda.value = Join(lineasSinVacias, vbLf)
         End If
     Next celda
@@ -126,24 +123,24 @@ Sub GEN007_ExportarTabla()
     ' Obtener la celda actualmente seleccionada
     Set celdaActual = ActiveCell
     
-    ' Verificar si la celda seleccionada está dentro de una tabla
+    ' Verificar si la celda seleccionada estï¿½ dentro de una tabla
     On Error Resume Next
     Set tabla = celdaActual.ListObject
     On Error GoTo 0
     
-    ' Si la celda está dentro de una tabla, procedemos
+    ' Si la celda estï¿½ dentro de una tabla, procedemos
     If Not tabla Is Nothing Then
         ' Obtener el nombre de la tabla
         nombreArchivo = tabla.Name
         
-        ' Mostrar un cuadro de diálogo para seleccionar la carpeta de destino
+        ' Mostrar un cuadro de diï¿½logo para seleccionar la carpeta de destino
         With Application.FileDialog(msoFileDialogFolderPicker)
             .Title = "Selecciona la carpeta para guardar el archivo"
             .Show
             If .SelectedItems.Count > 0 Then
                 carpetaDestino = .SelectedItems(1)
             Else
-                MsgBox "No se seleccionó ninguna carpeta. La exportación se ha cancelado.", vbExclamation
+                MsgBox "No se seleccionï¿½ ninguna carpeta. La exportaciï¿½n se ha cancelado.", vbExclamation
                 Exit Sub
             End If
         End With
@@ -167,13 +164,13 @@ Sub GEN007_ExportarTabla()
         ' Cerrar la nueva instancia de Excel sin guardar cambios
         nuevoLibro.Close SaveChanges:=False
         
-        MsgBox "Archivo exportado con éxito: " & rutaArchivo
+        MsgBox "Archivo exportado con ï¿½xito: " & rutaArchivo
         
         ' Regresar a la hoja original
         ThisWorkbook.Sheets(1).Activate
         
     Else
-        MsgBox "La celda seleccionada no está dentro de una tabla."
+        MsgBox "La celda seleccionada no estï¿½ dentro de una tabla."
     End If
 End Sub
 
@@ -184,7 +181,7 @@ End Sub
 
 
 Function RegExpReplace(ByVal text As String, ByVal replacePattern As String, ByVal replaceWith As String) As String
-    ' Función para reemplazar utilizando expresiones regulares
+    ' Funciï¿½n para reemplazar utilizando expresiones regulares
     Dim regex As Object
     Set regex = CreateObject("VBScript.RegExp")
     
@@ -213,7 +210,7 @@ Sub GEN010_TraducirCeldasSeleccionadas()
     idiomaOrigen = "en"
     idiomaDestino = "es"
     
-    ' Definir la lista de servidores de traducción
+    ' Definir la lista de servidores de traducciï¿½n
     service_urls = Array( _
         "translate.google.com.mx", _
         "translate.google.fi", _
@@ -226,37 +223,37 @@ Sub GEN010_TraducirCeldasSeleccionadas()
         "translate.google.de" _
     )
     
-    ' Definir el número máximo de peticiones por grupo
+    ' Definir el nï¿½mero mï¿½ximo de peticiones por grupo
     Dim maxRequestsPerGroup As Integer
     maxRequestsPerGroup = 30
     
-    ' Inicializar contador para controlar el número de peticiones en cada grupo
+    ' Inicializar contador para controlar el nï¿½mero de peticiones en cada grupo
     Dim requestCount As Integer
     requestCount = 0
     
-    ' Inicializar el índice para seleccionar un servidor de traducción de la lista
+    ' Inicializar el ï¿½ndice para seleccionar un servidor de traducciï¿½n de la lista
     Dim serverIndex As Integer
     serverIndex = 0
     
-    ' Obtener el número total de celdas seleccionadas
+    ' Obtener el nï¿½mero total de celdas seleccionadas
     Dim totalCeldas As Integer
     totalCeldas = Selection.Count
     
-    ' Imprimir información en el Inmediato
-    Debug.Print "Número total de celdas seleccionadas: " & totalCeldas
+    ' Imprimir informaciï¿½n en el Inmediato
+    Debug.Print "Nï¿½mero total de celdas seleccionadas: " & totalCeldas
     
     ' Recorrer todas las celdas seleccionadas en la hoja activa
     For Each celda In Selection
         ' Obtener el texto original de la celda
         textoOriginal = celda.value
         
-        ' Verificar si la celda no está vacía
+        ' Verificar si la celda no estï¿½ vacï¿½a
         If textoOriginal <> "" Then
             ' Almacenar el resultado de EncodeURL en una variable
             Dim textoCodificado As String
             textoCodificado = WorksheetFunction.EncodeURL(textoOriginal)
             
-            ' Traducir el texto utilizando la función translate_text
+            ' Traducir el texto utilizando la funciï¿½n translate_text
             textoTraducido = translate_text(textoCodificado, idiomaOrigen, idiomaDestino, service_urls(serverIndex))
             
             ' Colocar el texto traducido en la misma celda
@@ -265,10 +262,10 @@ Sub GEN010_TraducirCeldasSeleccionadas()
             ' Incrementar el contador de peticiones en el grupo
             requestCount = requestCount + 1
             
-            ' Imprimir información en el Inmediato
+            ' Imprimir informaciï¿½n en el Inmediato
             Debug.Print "Celda traducida: " & celda.Address & " - Texto traducido: " & textoTraducido
             
-            ' Verificar si se alcanzó el límite de peticiones por grupo
+            ' Verificar si se alcanzï¿½ el lï¿½mite de peticiones por grupo
             If requestCount = maxRequestsPerGroup Then
                 ' Reiniciar el contador y pasar al siguiente servidor
                 requestCount = 0
@@ -283,10 +280,10 @@ Sub GEN006_LimpiarEtiquetasHTML()
     Dim htmlPattern As String
     Dim additionalPattern As String
     
-    ' Definir el patrón HTML que se desea eliminar
+    ' Definir el patrï¿½n HTML que se desea eliminar
     htmlPattern = "<(\/?(p|a|li|ul|b|strong|i|u|br)[^>]*?)>|<\/p><p>"
     
-    ' Definir el patrón para eliminar etiquetas <div>, </div> y <span>, </span> pero mantener su contenido
+    ' Definir el patrï¿½n para eliminar etiquetas <div>, </div> y <span>, </span> pero mantener su contenido
     additionalPattern = "<(div|span)[^>]*>|<\/(div|span)>"
     
     ' Obtener el rango de celdas seleccionadas por el usuario
@@ -294,7 +291,7 @@ Sub GEN006_LimpiarEtiquetasHTML()
     Set selectedRange = Application.InputBox("Seleccione el rango de celdas", Type:=8)
     On Error GoTo 0
     
-    ' Salir si el usuario cancela la selección
+    ' Salir si el usuario cancela la selecciï¿½n
     If selectedRange Is Nothing Then Exit Sub
     
     ' Iterar sobre cada celda en el rango seleccionado
@@ -302,13 +299,13 @@ Sub GEN006_LimpiarEtiquetasHTML()
         ' Verificar si la celda contiene texto
         If Not IsEmpty(cell.value) And TypeName(cell.value) = "String" Then
             ' Eliminar las etiquetas HTML utilizando expresiones regulares
-            cell.value = RegExpReplace(cell.value, htmlPattern, vbCrLf) ' Reemplazar con salto de línea
-            ' Además, eliminar las etiquetas <div>, </div>, <span> y </span> pero mantener su contenido
+            cell.value = RegExpReplace(cell.value, htmlPattern, vbCrLf) ' Reemplazar con salto de lï¿½nea
+            ' Ademï¿½s, eliminar las etiquetas <div>, </div>, <span> y </span> pero mantener su contenido
             cell.value = RegExpReplace(cell.value, additionalPattern, "")
         End If
     Next cell
     
-    MsgBox "Etiquetas HTML eliminadas correctamente y reemplazadas según lo solicitado.", vbInformation
+    MsgBox "Etiquetas HTML eliminadas correctamente y reemplazadas segï¿½n lo solicitado.", vbInformation
 End Sub
 
 
@@ -319,45 +316,45 @@ Function ParseTranslationResponse(responseText As String) As String
     Dim tempText As String
     Dim isHash As Boolean
 
-    ' Inicializar la variable para acumular el texto en español
+    ' Inicializar la variable para acumular el texto en espaï¿½ol
     spanishText = ""
 
-    ' Inicializar la posición de búsqueda
+    ' Inicializar la posiciï¿½n de bï¿½squeda
     posStart = 1
 
-    ' Buscar y extraer el texto en español
+    ' Buscar y extraer el texto en espaï¿½ol
     Do
-        ' Buscar el inicio de la cadena de texto en español
+        ' Buscar el inicio de la cadena de texto en espaï¿½ol
         posStart = InStr(posStart, responseText, "[""")
         If posStart = 0 Then Exit Do
         posStart = posStart + 2
 
-        ' Buscar el final de la cadena de texto en español
+        ' Buscar el final de la cadena de texto en espaï¿½ol
         posEnd = InStr(posStart, responseText, """,")
         If posEnd = 0 Then Exit Do
 
-        ' Extraer el texto en español
+        ' Extraer el texto en espaï¿½ol
         tempText = Mid(responseText, posStart, posEnd - posStart)
         tempText = Replace(tempText, "\", "") ' Limpiar caracteres de escape
         
         ' Verificar si el texto es un hash
         isHash = CheckIfHash(tempText)
         
-        ' Si el texto no es un hash, añadirlo al texto en español
+        ' Si el texto no es un hash, aï¿½adirlo al texto en espaï¿½ol
         If Not isHash Then
             spanishText = spanishText & tempText & " "
         End If
 
-        ' Mover la posición de búsqueda para el próximo par
+        ' Mover la posiciï¿½n de bï¿½squeda para el prï¿½ximo par
         posStart = posEnd + 2
     Loop
 
-    ' Eliminar el último espacio en blanco añadido
+    ' Eliminar el ï¿½ltimo espacio en blanco aï¿½adido
     If Len(spanishText) > 0 Then
         spanishText = Trim(spanishText)
     End If
 
-    ' Retornar el texto en español extraído
+    ' Retornar el texto en espaï¿½ol extraï¿½do
     ParseTranslationResponse = spanishText
 End Function
 
@@ -367,7 +364,7 @@ Function translate_text(text_str As String, src_lang As String, trgt_lang As Str
     Dim responseText As String
     Const url_temp_src As String = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=[from]&tl=[to]&dt=t&q="
     
-    ' Construir la URL con el servicio específico
+    ' Construir la URL con el servicio especï¿½fico
     url_str = url_temp_src & text_str
     url_str = Replace(url_str, "[to]", trgt_lang)
     url_str = Replace(url_str, "[from]", src_lang)
@@ -391,9 +388,9 @@ Function CheckIfHash(text As String) As Boolean
     Dim pattern As String
     Dim regex As Object
     
-    pattern = "^[a-fA-F0-9]{32}$" ' Patrón para un hash MD5
+    pattern = "^[a-fA-F0-9]{32}$" ' Patrï¿½n para un hash MD5
     
-    ' Crear objeto de expresión regular
+    ' Crear objeto de expresiï¿½n regular
     Set regex = CreateObject("VBScript.RegExp")
     
     With regex
@@ -402,7 +399,7 @@ Function CheckIfHash(text As String) As Boolean
         .pattern = pattern
     End With
     
-    ' Devolver True si el texto coincide con el patrón de hash
+    ' Devolver True si el texto coincide con el patrï¿½n de hash
     CheckIfHash = regex.Test(text)
 End Function
 
@@ -426,13 +423,13 @@ Sub GEN011_EnumerarCeldas()
     Dim seleccion As Range
     Dim valorActual As Long
     
-    ' Solicitar al usuario el número inicial
+    ' Solicitar al usuario el nï¿½mero inicial
     On Error Resume Next
-    inicio = Application.InputBox("Ingrese el número inicial:", "Inicio de Enumeración", Type:=1)
+    inicio = Application.InputBox("Ingrese el nï¿½mero inicial:", "Inicio de Enumeraciï¿½n", Type:=1)
     On Error GoTo 0
-    If inicio = 0 Or inicio = False Then Exit Sub ' Salir si se cancela o se ingresa un valor inválido
+    If inicio = 0 Or inicio = False Then Exit Sub ' Salir si se cancela o se ingresa un valor invï¿½lido
     
-    valorActual = inicio ' Asignar el número inicial
+    valorActual = inicio ' Asignar el nï¿½mero inicial
     
     ' Iterar sobre las celdas seleccionadas
     Set seleccion = Selection
@@ -443,7 +440,7 @@ Sub GEN011_EnumerarCeldas()
         End If
     Next celda
     
-    MsgBox "Enumeración completada.", vbInformation
+    MsgBox "Enumeraciï¿½n completada.", vbInformation
 End Sub
 
 
@@ -458,14 +455,14 @@ Sub GEN012_VaciarTabla()
     Set ws = ActiveSheet
     Set rng = ActiveCell
     
-    ' Verificar si la celda seleccionada está dentro de una tabla
+    ' Verificar si la celda seleccionada estï¿½ dentro de una tabla
     On Error Resume Next
     Set tbl = rng.ListObject
     On Error GoTo 0
     
     If Not tbl Is Nothing Then
-        ' Confirmación antes de eliminar las filas
-        If MsgBox("¿Está seguro de que desea eliminar todas las filas de la tabla?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
+        ' Confirmaciï¿½n antes de eliminar las filas
+        If MsgBox("ï¿½Estï¿½ seguro de que desea eliminar todas las filas de la tabla?", vbYesNo + vbExclamation, "Confirmaciï¿½n") = vbYes Then
             ' Eliminar todas las filas de la tabla
             On Error Resume Next
             tbl.DataBodyRange.Delete
@@ -473,7 +470,7 @@ Sub GEN012_VaciarTabla()
             MsgBox "Se han eliminado todas las filas de la tabla.", vbInformation, "Proceso completado"
         End If
     Else
-        MsgBox "La celda seleccionada no está dentro de una tabla.", vbCritical, "Error"
+        MsgBox "La celda seleccionada no estï¿½ dentro de una tabla.", vbCritical, "Error"
     End If
     
     ' Liberar variables
@@ -491,14 +488,14 @@ Sub GEN013_VaciarTablaAFilaEjemplo()
     Set ws = ActiveSheet
     Set rng = ActiveCell
     
-    ' Verificar si la celda seleccionada está dentro de una tabla
+    ' Verificar si la celda seleccionada estï¿½ dentro de una tabla
     On Error Resume Next
     Set tbl = rng.ListObject
     On Error GoTo 0
     
     If Not tbl Is Nothing Then
-        ' Confirmación antes de eliminar las filas
-        If MsgBox("¿Está seguro de que desea eliminar todas las filas excepto la primera?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
+        ' Confirmaciï¿½n antes de eliminar las filas
+        If MsgBox("ï¿½Estï¿½ seguro de que desea eliminar todas las filas excepto la primera?", vbYesNo + vbExclamation, "Confirmaciï¿½n") = vbYes Then
             ' Eliminar todas las filas excepto la primera
             On Error Resume Next
             If tbl.ListRows.Count > 1 Then
@@ -508,7 +505,7 @@ Sub GEN013_VaciarTablaAFilaEjemplo()
             MsgBox "Se han eliminado todas las filas excepto la primera.", vbInformation, "Proceso completado"
         End If
     Else
-        MsgBox "La celda seleccionada no está dentro de una tabla.", vbCritical, "Error"
+        MsgBox "La celda seleccionada no estï¿½ dentro de una tabla.", vbCritical, "Error"
     End If
     
     ' Liberar variables
@@ -539,9 +536,9 @@ Sub GEN014_VaciarTodasTablasAFilaEjemplo()
     For Each ws In ThisWorkbook.Worksheets
         ' Recorrer todas las tablas de la hoja actual
         For Each tbl In ws.ListObjects
-            ' Verificar si la tabla está en la lista de exclusión
+            ' Verificar si la tabla estï¿½ en la lista de exclusiï¿½n
             If Not excludeTables.exists(tbl.Name) Then
-                ' Verificar que la tabla tenga más de una fila
+                ' Verificar que la tabla tenga mï¿½s de una fila
                 If tbl.ListRows.Count > 1 Then
                     ' Eliminar todas las filas excepto la primera
                     On Error Resume Next
@@ -552,11 +549,47 @@ Sub GEN014_VaciarTodasTablasAFilaEjemplo()
         Next tbl
     Next ws
     
-    ' Mensaje de finalización
+    ' Mensaje de finalizaciï¿½n
     MsgBox "Se han vaciado todas las tablas excepto las excluidas.", vbInformation, "Proceso completado"
     
     ' Liberar variables
     Set excludeTables = Nothing
 End Sub
 
+
+
+Sub GEN015_ReemplazarTextoEnTodasLasHojas()
+    Dim ws As Worksheet
+    Dim celda As Range
+    Dim buscar As String
+    Dim reemplazar As String
+    
+    buscar = "EspAmenazaUnificadaDesdeInternet"
+    reemplazar = "EspAmenazaUnificadaGeneral"
+
+    ' Recorre todas las hojas
+    For Each ws In ThisWorkbook.Sheets
+        ' Reemplazo en celdas normales
+        ws.Cells.Replace What:=buscar, Replacement:=reemplazar, LookAt:=xlPart, _
+                         SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    Next ws
+    
+    MsgBox "Reemplazo completado en todas las hojas.", vbInformation
+End Sub
+
+
+Sub GEN016_IncrementarEnUno()
+    Dim celda As Range
+    
+    ' Recorre todas las celdas seleccionadas
+    For Each celda In Selection
+        ' Verifica si el valor de la celda es numï¿½rico
+        If IsNumeric(celda.value) Then
+            ' Incrementa el valor en 1
+            celda.value = celda.value + 1
+        End If
+    Next celda
+
+    MsgBox "Se han incrementado los valores numï¿½ricos en 1.", vbInformation, "Proceso Completado"
+End Sub
 
