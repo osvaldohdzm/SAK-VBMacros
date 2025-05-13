@@ -3149,18 +3149,16 @@ Sub CYB034_CargarResultados_DatosDesdeCSVNessus()
             For colCSVIndex = 1 To UBound(encabezados, 2)
                 
                 Select Case encabezados(1, colCSVIndex)
-                    Case "Host": columnaCorrespondiente = "IPv4 Interna"
+                    Case "Host": columnaCorrespondiente = "Identificador de detección usado"
                     Case "CVE": columnaCorrespondiente = "CVE"
                     Case "CVSS v3.0 Base Score": columnaCorrespondiente = "CVSSScore"
-                    Case "Description": columnaCorrespondiente = "Descripci?n ampliada"
                     Case "Metasploit": columnaCorrespondiente = "Exploits públicos"
                     Case "Plugin ID": columnaCorrespondiente = "Identificador original de la vulnerabilidad"
-                    Case "Name": columnaCorrespondiente = "Nombre de vulnerabilidad"
+                    Case "Name": columnaCorrespondiente = "Nombre original de la vulnerabilidad"
                     Case "Protocol": columnaCorrespondiente = "Protocolo de transporte"
                     Case "Port": columnaCorrespondiente = "Puerto"
                     Case "See Also": columnaCorrespondiente = "Referencias"
                     Case "Plugin Output": columnaCorrespondiente = "Salidas de herramienta"
-                    Case "Risk": columnaCorrespondiente = "Severidad"
                     Case Else: columnaCorrespondiente = ""
                 End Select
                 
@@ -3484,27 +3482,25 @@ Sub CYB037_CargarResultados_DatosDesdeCSVAcunetix()
     CheckColumnExists tbl, "Última fecha de detección", columnasFaltantes, colIdxFecha
 
     
-    If Len(columnasFaltantes) > 0 Then
-        MsgBox "Error Crítico: La(s) siguiente(s) columna(s) requerida(s) no existe(n) en la tabla "
-               columnasFaltantes & vbCrLf & vbCrLf & _
-               "Por favor, asegúrese de que estas columnas existan con el nombre EXACTO (incluyendo tildes, mayúsculas/minúsculas si aplica y sin espacios extra).", _
-               vbCritical, "Columnas Faltantes Específicas"
-        Exit Sub
-    End If
-    
+If Len(columnasFaltantes) > 0 Then
+    MsgBox "Error Crítico: La(s) siguiente(s) columna(s) requerida(s) no existe(n) en la tabla: " & _
+           columnasFaltantes & vbCrLf & vbCrLf & _
+           "Por favor, asegúrese de que estas columnas existan con el nombre EXACTO (incluyendo tildes, mayúsculas/minúsculas si aplica y sin espacios extra).", _
+           vbCritical, "Columnas Faltantes Específicas"
+    Exit Sub
+End If
 
-    
-    
-    On Error GoTo ErrorHandler
+On Error GoTo ErrorHandler
 
-    
-    mensaje = "Esta macro cargará datos de Acunetix en "
-              "Verificará duplicados basados en las 4 columnas clave." & vbCrLf & _
-              "- Si es nuevo: Agrega registro, Conteo=1, Fecha=Hoy." & vbCrLf & _
-              "- Si existe: Incrementa
-              "¿Desea continuar?"
-    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "Confirmación de Carga con Verificación")
-    If respuesta = vbNo Then Exit Sub
+mensaje = "Esta macro cargará datos de Acunetix en la hoja actual." & vbCrLf & _
+          "Verificará duplicados basados en las 4 columnas clave." & vbCrLf & vbCrLf & _
+          "- Si es nuevo: Agrega registro, Conteo = 1, Fecha = Hoy." & vbCrLf & _
+          "- Si existe: Incrementa el conteo." & vbCrLf & vbCrLf & _
+          "¿Desea continuar?"
+
+respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "Confirmación de Carga con Verificación")
+If respuesta = vbNo Then Exit Sub
+
 
     
     archivos = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", MultiSelect:=True, Title:="Seleccionar archivos CSV de Acunetix")
@@ -4917,8 +4913,7 @@ Sub CYB078_PrepararPromptDesdeSeleccion_AmenazaVuln_DesdeInternet()
     If listaVulnerabilidades <> "" Then
         
         prompt = "Hola, por favor considera el siguiente ejemplo: Un atacante podría (obtener, realizar, ejecutar, visualizar, identificar, listar)... Algunos posibles vectores de ataque adicionales asociados con esta amenaza incluyen (pueden ser algunos de los siguientes, pero no necesariamente todos): •  Malware: Un malware diseñado para automatizar intentos de fuerza bruta podría explotar la vulnerabilidad para... •    Usuario malintencionado: Un usuario dentro de la red local con conocimiento de la vulnerabilidad podría aprovecharla para... •    Personal interno: Un empleado con acceso y conocimientos t?cnicos podría, intencionalmente o por error,... •  Delincuente cibern?tico: Un atacante externo en busca de vulnerabilidades podría intentar explotar esta debilidad para... Instrucciones adicionales: 1.   Pregunta si el sistema es interno o externo para determinar los vectores de ataque m?s relevantes, ya que no todos aplican en todos los casos. "
-        prompt = prompt & "2.   Redacta una descripci?n de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podría...-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m?s realista o probable. 4.   En las viñetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un an?lisis de vulnerabilidades de infraestructura desde una desde internet, específicamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet-. Formato de respuesta: •    Responde en una tabla de dos columnas. •    Para cada vulnerabilidad, redacta un p?rrafo descriptivo en la primera columna (mínimo 75 palabras). •  En la segunda columna, lista los vectores de ataque con viñetas (usando guiones  - ). • No uses HTML, solo texto plano. Ejemplo de estructura: Descripci?n de la amenaza    Vectores de ataque Un atacante podría explotar esta vulnerabilidad para acceder _
- informaci?n"
+        prompt = prompt & "2.   Redacta una descripci?n de la amenaza que incluya posibles escenarios de ataque, comenzando con la frase: -Un atacante podría...-. 3.    No es necesario proporcionar un ejemplo para cada vector de ataque. Selecciona el m?s realista o probable. 4.   En las viñetas de vectores de ataque, menciona la probabilidad de ocurrencia, incluso si es baja. 5.    El contexto es un an?lisis de vulnerabilidades de infraestructura desde una desde internet, específicamente: -Vulnerabilidad detectada mediante escaneo e interacciones desde desde internet-. Formato de respuesta: •    Responde en una tabla de dos columnas. •    Para cada vulnerabilidad, redacta un p?rrafo descriptivo en la primera columna (mínimo 75 palabras). •  En la segunda columna, lista los vectores de ataque con viñetas (usando guiones  - ). • No uses HTML, solo texto plano. Ejemplo de estructura: Descripci?n de la amenaza    Vectores de ataque Un atacante podría explotar esta vulnerabilidad para acceder informacion """
         prompt = prompt & "confidencial Esta amenaza es particularmente crítica en sistemas internos donde los controles de seguridad son menos estrictos."
         prompt = prompt & "Un escenario probable incluye...    - Malware: Un malware podría ser utilizado para... (probabilidad media). - Usuario malintencionado: Un empleado con acceso podría... (probabilidad baja). - Delincuente cibern?tico: Un atacante externo podría... (probabilidad alta). ES MUY IMPORANTE QU EPAR ALOS VECTORI DE ATQUE DE LA MENAZA USSES GUIONE S MEDIOS COMO VIÑETAS DENTRO DE ALS CELDAS"
         prompt = prompt & "Se detecto mediante en desde internet en sitio desde internet, pero explica los escenarios que consideres necesarios" & vbCrLf & Chr(10)
