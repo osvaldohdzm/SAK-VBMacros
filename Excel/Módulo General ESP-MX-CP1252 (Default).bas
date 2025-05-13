@@ -40,16 +40,16 @@ End Sub
 Sub GEN005_EliminarSaltosDeLinea()
 
     Dim celda As Range
-    Dim texto As String
+    Dim Texto As String
     Dim NuevoTexto As String
     
     ' Itera a través de las celdas seleccionadas en la hoja activa
     For Each celda In Selection
         If Not celda.HasFormula Then ' Ignora celdas con fórmulas
-            texto = celda.value
+            Texto = celda.value
             
             ' Reemplazar diferentes tipos de saltos de línea y retornos de carro
-            NuevoTexto = Replace(texto, vbCrLf, " ")   ' Salto de línea + retorno de carro
+            NuevoTexto = Replace(Texto, vbCrLf, " ")   ' Salto de línea + retorno de carro
             NuevoTexto = Replace(NuevoTexto, vbCr, " ") ' Retorno de carro
             NuevoTexto = Replace(NuevoTexto, vbLf, " ") ' Salto de línea
             
@@ -57,6 +57,26 @@ Sub GEN005_EliminarSaltosDeLinea()
         End If
     Next celda
 
+End Sub
+
+Sub GEN017_EliminarTextoAntesEspacio()
+    Dim celda As Range
+    Dim textoOriginal As String
+    Dim posicionEspacio As Long
+
+    ' Recorre cada celda en la selección
+    For Each celda In Selection
+        If Not IsEmpty(celda) And VarType(celda.value) = vbString Then
+            textoOriginal = celda.value
+            posicionEspacio = InStr(1, textoOriginal, " ")
+            
+            ' Si hay al menos un espacio
+            If posicionEspacio > 0 Then
+                ' Elimina el texto antes del primer espacio, incluyendo el espacio
+                celda.value = Mid(textoOriginal, posicionEspacio + 1)
+            End If
+        End If
+    Next celda
 End Sub
 
 
