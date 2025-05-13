@@ -1,8 +1,107 @@
 Attribute VB_Name = "ExcelModuloCiberseguridad"
+Sub EliminarLineasVaciasEnCelda(WordDoc As Object)
+    Dim rng As Object ' Usando tipo Object en lugar de Word.Range
+    Dim textoOriginal As String
+
+    ' Asegurarse de que el documento no sea nulo
+    If WordDoc Is Nothing Then
+        MsgBox "El documento es nulo.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Obtener la celda específica: WordDoc.Tables(1).Cell(8, 1)
+    Dim cell As Object
+    Set cell = WordDoc.Tables(1).cell(8, 1)
+
+    ' La comprobación TypeOf ya no es estrictamente necesaria si declaras cell As Object,
+    ' pero la dejamos por si acaso se pasa un Nothing.
+    If cell Is Nothing Then
+        MsgBox "Se recibió un objeto de celda nulo.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Intentar asignar el rango de la celda
+    On Error Resume Next
+    Set rng = cell.Range
+    On Error GoTo 0
+
+    ' Verificar si el rango fue correctamente asignado
+    If rng Is Nothing Then
+        MsgBox "No se pudo obtener el rango de la celda.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Asegurarse de que el rango contiene texto antes de realizar cambios
+    If Len(rng.text) > 0 Then
+        textoOriginal = rng.text
+        Debug.Print "Texto original (longitud " & Len(textoOriginal) & "): [" & textoOriginal & "]" ' Depuración
+
+        ' Verificar si el último carácter del RANGO es el marcador de fin de celda (Chr(7))
+        On Error Resume Next
+        If rng.Characters.Last.text = Chr(7) Then
+            If Err.Number = 0 Then ' Solo proceder si no hubo error al acceder a Last.Text
+                ' Si es Chr(7), ajustamos el RANGO para excluirlo.
+                rng.End = rng.End - 1
+                Debug.Print "Ajustado el rango para excluir Chr(7). Nuevo final: " & rng.End
+                ' Volver a verificar si el rango aún tiene longitud después del ajuste
+                If rng.Start >= rng.End Then ' Cambiado a >= por seguridad
+                    Debug.Print "El rango quedó vacío después de quitar Chr(7). Saliendo."
+                    On Error GoTo 0 ' Restablecer manejo de errores
+                    Exit Sub ' No hay nada más que hacer si el rango está vacío
+                End If
+            Else
+                Debug.Print "Error accediendo a rng.Characters.Last: " & Err.Description
+                Err.Clear
+            End If
+        End If
+        On Error GoTo 0 ' Restablecer manejo de errores normal
+
+        ' Reemplazar saltos de párrafo múltiples (^13) con uno solo usando comodines
+        With rng.Find
+            .ClearFormatting
+            .Replacement.ClearFormatting
+            .text = "(^13){2,}"      ' Buscar DOS O MÁS saltos de párrafo (^13) consecutivos
+            .Replacement.text = "^13" ' Reemplazar con UN SOLO salto de párrafo (^13) cuando se usan comodines
+            .Forward = True
+            .Wrap = wdFindStop      ' No continuar la búsqueda al inicio si llega al final
+            .Format = False
+            .MatchCase = False
+            .MatchWholeWord = False
+            .MatchWildcards = True  ' ¡IMPORTANTE! Habilitar comodines
+            .MatchSoundsLike = False
+            .MatchAllWordForms = False
+            .Execute Replace:=wdReplaceAll ' Ejecutar el reemplazo en todo el rango (ajustado)
+        End With
+
+        ' --- Opcional: Eliminar saltos de párrafo/línea al principio del rango ---
+        Do While rng.Characters.Count > 0 And (Left(rng.text, 1) = vbCr Or Left(rng.text, 1) = vbLf)
+            rng.Start = rng.Start + 1 ' Mover el inicio del rango un carácter hacia adelante
+        Loop
+        Debug.Print "Texto después de quitar saltos iniciales: [" & rng.text & "]"
+
+        ' --- Opcional: Eliminar un único salto de párrafo/línea al final del rango ---
+        If rng.Characters.Count > 0 Then ' Asegurarse que el rango no está vacío
+            Dim ultimoChar As String
+            ultimoChar = rng.Characters.Last.text
+            If ultimoChar = Chr(13) Or ultimoChar = Chr(10) Then ' Chr(13)=vbCr, Chr(10)=vbLf
+                rng.End = rng.End - 1 ' Ajustar el final del rango para eliminarlo
+                Debug.Print "Eliminado salto de párrafo/línea final. Nuevo final: " & rng.End
+            End If
+        End If
+
+        Debug.Print "Texto final en rango (longitud " & Len(rng.text) & "): [" & rng.text & "]"
+    Else
+        Debug.Print "La celda original estaba vacía o el rango quedó vacío."
+    End If
+
+    ' Limpiar la referencia al rango después de finalizar
+    Set rng = Nothing
+End Sub
+
 
 Sub CYB008_LimpiarTextoYAgregarGuion()
     Dim celda As Range
-    Dim texto As String
+    Dim Texto As String
     Dim textoLimpio As String
     Dim lineas As Variant
     Dim i As Integer
@@ -13,10 +112,10 @@ Sub CYB008_LimpiarTextoYAgregarGuion()
     For Each celda In Selection
         ' Solo procesamos celdas con texto
         If Not IsEmpty(celda.value) Then
-            texto = celda.value
+            Texto = celda.value
             
             ' Mantener las líneas vacías pero eliminar saltos de línea innecesarios dentro del texto
-            lineas = Split(texto, vbLf)
+            lineas = Split(Texto, vbLf)
             textoLimpio = ""
             
             ' Eliminar las líneas vacías (CHAR(10)) pero mantener los saltos de línea necesarios
@@ -388,7 +487,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -399,7 +498,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.keys
+            For Each key In uniqueUrls.Keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -526,20 +625,20 @@ End Sub
 
 Sub CYB033_ConvertirATextoEnOracion()
     Dim celda       As Range
-    Dim texto       As String
+    Dim Texto       As String
     Dim primeraLetra As String
     Dim restoTexto  As String
     
     ' Recorre cada celda en el rango seleccionado
     For Each celda In Selection
         If Not IsEmpty(celda.value) Then
-            texto = celda.value
+            Texto = celda.value
             ' Convierte todo el texto a minúsculas
-            texto = LCase(texto)
+            Texto = LCase(Texto)
             ' Extrae la primera letra
-            primeraLetra = UCase(Left(texto, 1))
+            primeraLetra = UCase(Left(Texto, 1))
             ' Extrae el resto del texto
-            restoTexto = Mid(texto, 2)
+            restoTexto = Mid(Texto, 2)
             ' Combina la primera letra en mayúsculas con el resto del texto en minúsculas
             celda.value = primeraLetra & restoTexto
         End If
@@ -567,7 +666,7 @@ Sub CYB009_LimpiarSalida()
     Dim liPattern As String
     Dim cleanHtmlPattern As String
     Dim NuevoTexto As String
-    Dim texto As String
+    Dim Texto As String
     Dim cleanOutput As String
     Dim lastLineWasEmpty As Boolean
 
@@ -622,10 +721,10 @@ Sub CYB009_LimpiarSalida()
                 End If
 
                 ' Reemplazar caracteres de control innecesarios
-                texto = ReemplazarEntidadesHtml(cleanOutput)
+                Texto = ReemplazarEntidadesHtml(cleanOutput)
 
                 ' Asegurar formato limpio sin saltos de línea redundantes
-                NuevoTexto = Trim(texto)
+                NuevoTexto = Trim(Texto)
 
                 ' Asignar el texto limpio a la celda
                 celda.value = NuevoTexto
@@ -641,7 +740,7 @@ End Sub
 Sub CYB010_AgregarSaltosLineaATextoGuiones()
 
     Dim celda As Range
-    Dim texto As String
+    Dim Texto As String
     Dim partes() As String
     Dim i As Integer
 
@@ -649,22 +748,22 @@ Sub CYB010_AgregarSaltosLineaATextoGuiones()
     For Each celda In Selection
         ' Verifica si la celda tiene texto
         If celda.HasFormula = False Then
-            texto = celda.value
+            Texto = celda.value
             ' Verifica si hay guiones en el texto
-            If InStr(texto, "-") > 0 Then
+            If InStr(Texto, "-") > 0 Then
                 ' Divide el texto usando el guion como delimitador
-                partes = Split(texto, "-")
+                partes = Split(Texto, "-")
                 
                 ' Reconstruye el texto con saltos de línea apropiados
-                texto = partes(0) ' Primer parte (sin cambio)
+                Texto = partes(0) ' Primer parte (sin cambio)
                 
                 For i = 1 To UBound(partes)
                     ' Agrega salto de línea solo si no es la primera parte
-                    texto = texto & vbNewLine & "- " & partes(i)
+                    Texto = Texto & vbNewLine & "- " & partes(i)
                 Next i
                 
                 ' Asigna el texto modificado a la celda
-                celda.value = texto
+                celda.value = Texto
             End If
         End If
     Next celda
@@ -927,10 +1026,10 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
     Dim internalTable As Object
 
     salidaPruebaSeguridadKey = "«Salidas de herramienta»"
-    metodoDeteccionKey = "«M?todo de detecci?n»"
+    metodoDeteccionKey = "«Método de detección»"
     
     ' Verificar si las claves est?n presentes en el diccionario
-    If replaceDic.exists(salidaPruebaSeguridadKey) And replaceDic.exists(metodoDeteccionKey) Then
+    If replaceDic.Exists(salidaPruebaSeguridadKey) And replaceDic.Exists(metodoDeteccionKey) Then
         ' Obtener los valores de las claves
         salidaPruebaSeguridadValue = CStr(replaceDic(salidaPruebaSeguridadKey))
         metodoDeteccionValue = CStr(replaceDic(metodoDeteccionKey))
@@ -939,9 +1038,9 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
         Set firstTable = WordDoc.Tables(1)
         numRows = firstTable.Rows.Count
         
-        ' Verificar si ambos valores est?n vacíos
+        ' Verificar si ambos valores estan vacíos
         If Len(Trim(salidaPruebaSeguridadValue)) = 0 And Len(Trim(metodoDeteccionValue)) = 0 Then
-            ' Si ambos est?n vacíos, eliminar las últimas filas de la tabla principal
+            ' Si ambos están vacíos, eliminar las últimas filas de la tabla principal
             If numRows > 0 Then
                 ' Eliminar la última fila
                 firstTable.Rows(numRows).Delete
@@ -951,7 +1050,6 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
                 End If
             End If
       ElseIf Len(Trim(salidaPruebaSeguridadValue)) = 0 Then
-            ' Si "M?todo de detecci?n" tiene texto, eliminar la tabla interna dentro de la última celda
             If numRows > 0 Then
                 firstTable.Tables(1).Delete
             End If
@@ -1005,7 +1103,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
     Set ws = ActiveSheet
     
     ' Obtener la ruta de la carpeta donde est? la hoja activa
-    rutaBase = ws.Parent.Path & "\"
+    rutaBase = ws.Parent.path & "\"
     
     ' Inicializar Word
     Set appWord = CreateObject("Word.Application")
@@ -1019,7 +1117,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
     
     If tbl Is Nothing Then
         MsgBox "La tabla        'Tabla_pruebas_seguridad' no se encuentra en la hoja activa.", vbExclamation
-        GoTo Cleanup
+        GoTo CleanUp
     End If
     
     ' Procesar cada fila de la tabla
@@ -1081,7 +1179,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
                 ' Insertar el caption debajo de la imagen
                 Set captionRange = rng.Duplicate
                 captionRange.Select
-                appWord.Selection.MoveLeft Unit:=1, Count:=1, Extend:=0        ' wdCharacter
+                appWord.Selection.MoveLeft unit:=1, Count:=1, Extend:=0        ' wdCharacter
                 appWord.CaptionLabels.Add Name:="Imagen"
                 appWord.Selection.InsertCaption Label:="Imagen", TitleAutoText:="InsertarTítulo1", _
                                                 Title:="", Position:=1        ' wdCaptionPositionBelow, ExcludeLabel:=0
@@ -1107,7 +1205,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
         End If
     Next r
     
-Cleanup:
+CleanUp:
     ' Limpiar
     Set appWord = Nothing
     Set docWord = Nothing
@@ -1155,7 +1253,7 @@ Sub CYB017_LimpiarColumnaReferencias()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -1166,7 +1264,7 @@ Sub CYB017_LimpiarColumnaReferencias()
             n = uniqueUrls.Count - 1
             ReDim uniqueArray(n)
             i = 0
-            For Each key In uniqueUrls.keys
+            For Each key In uniqueUrls.Keys
                 uniqueArray(i) = key
                 i = i + 1
             Next
@@ -1301,7 +1399,7 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
                     
                     ' Insertar nuevos datos
                     categoryRow = 2        ' Empezar en la fila 2 para los tipos de vulnerabilidad
-                    For Each category In conteos.keys
+                    For Each category In conteos.Keys
                         SourceSheet.Cells(categoryRow, 1).value = category
                         SourceSheet.Cells(categoryRow, 2).value = conteos(category)
                         categoryRow = categoryRow + 1
@@ -1382,6 +1480,7 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     Dim tipoTextoValue As String
     Dim excelBasePath As String
     Dim finalDocumentPath As String ' Ruta para guardar el documento final
+    Dim textoCelda As String
     
     ' --- Selección de Rango y Verificación de Tabla ---
     On Error Resume Next
@@ -1441,8 +1540,8 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     tempFolderPath = tempFolder & "\"
     
     ' Ruta base para imágenes relativas (directorio del archivo Excel)
-    If ThisWorkbook.Path <> "" Then
-        excelBasePath = ThisWorkbook.Path & "\"
+    If ThisWorkbook.path <> "" Then
+        excelBasePath = ThisWorkbook.path & "\"
     Else
         MsgBox "Guarde primero el libro de Excel para poder resolver rutas relativas de imágenes.", vbExclamation
         ' Opcionalmente, pedir una ruta base al usuario
@@ -1514,40 +1613,66 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         WordDoc.Activate
         
         ' Realiza los reemplazos en el documento de Word
-        For Each key In replaceDic.keys
+        For Each key In replaceDic.Keys
             Dim placeholder As String
             Dim replacementValue As String
             placeholder = CStr(key)
             replacementValue = CStr(replaceDic(key))
             
-            ' --- MANEJO ESPECIAL PARA EXPLICACIÓN TÉCNICA ---
             If placeholder = "«Explicación técnica»" Then
                 If tipoTextoValue = "markdown" Then
-                    ' Insertar como Markdown
-                    InsertarMarkdownEnWord WordApp, WordDoc, placeholder, explicacionTecnicaValue, excelBasePath
+                    'RawPrint explicacionTecnicaValue
+                    'explicacionTecnicaValue = Replace(explicacionTecnicaValue, vbLf & vbLf, vbLf)
+                    'RawPrint explicacionTecnicaValue
+                    InsertarTextoMarkdownEnWordConFormato WordApp, WordDoc, placeholder, explicacionTecnicaValue, excelBasePath
                 Else
-                    ' Insertar como Texto Plano (o como lo hacía antes)
-                     ' Si WordAppReemplazarParrafo es tu función, úsala. Sino, usa el reemplazo estándar:
                     WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
-                    ' Alternativa estándar (reemplaza solo el texto, no el párrafo):
-                    ' Call WordFindReplace(WordDoc.Content, placeholder, replacementValue)
                 End If
-            ' --- MANEJO PARA OTRAS TRANSFORMACIONES (si existen) ---
             ElseIf placeholder = "«Descripción»" Then
                  WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue ' O usa reemplazo directo si aplica
             ElseIf placeholder = "«Propuesta de remediación»" Then
                  WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
             ElseIf placeholder = "«Referencias»" Then
                  WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
-            ' --- REEMPLAZO NORMAL PARA OTROS CAMPOS ---
             Else
-                ' Usa tu función de reemplazo o la estándar
                 WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
-                ' Alternativa estándar:
-                ' Call WordFindReplace(WordDoc.Content, placeholder, replacementValue)
             End If
         Next key
         
+        With WordDoc.Tables(1).cell(8, 1).Range
+    .Font.Color = wdColorBlack
+    .ParagraphFormat.Alignment = wdAlignParagraphJustify
+End With
+        FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
+       
+    ' Condición 1: si la celda (3,1) dice AMENAZA
+    textoCelda = Trim(Replace(WordDoc.Tables(1).cell(3, 1).Range.text, Chr(13) & Chr(7), ""))
+    If textoCelda = "AMENAZA" Then
+        FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(3, 2)
+    End If
+
+    ' Condición 2: si la celda (4,1) dice PROPUESTA DE REMEDIACIÓN
+    textoCelda = Trim(Replace(WordDoc.Tables(1).cell(4, 1).Range.text, Chr(13) & Chr(7), ""))
+    If textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
+        FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(4, 2)
+    End If
+
+    ' Condición 3: si la celda (5,1) dice AMENAZA o PROPUESTA DE REMEDIACIÓN
+    textoCelda = Trim(Replace(WordDoc.Tables(1).cell(5, 1).Range.text, Chr(13) & Chr(7), ""))
+    If textoCelda = "AMENAZA" Or textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
+        FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(5, 2)
+    End If
+       
+        
+        EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
+                
+        SustituirTextoMarkdownPorImagenes WordApp, WordDoc, excelBasePath
+        
+    textoCelda = Trim(Replace(WordDoc.Tables(1).cell(7, 1).Range.text, Chr(13) & Chr(7), ""))
+If textoCelda = "DETALLE DE PRUEBAS DE SEGURIDAD" Then
+    EliminarLineasVaciasEnCelda WordDoc
+End If
+
         ' Guardar y cerrar el documento individual
         finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
         WordDoc.SaveAs finalDocumentPath
@@ -1557,8 +1682,8 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         documentsList(i - 1) = finalDocumentPath
     Next i
     
-    ' --- Llamar a la función FusionarDocumentos ---
-    FusionarDocumentos WordApp, documentsList, saveFolder & "Documento_Completo_Fusionado.docx"
+    ' --- Llamar a la función FusionarDocumentosInsertando ---
+    FusionarDocumentosInsertando WordApp, documentsList, saveFolder & "Documento_Completo_Fusionado.docx"
     
     ' Cerrar la aplicaci?n de Word
     WordApp.Quit
@@ -1573,673 +1698,6 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     Set fs = Nothing
 End Sub
 
-
-
-Sub InsertarMarkdownEnWord(WordApp As Object, WordDoc As Object, placeholder As String, markdownText As String, basePath As String)
-' Word constants for late binding
-Const wdStory As Long = 6
-Const wdFindContinue As Long = 1
-Const wdCollapseEnd As Long = 0
-Const wdListNoNumbering As Long = 0
-Const wdWord10ListBehavior As Long = 0
-Const wdListNumberStyleArabic As Long = 0
-Const wdLineStyleSingle As Long = 1
-Const wdLineWidth150pt As Long = 6
-Const wdColorGray25 As Long = 16
-Const wdBorderTop As Long = -1
-Const wdBorderRight As Long = -4
-Const wdBorderHorizontal As Long = -7
-Const wdBorderVertical As Long = -6
-Const wdColorAutomatic As Long = -16777216
-
-    Dim sel As Object          ' Late Binding: Word.Selection
-    Dim lines() As String
-    Dim i As Long
-    Dim lineText As String
-    Dim trimmedLine As String
-    Dim inCodeBlock As Boolean
-    Dim listType As Long       ' 0 = No list, 1 = Bullet, 2 = Numbered
-    ' Dim listLevel As Integer ' Para futura implementación de niveles anidados (no usado actualmente)
-    Dim fs As Object           ' Scripting.FileSystemObject
-    Dim imgPath As String
-    Dim fullImgPath As String
-    Dim altText As String
-    Dim codeBlockStartRange As Object ' Late Binding: Word.Range
-    ' Dim currentPara As Object  ' No se usa directamente
-    ' Dim currentRange As Object ' No se usa directamente
-    Dim tempPath As String     ' Para construcción de rutas
-    Dim continueList As Boolean
-    Dim continueNumberedList As Boolean
-    Dim dotPos As Integer
-    Dim numPart As String
-    Dim isListItemLine As Boolean
-    Dim imgTag As String
-    Dim parts() As String
-    Dim currentShape As Object ' Late Binding: Word.InlineShape
-    Dim codeBlockEndRange As Object ' Late Binding: Word.Range
-    Dim blockRange As Object   ' Late Binding: Word.Range
-    Dim borderType As Long     ' Para bucle de bordes
-
-    On Error GoTo ErrorHandler
-
-    ' *** Validación de Objetos de Entrada (¡CRUCIAL!) ***
-    If WordApp Is Nothing Then
-        MsgBox "Error: La aplicación Word (WordApp) no es válida (Nothing).", vbCritical
-        Exit Sub
-    End If
-    If WordDoc Is Nothing Then
-        MsgBox "Error: El documento Word (WordDoc) no es válido (Nothing).", vbCritical
-        Exit Sub
-    End If
-
-    ' <<< MEJORA: Validar que los objetos realmente son de Word (si es posible en Late Binding) >>>
-    On Error Resume Next ' Intentar acceder a una propiedad específica de Word
-    Dim testAppName As String
-    testAppName = WordApp.Name ' Si esto falla, no es una App Word válida
-    If Err.Number <> 0 Then
-        MsgBox "Error: El objeto 'WordApp' no parece ser una aplicación Word válida.", vbCritical
-        Err.Clear
-        On Error GoTo ErrorHandler ' Restaurar manejo de errores
-        Exit Sub
-    End If
-    Dim testDocName As String
-    testDocName = WordDoc.Name ' Si esto falla, no es un Doc Word válido
-     If Err.Number <> 0 Then
-        MsgBox "Error: El objeto 'WordDoc' no parece ser un documento Word válido.", vbCritical
-        Err.Clear
-        On Error GoTo ErrorHandler ' Restaurar manejo de errores
-        Exit Sub
-    End If
-    On Error GoTo ErrorHandler ' Restaurar manejo de errores estándar
-
-    Set fs = CreateObject("Scripting.FileSystemObject")
-    If fs Is Nothing Then
-       MsgBox "Error: No se pudo crear Scripting.FileSystemObject.", vbCritical
-       Exit Sub
-    End If
-
-    ' <<< MEJORA: Asegurar que el documento esté activo para la selección >>>
-    On Error Resume Next ' Puede fallar si el documento está cerrado o Word no responde
-    WordDoc.Activate
-    WordApp.Activate ' Asegura que Word tenga el foco si es necesario
-    If Err.Number <> 0 Then
-        MsgBox "Advertencia: No se pudo activar el documento o la aplicación Word. La selección podría no ser la esperada.", vbExclamation
-        Err.Clear
-    End If
-    On Error GoTo ErrorHandler ' Restaurar manejo de errores
-
-    ' Trabajar con la selección
-    Set sel = WordApp.Selection
-    ' <<< MEJORA: Validar que la selección se obtuvo correctamente >>>
-    If sel Is Nothing Then
-        MsgBox "Error: No se pudo obtener el objeto Selection de Word.", vbCritical
-        Exit Sub
-    End If
-
-
-    ' Asegurar que basePath termina con un separador si no está vacío
-    ' Usar FileSystemObject para mayor fiabilidad con separadores
-If Right(basePath, 1) <> "\" And Right(basePath, 1) <> "/" Then ' Cubrir ambos separadores
-    basePath = fs.BuildPath(basePath, "") ' Añade el separador correcto
-End If
-
-
-    ' 1. Encontrar el placeholder
-    sel.HomeKey wdStory ' Or with named parameter: sel.HomeKey Unit:=wdStory
-    sel.Find.ClearFormatting
-    sel.Find.Replacement.ClearFormatting
-    With sel.Find
-        .text = placeholder
-        .Replacement.text = ""
-        .Forward = True
-        .Wrap = wdFindContinue
-        .Format = False
-        .MatchCase = False
-        .MatchWholeWord = False
-        .MatchWildcards = False
-        .MatchSoundsLike = False
-        .MatchAllWordForms = False
-    End With
-
-    If sel.Find.Execute Then
-        ' Placeholder encontrado. La selección está sobre él.
-        ' La inserción reemplazará la selección.
-
-        ' Normalizar saltos de línea (CRLF -> LF) y luego dividir
-        markdownText = Replace(markdownText, vbCrLf, vbLf)
-        lines = Split(markdownText, vbLf)
-
-        inCodeBlock = False
-        listType = 0 ' 0 = No list
-        Set codeBlockStartRange = Nothing
-
-        ' 2. Procesar cada línea
-        For i = 0 To UBound(lines)
-            lineText = lines(i) ' Mantener espacios iniciales para código
-            trimmedLine = Trim(lineText) ' Para comprobaciones de formato
-
-            ' --- Saltar línea vacía si NO estamos en bloque de código ---
-            If Len(trimmedLine) = 0 And Not inCodeBlock Then
-                ' Si la línea vacía interrumpe una lista, la termina.
-                If listType <> 0 Then
-                    On Error Resume Next ' Puede fallar si no hay formato de lista aplicado
-                    sel.Range.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
-                    On Error GoTo ErrorHandler
-                    listType = 0
-                End If
-                ' Insertar un párrafo vacío para mantener el espacio visual, solo si el párrafo actual no está vacío
-                ' Usar Information(wdFirstCharacterLineNumber) = 0 es más fiable
-                 On Error Resume Next ' Information puede fallar en casos raros
-                 Dim isEmptyPara As Boolean
-                 isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1) ' Párrafo vacío o solo marca de párrafo
-                 If Err.Number <> 0 Then
-                    isEmptyPara = False ' Asumir que no está vacío si hay error
-                    Err.Clear
-                 End If
-                 On Error GoTo ErrorHandler
-                 If Not isEmptyPara Then
-                    sel.TypeParagraph
-                 End If
-
-
-            ' --- Bloques de Código (```) ---
-            ElseIf trimmedLine = "```" Then
-                inCodeBlock = Not inCodeBlock
-                If inCodeBlock Then
-                    ' Inicia bloque: Asegurar nuevo párrafo, marcar inicio y aplicar fuente
-                    ' <<< MEJORA: Usar IsEmptyPara check >>>
-                    On Error Resume Next
-                     isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-                     If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-                    On Error GoTo ErrorHandler
-                    If Not isEmptyPara Then sel.TypeParagraph ' Nuevo párrafo si no estamos en uno vacío
-
-                    ' <<< CORRECCIÓN: Marcar el inicio DESPUÉS de insertar el párrafo si fue necesario >>>
-                    Set codeBlockStartRange = sel.Paragraphs(1).Range
-
-                    With sel.Font ' Aplicar fuente monoespaciada inmediatamente
-                         .Name = "Courier New"
-                         .Size = 10
-                    End With
-                    ' No insertar TypeParagraph aquí todavía, esperar a la primera línea de código o al cierre
-                Else
-                    ' Termina bloque: Seleccionar el rango y aplicar formato final
-                    If Not codeBlockStartRange Is Nothing Then
-                         ' El cursor está al inicio del párrafo DESPUÉS del último TypeParagraph del código.
-                         ' El párrafo actual (sel.Paragraphs(1)) es el que sigue al bloque.
-                         ' Necesitamos el rango desde el inicio guardado hasta el FINAL del párrafo ANTERIOR al actual.
-
-                         ' <<< CORRECCIÓN: Determinar el rango final correctamente >>>
-                         Dim endParaRange As Object ' Word.Range
-                         Set endParaRange = sel.Paragraphs(1).Previous.Range ' El último párrafo DEL CÓDIGO
-
-                         If Not endParaRange Is Nothing Then
-                             Set blockRange = WordDoc.Range(Start:=codeBlockStartRange.Start, End:=endParaRange.End)
-
-                            ' Quitar el último carácter de párrafo vacío si existe y el bloque tiene contenido
-                            ' OJO: Esta lógica puede ser delicada. Asegúrate de que funcione como esperas.
-                            ' Si el último párrafo de código tiene texto, blockRange.End ya está bien.
-                            ' Si el último TypeParagraph creó un párrafo extra vacío al final del bloque,
-                            ' endParaRange.End incluirá esa marca de párrafo vacía. Restar 1 la quitaría.
-                            If blockRange.Paragraphs.Count > 0 Then ' Asegurar que hay párrafos
-                                If Len(Trim(blockRange.Paragraphs.Last.Range.text)) <= 1 Then
-                                   If blockRange.End > blockRange.Start Then ' Evitar error si el rango es minúsculo
-                                     blockRange.End = blockRange.End - 1
-                                   End If
-                                End If
-                            ElseIf blockRange.Characters.Count > 0 Then ' Si solo hay un párrafo y está vacío
-                                 If Len(Trim(blockRange.text)) <= 1 And blockRange.End > blockRange.Start Then
-                                      blockRange.End = blockRange.End - 1
-                                 End If
-                            End If
-
-                            blockRange.Select ' Seleccionar para aplicar formato
-
-                            ' Aplicar formato de borde y sombreado
-                            With blockRange.ParagraphFormat.Borders
-                                 .Enable = True
-                                 ' Establecer borde exterior tipo caja
-                                  For borderType = wdBorderTop To wdBorderRight Step -1 ' -1 a -4
-                                      With .Item(borderType) ' wdBorderType Enumeration
-                                           .LineStyle = wdLineStyleSingle
-                                           .LineWidth = wdLineWidth150pt ' 1.5 puntos
-                                           .Color = wdColorGray25 ' Gris claro
-                                      End With
-                                  Next borderType
-                                 ' Quitar bordes internos (no debería haber si aplicamos a nivel ParagraphFormat)
-                                 .Item(wdBorderHorizontal).LineStyle = 0 ' wdLineStyleNone
-                                 .Item(wdBorderVertical).LineStyle = 0   ' wdLineStyleNone
-                            End With
-                             blockRange.Shading.BackgroundPatternColor = RGB(240, 240, 240) ' Gris muy claro
-
-                            ' Mover cursor al final del bloque formateado (que ahora es la selección)
-                            sel.Collapse Direction:=wdCollapseEnd ' wdCollapseEnd (al final de la selección del bloque)
-                            ' Asegurar que estamos en un párrafo nuevo después del bloque
-                            sel.TypeParagraph ' Inserta un nuevo párrafo si no existe ya uno después
-                            sel.Font.Reset ' Restablecer fuente a Normal
-                            sel.ParagraphFormat.Reset ' Restablecer formato de párrafo
-                            sel.ParagraphFormat.Borders.Enable = False ' Quitar bordes para el nuevo párrafo
-                            sel.Shading.BackgroundPatternColor = wdColorAutomatic ' Resetear sombreado
-                         Else
-                             ' No se pudo obtener el párrafo anterior - caso raro
-                             ' Simplemente mover el cursor y resetear formato
-                              sel.TypeParagraph
-                              sel.Font.Reset
-                              sel.ParagraphFormat.Reset
-                         End If
-                    Else
-                         ' Caso raro: ``` de cierre sin ``` de apertura detectado
-                         On Error Resume Next
-                         isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-                         If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-                         On Error GoTo ErrorHandler
-                         If Not isEmptyPara Then sel.TypeParagraph ' Solo insertar un párrafo si no estamos en uno vacío
-                    End If
-                    Set codeBlockStartRange = Nothing
-                    listType = 0 ' Salir de modo lista
-                End If
-
-            ' --- Dentro de Bloque de Código ---
-            ElseIf inCodeBlock Then
-                ' Asegurarse de mantener la fuente monoespaciada (el párrafo ya debería tenerla)
-                ' With sel.Font
-                '      .Name = "Courier New"
-                '      .Size = 10
-                ' End With
-                sel.TypeText text:=lineText ' Insertar texto tal cual (con espacios iniciales)
-                sel.TypeParagraph ' Nueva línea/párrafo en Word
-
-            ' --- Resetear lista si la línea NO es un item de lista ---
-            Else ' Si no es línea vacía, ni ```, ni estamos en bloque de código
-                 isListItemLine = (Left(trimmedLine, 2) = "* " Or Left(trimmedLine, 2) = "- " Or Left(trimmedLine, 2) = "+ ") Or _
-                                  (trimmedLine Like "#*. *" And IsNumeric(Left(trimmedLine, InStr(trimmedLine & ".", ".") - 1))) ' Simplificado
-
-                 If Not isListItemLine And listType <> 0 Then
-                     On Error Resume Next
-                      sel.Range.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
-                     On Error GoTo ErrorHandler
-                     listType = 0
-                 End If
-
-                 ' --- Imágenes ![alt](path) ---
-                 If Left(trimmedLine, 2) = "![" And InStr(trimmedLine, "](") > 2 And Right(trimmedLine, 1) = ")" Then
-                     imgTag = Mid(trimmedLine, 3) ' Quita "!["
-                     parts = Split(imgTag, "](", 2)
-                     If UBound(parts) = 1 Then
-                         altText = Trim(parts(0))
-                         imgPath = Trim(Left(parts(1), Len(parts(1)) - 1)) ' Quita ")"
-
-                         fullImgPath = ""
-                         On Error Resume Next ' Suprimir errores de FileSystemObject temporalmente
-                         ' Intenta resolver la ruta
-                         If fs.FileExists(imgPath) Then ' 1. Ruta tal cual (absoluta o relativa al CWD de Excel)
-                             fullImgPath = imgPath
-                         ElseIf basePath <> "" Then
-                             tempPath = fs.BuildPath(basePath, imgPath) ' 2. Relativa a basePath
-                             If fs.FileExists(tempPath) Then
-                                 fullImgPath = tempPath
-                             Else
-                                 ' 3. Intentar obtener ruta absoluta combinada (maneja ..\)
-                                 Dim absBasePath As String
-                                 Dim absCombinedPath As String
-                                 absBasePath = fs.GetAbsolutePathName(basePath) ' Asegura que basePath sea absoluto
-                                 If Err.Number = 0 Then
-                                     absCombinedPath = fs.GetAbsolutePathName(fs.BuildPath(absBasePath, imgPath))
-                                     If Err.Number = 0 And fs.FileExists(absCombinedPath) Then
-                                         fullImgPath = absCombinedPath
-                                     End If
-                                 End If
-                                 Err.Clear ' Limpiar errores de FSO
-                             End If
-                         End If
-                         On Error GoTo ErrorHandler ' Restaurar manejo de errores estándar
-
-                         If fullImgPath <> "" Then
-                             On Error Resume Next ' Intentar insertar imagen
-                              ' Insertar en un nuevo párrafo para evitar conflictos
-                              On Error Resume Next
-                              isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-                              If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-                              On Error GoTo ErrorHandler
-                              If Not isEmptyPara Then sel.TypeParagraph
-
-                              Set currentShape = sel.InlineShapes.AddPicture(fileName:=fullImgPath, LinkToFile:=False, SaveWithDocument:=True)
-                             If Err.Number <> 0 Then
-                                 sel.TypeText text:="[Error al insertar imagen: " & imgPath & " - " & Err.Description & "] "
-                                 sel.TypeParagraph
-                                 Err.Clear
-                             Else
-                                 ' Opcional: Asignar texto alternativo (accesibilidad)
-                                  If Not currentShape Is Nothing Then
-                                     On Error Resume Next ' AlternativeText puede no estar disponible
-                                     currentShape.AlternativeText = altText
-                                     On Error GoTo ErrorHandler
-                                  End If
-                                 sel.TypeParagraph ' Mover el cursor a un nuevo párrafo después de la imagen
-                             End If
-                             On Error GoTo ErrorHandler
-                         Else
-                             sel.TypeText text:="[Imagen no encontrada: " & imgPath & " (" & altText & ")]"
-                             sel.TypeParagraph
-                         End If
-                         listType = 0 ' Terminar lista después de una imagen (por si acaso)
-                     Else
-                         ' Formato inválido, insertar como texto normal usando formato
-                         InsertFormattedParagraph sel, trimmedLine
-                     End If
-
-                 ' --- Listas con Viñetas (*, -, +) ---
-                 ElseIf Left(trimmedLine, 2) = "* " Or Left(trimmedLine, 2) = "- " Or Left(trimmedLine, 2) = "+ " Then
-                     continueList = (listType = 1) ' Continuar si ya estábamos en lista de viñetas
-                     ' Empezar en nuevo párrafo si no continuamos lista O si el párrafo actual no está vacío
-                     On Error Resume Next
-                     isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-                     If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-                     On Error GoTo ErrorHandler
-                     If Not continueList And Not isEmptyPara Then sel.TypeParagraph
-
-                     On Error Resume Next ' Aplicar lista puede fallar en raras ocasiones
-                      sel.Range.ListFormat.ApplyListTemplateWithLevel _
-                           ListTemplate:=WordApp.ListGalleries(1).ListTemplates(1), _
-                           ContinuePreviousList:=continueList, _
-                           DefaultListBehavior:=wdWord10ListBehavior
-                     If Err.Number <> 0 Then
-                          Debug.Print "Error aplicando lista viñetas: " & Err.Description
-                          Err.Clear
-                          InsertFormattedParagraph sel, trimmedLine ' Insertar como texto normal si falla
-                     Else
-                          listType = 1 ' Establecer tipo de lista actual
-                          ' Insertar el texto del item (sin el marcador)
-                          InsertFormattedParagraph sel, Mid(trimmedLine, 3), isListItem:=True
-                     End If
-                     On Error GoTo ErrorHandler
-
-                 ' --- Listas Numeradas (ej: 1. ) ---
-                 ElseIf trimmedLine Like "#*. *" Then ' Soporta 1., 10., etc. seguido de espacio
-                     dotPos = InStr(trimmedLine, ".")
-                     If dotPos > 0 Then
-                        numPart = Trim(Left(trimmedLine, dotPos - 1))
-                        ' Asegura que hay espacio DESPUÉS del punto o es el final de la línea
-                        Dim charAfterDot As String
-                        If dotPos < Len(trimmedLine) Then
-                            charAfterDot = Mid(trimmedLine, dotPos + 1, 1)
-                        Else
-                            charAfterDot = " " ' Tratar como si hubiera espacio al final
-                        End If
-
-                        If IsNumeric(numPart) And charAfterDot = " " Then
-                            continueNumberedList = (listType = 2) ' Continuar si ya estábamos en lista numerada
-                            ' Empezar en nuevo párrafo si no continuamos lista o si el párrafo actual no está vacío
-                             On Error Resume Next
-                             isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-                             If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-                             On Error GoTo ErrorHandler
-                             If Not continueNumberedList And Not isEmptyPara Then sel.TypeParagraph
-
-                            On Error Resume Next ' Aplicar lista puede fallar
-                             sel.Range.ListFormat.ApplyListTemplateWithLevel _
-                                  ListTemplate:=WordApp.ListGalleries(2).ListTemplates(1), _
-                                  ContinuePreviousList:=continueNumberedList, _
-                                  DefaultListBehavior:=wdWord10ListBehavior
-                             If Err.Number <> 0 Then
-                                 Debug.Print "Error aplicando lista numerada: " & Err.Description
-                                 Err.Clear
-                                 InsertFormattedParagraph sel, trimmedLine ' Insertar como texto normal si falla
-                             Else
-                                 listType = 2 ' Establecer tipo de lista actual
-                                 ' Insertar el texto del item (sin el marcador numérico)
-                                 InsertFormattedParagraph sel, Trim(Mid(trimmedLine, dotPos + 1)), isListItem:=True ' Usar Trim aquí por si acaso
-                             End If
-                            On Error GoTo ErrorHandler
-                         Else
-                             ' No era numérico antes del punto O no había espacio después, tratar como párrafo normal
-                             InsertFormattedParagraph sel, trimmedLine
-                         End If
-                     Else
-                         ' No tenía punto, tratar como párrafo normal (aunque Like "#*. *" debería haber fallado)
-                         InsertFormattedParagraph sel, trimmedLine
-                     End If
-
-                 ' --- Párrafo Normal (usar formato) ---
-                 Else
-                     InsertFormattedParagraph sel, trimmedLine
-                 End If
-            End If ' Fin del bloque If/ElseIf principal para tipo de línea
-
-        Next i
-
-        ' Limpieza final después del bucle (terminar lista si estaba activa)
-         If listType <> 0 Then
-              On Error Resume Next
-               ' Ya estamos en el párrafo siguiente al último item (o al final del documento)
-               ' Solo necesitamos asegurarnos de que el FORMATO de lista no continúe
-               ' No es necesario quitarlo del último item en sí.
-               sel.Range.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
-              On Error GoTo ErrorHandler
-         End If
-
-    Else
-        ' Placeholder no encontrado
-        Debug.Print "Placeholder no encontrado: " & placeholder
-        MsgBox "Placeholder '" & placeholder & "' no encontrado en el documento.", vbExclamation
-    End If
-
-    ' Limpieza final
-    GoTo Cleanup
-
-ErrorHandler:
-    MsgBox "Error en InsertarMarkdownEnWord: " & Err.Description & vbCrLf & _
-           "Número de error: " & Err.Number & vbCrLf & _
-           "En línea aprox.: " & Erl, vbCritical ' Erl puede ser 0 si el error es antes de la primera línea numerada o en la llamada
-    ' <<< DEBUG: Añadir información útil >>>
-    Debug.Print "Error " & Err.Number & " (" & Err.Description & ") en InsertarMarkdownEnWord, línea aprox: " & Erl
-    If Not sel Is Nothing Then
-        On Error Resume Next
-        Debug.Print "Texto alrededor de la selección: " & Mid(sel.Range.Story_Internal_Name_Do_Not_Use, WorksheetFunction.Max(1, sel.Start - 20), 40) ' Necesita referencia a Excel o reemplazar WorksheetFunction.Max
-        Debug.Print "Párrafo actual (inicio): " & Left(sel.Paragraphs(1).Range.text, 50)
-        On Error GoTo 0 ' Volver al handler principal
-    End If
-    ' Considerar añadir Debug.Print de variables clave como i, lineText, etc.
-
-Cleanup:
-    ' Liberar objetos creados EN ESTA SUBRUTINA
-    Set sel = Nothing
-    Set fs = Nothing
-    Set codeBlockStartRange = Nothing
-    'Set currentPara = Nothing ' No usado
-    'Set currentRange = Nothing ' No usado
-    Set currentShape = Nothing
-    Set codeBlockEndRange = Nothing
-    Set blockRange = Nothing
-    ' NO liberar WordApp ni WordDoc aquí, pertenecen al código que llama
-    ' Set WordApp = Nothing ' <<< INCORRECTO >>>
-    ' Set WordDoc = Nothing ' <<< INCORRECTO >>>
-    On Error Resume Next ' Ignorar errores durante la limpieza final
-    On Error GoTo 0 ' Restaurar manejo de errores normal
-
-End Sub
-
-
-Private Sub InsertFormattedParagraph(sel As Object, text As String, Optional isListItem As Boolean = False)
-' Word constants for late binding
-Const wdStory As Long = 6
-Const wdFindContinue As Long = 1
-Const wdCollapseEnd As Long = 0
-Const wdListNoNumbering As Long = 0
-Const wdWord10ListBehavior As Long = 0
-Const wdListNumberStyleArabic As Long = 0
-Const wdLineStyleSingle As Long = 1
-Const wdLineWidth150pt As Long = 6
-Const wdColorGray25 As Long = 16
-Const wdBorderTop As Long = -1
-Const wdBorderRight As Long = -4
-Const wdBorderHorizontal As Long = -7
-Const wdBorderVertical As Long = -6
-Const wdColorAutomatic As Long = -16777216
-
-    Dim currPos As Long
-    Dim nextMarkerPos As Long
-    Dim markerType As String ' "bold", "italic", "code", "text"
-    Dim textToInsert As String
-    Dim inBold As Boolean
-    Dim inItalic As Boolean
-    Dim inCode As Boolean ' <<< AÑADIDO: Para manejar ` correctamente >>>
-
-    ' Constantes locales para legibilidad
-    Const BOLD_MARKER As String = "**"
-    Const ITALIC_MARKER As String = "*"
-    Const CODE_MARKER As String = "`"
-
-    ' Si el texto está vacío o solo espacios, no hacer nada especial,
-    ' excepto insertar un párrafo si NO es un item de lista y el párrafo actual no está vacío.
-    If Len(Trim(text)) = 0 Then
-        If Not isListItem Then
-            On Error Resume Next
-             Dim isEmptyPara As Boolean
-             isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-             If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-            On Error GoTo 0 ' Asume que el handler principal existe
-            If Not isEmptyPara Then sel.TypeParagraph ' Párrafo vacío si no es item de lista y el actual no está vacío
-        End If
-        Exit Sub
-    End If
-
-    ' Si NO es un item de lista, asegurar que empezamos en un párrafo nuevo si es necesario
-    If Not isListItem Then
-         On Error Resume Next ' Comprobar si ya estamos al inicio de un párrafo vacío
-         isEmptyPara = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
-         If Err.Number <> 0 Then isEmptyPara = False: Err.Clear
-         On Error GoTo 0
-         ' Mover a un nuevo párrafo si no estamos al inicio de un párrafo O si el párrafo actual no está vacío
-         If sel.Start <> sel.Paragraphs(1).Range.Start Or Not isEmptyPara Then
-             sel.TypeParagraph
-         End If
-          sel.ParagraphFormat.Reset ' Asegurar formato de párrafo normal
-          sel.Font.Reset ' Asegurar formato de fuente normal
-    End If
-
-    currPos = 1
-    ' <<< MEJORA: No heredar formato, empezar limpio a menos que sea lista >>>
-    If isListItem Then
-        inBold = sel.Font.Bold
-        inItalic = sel.Font.Italic
-    Else
-        inBold = False
-        inItalic = False
-    End If
-    inCode = False ' Siempre empezar sin formato de código inline
-
-    Do While currPos <= Len(text)
-        Dim nextPosBold As Long, nextPosItalic As Long, nextPosCode As Long
-
-        ' Encontrar la próxima ocurrencia de cada marcador DESDE la posición actual
-        nextPosBold = InStr(currPos, text, BOLD_MARKER)
-        nextPosItalic = InStr(currPos, text, ITALIC_MARKER)
-        nextPosCode = InStr(currPos, text, CODE_MARKER)
-
-        ' Ajustar posición de * si es parte de ** o viceversa (manejo básico)
-        ' Si ** y * coinciden, priorizar **
-        If nextPosBold > 0 And nextPosBold = nextPosItalic Then
-            nextPosItalic = InStr(nextPosBold + Len(BOLD_MARKER), text, ITALIC_MARKER) ' Buscar siguiente * después de **
-        End If
-        ' Si * viene justo antes del segundo * de **, tratarlo como parte de **
-        If nextPosItalic > 0 And nextPosBold > 0 And nextPosItalic + 1 = nextPosBold Then
-             nextPosItalic = InStr(nextPosItalic + 1, text, ITALIC_MARKER) ' Buscar el siguiente *
-        End If
-
-
-        ' Determinar cuál marcador viene primero
-        nextMarkerPos = 0 ' Inicializar como "ninguno encontrado"
-        markerType = "text" ' Por defecto, es texto normal hasta el final
-
-        ' Comprobar negrita
-        If nextPosBold > 0 Then
-            If nextMarkerPos = 0 Or nextPosBold < nextMarkerPos Then
-                nextMarkerPos = nextPosBold
-                markerType = "bold"
-            End If
-        End If
-        ' Comprobar cursiva
-        If nextPosItalic > 0 Then
-            If nextMarkerPos = 0 Or nextPosItalic < nextMarkerPos Then
-                nextMarkerPos = nextPosItalic
-                markerType = "italic"
-            End If
-        End If
-         ' Comprobar código inline
-        If nextPosCode > 0 Then
-            If nextMarkerPos = 0 Or nextPosCode < nextMarkerPos Then
-                nextMarkerPos = nextPosCode
-                markerType = "code"
-            End If
-        End If
-
-
-        ' Insertar el texto ANTES del marcador encontrado (o el resto del texto si no hay más marcadores)
-        If nextMarkerPos = 0 Then ' No hay más marcadores
-            textToInsert = Mid(text, currPos)
-            currPos = Len(text) + 1 ' Salir del bucle
-        Else ' Marcador encontrado
-            textToInsert = Mid(text, currPos, nextMarkerPos - currPos)
-            ' No mover currPos todavía, se hará después de procesar el marcador
-        End If
-
-        ' Aplicar formato actual e insertar texto (si hay algo que insertar)
-        If Len(textToInsert) > 0 Then
-            ' <<< CORRECCIÓN: Aplicar formato ANTES de TypeText >>>
-            sel.Font.Bold = inBold
-            sel.Font.Italic = inItalic
-            If inCode Then
-                sel.Font.Name = "Courier New"
-                sel.Font.Size = 10 ' O el tamaño que prefieras para código inline
-            Else
-                ' <<< MEJORA: Solo resetear si salimos de código, si no, mantener fuente base >>>
-                 If sel.Font.Name = "Courier New" Then ' Si veníamos de código, volver a normal
-                     sel.Font.Reset ' O establecer una fuente/tamaño por defecto
-                     sel.Font.Bold = inBold ' Reaplicar bold/italic por si Reset los quitó
-                     sel.Font.Italic = inItalic
-                 End If
-            End If
-            sel.TypeText text:=textToInsert
-        End If
-
-        ' Procesar el marcador (si se encontró uno) y mover currPos
-        If markerType = "bold" Then
-            inBold = Not inBold
-            currPos = nextMarkerPos + Len(BOLD_MARKER)
-        ElseIf markerType = "italic" Then
-            inItalic = Not inItalic
-            currPos = nextMarkerPos + Len(ITALIC_MARKER)
-        ElseIf markerType = "code" Then
-             inCode = Not inCode ' Alternar estado de código
-             ' Aplicar/Quitar formato de fuente para el TEXTO SIGUIENTE
-             If inCode Then
-                 sel.Font.Name = "Courier New"
-                 sel.Font.Size = 10
-             Else
-                 sel.Font.Reset ' Volver a la fuente normal del párrafo
-                 sel.Font.Bold = inBold ' Reaplicar bold/italic
-                 sel.Font.Italic = inItalic
-             End If
-             currPos = nextMarkerPos + Len(CODE_MARKER)
-        Else ' markerType = "text", significa que llegamos al final sin encontrar más marcadores
-            ' currPos ya se actualizó para salir del bucle
-             Exit Do
-        End If
-
-    Loop ' While currPos <= Len(text)
-
-    ' Añadir salto de párrafo al final solo si NO es un item de lista
-    If Not isListItem Then
-        ' sel.TypeParagraph ' TypeParagraph ya se insertó al principio si fue necesario, o al final del bucle anterior
-        ' Asegurarse de que el cursor esté al final del párrafo insertado
-         sel.Collapse Direction:=wdCollapseEnd
-    Else
-       ' Para items de lista, Word maneja el Enter al aplicar la plantilla.
-       ' Solo colapsar al final para estar listos para la siguiente línea.
-       sel.Collapse Direction:=wdCollapseEnd ' wdCollapseEnd es 0
-    End If
-End Sub
 
 Sub CYB007_GenerarReportesVulnsAppsINAI()
     Dim WordApp     As Object
@@ -2319,7 +1777,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     ts.Close
     
     ' Extraer el nombre de la Aplicaci?n del diccionario
-    If replaceDic.exists("«Aplicaci?n»") Then
+    If replaceDic.Exists("«Aplicaci?n»") Then
         appName = replaceDic("«Aplicaci?n»")
     Else
         MsgBox "No se encontr? el campo        'Aplicaci?n' en el archivo CSV.", vbExclamation
@@ -2461,7 +1919,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         severity = rng.Cells(i, severidadColumna).value
         If severity <> "" Then
-            If severityCounts.exists(severity) Then
+            If severityCounts.Exists(severity) Then
                 severityCounts(severity) = severityCounts(severity) + 1
             Else
                 severityCounts.Add severity, 1
@@ -2490,7 +1948,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         vulntypes = rng.Cells(i, tiposvulnerabilidadColumna).value
         If vulntypes <> "" Then
-            If vulntypesCounts.exists(vulntypes) Then
+            If vulntypesCounts.Exists(vulntypes) Then
                 vulntypesCounts(vulntypes) = vulntypesCounts(vulntypes) + 1
             Else
                 vulntypesCounts.Add vulntypes, 1
@@ -2499,10 +1957,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Next i
     
     ' Inicializar conteos
-    countBAJA = IIf(severityCounts.exists("BAJA"), severityCounts("BAJA"), 0)
-    countMEDIA = IIf(severityCounts.exists("MEDIA"), severityCounts("MEDIA"), 0)
-    countALTA = IIf(severityCounts.exists("ALTA"), severityCounts("ALTA"), 0)
-    countCRITICAS = IIf(severityCounts.exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
+    countBAJA = IIf(severityCounts.Exists("BAJA"), severityCounts("BAJA"), 0)
+    countMEDIA = IIf(severityCounts.Exists("MEDIA"), severityCounts("MEDIA"), 0)
+    countALTA = IIf(severityCounts.Exists("ALTA"), severityCounts("ALTA"), 0)
+    countCRITICAS = IIf(severityCounts.Exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
     
     ' Calcular total de vulnerabilidades
     totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
@@ -2545,7 +2003,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     
     ' Combina todos los archivos en uno solo
     finalDocumentPath = tempFolder & "\Tablas_vulnerabilidades.docx"
-    FusionarDocumentos WordApp, documentsList, finalDocumentPath
+    FusionarDocumentosInsertando WordApp, documentsList, finalDocumentPath
     
     ' Actualizar el documento de reporte t?cnico
     Set WordDoc = WordApp.Documents.Open(tempDocPath)
@@ -2743,7 +2201,7 @@ Sub CYB003_GenerarReportesVulns()
         key = "«" & headerRow.Cells(1, i).value & "»"
         
         ' Verificar si la clave ya existe en el diccionario
-        If replaceDic.exists(key) Then
+        If replaceDic.Exists(key) Then
             MsgBox "Se ha encontrado un encabezado duplicado: " & headerRow.Cells(1, i).value & _
                    vbCrLf & "Por favor, corrige los encabezados duplicados y vuelve a ejecutar la macro.", vbExclamation
             Exit Sub
@@ -2755,7 +2213,7 @@ Sub CYB003_GenerarReportesVulns()
     Next i
     
     ' Extraer el nombre de la Aplicaci?n
-    If replaceDic.exists("«Nombre de carpeta»") Then
+    If replaceDic.Exists("«Nombre de carpeta»") Then
         folderName = replaceDic("«Nombre de carpeta»")
     Else
         MsgBox "No se encontr? el campo        'Nombre de carpeta'.", vbExclamation
@@ -2768,12 +2226,12 @@ Sub CYB003_GenerarReportesVulns()
     MkDir carpetaSalida
     On Error GoTo 0
     
-    If replaceDic.exists("«Tipo de reporte»") Then
+    If replaceDic.Exists("«Tipo de reporte»") Then
         Select Case replaceDic("«Tipo de reporte»")
             Case "T?cnico"
                 
                 ' Obtener la ruta de la plantilla directamente de la celda de la tabla
-                If replaceDic.exists("«Ruta de la plantilla»") Then
+                If replaceDic.Exists("«Ruta de la plantilla»") Then
                     plantillaReportePath = replaceDic("«Ruta de la plantilla»")
                 Else
                     MsgBox "No se encontr? el campo        'Ruta de la plantilla'.", vbExclamation
@@ -2929,7 +2387,7 @@ Sub ReemplazarCampos(WordDoc As Object, replaceDic As Object)
     Set docContent = WordDoc.content
     
     ' Bucle para buscar y reemplazar todas las ocurrencias en el diccionario
-    For Each key In replaceDic.keys
+    For Each key In replaceDic.Keys
         ' Configurar la búsqueda
         With WordApp.Selection.Find
             .ClearFormatting
@@ -3087,7 +2545,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
         ' Abre la copia del documento de Word
         Set WordDoc = WordApp.Documents.Open(tempFolder & "\Tabla_" & i & ".docx")
         ' Realiza los reemplazos en el documento de Word
-        For Each key In replaceDic.keys
+        For Each key In replaceDic.Keys
             
             Debug.Print CStr(key)
             If CStr(key) = "«Descripci?n»" Then
@@ -3120,7 +2578,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
     ' Combina todos los archivos en uno solo
     Dim finalDocumentPath As String
     finalDocumentPath = saveFolder & "\" & fileName & ".docx"
-    FusionarDocumentos WordApp, documentsList, finalDocumentPath
+    FusionarDocumentosInsertando WordApp, documentsList, finalDocumentPath
     
     ' Mueve la carpeta temporal a la carpeta seleccionada por el usuario
     fs.MoveFolder tempFolder, saveFolder & "\Documentos_generados"
@@ -3292,7 +2750,7 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
                     
                     ' Insertar nuevos datos
                     categoryRow = 2        ' Empezar en la fila 2 para los tipos de vulnerabilidad
-                    For Each category In conteos.keys
+                    For Each category In conteos.Keys
                         SourceSheet.Cells(categoryRow, 1).value = category
                         SourceSheet.Cells(categoryRow, 2).value = conteos(category)
                         categoryRow = categoryRow + 1
@@ -3345,53 +2803,6 @@ End Function
 
 
 
-Sub FusionarDocumentos(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
-    Dim baseDoc     As Object
-    Dim sFile       As String
-    Dim oRng        As Object
-    Dim i           As Integer
-    
-    On Error GoTo err_Handler
-    
-    ' Crear un nuevo documento base
-    Set baseDoc = WordApp.Documents.Add
-    
-    ' Iterar sobre la lista de documentos a fusionar
-    For i = LBound(documentsList) To UBound(documentsList)
-        sFile = documentsList(i)
-        
-        ' Insertar el contenido del documento actual al final del documento base
-        Set oRng = baseDoc.Range
-        oRng.Collapse 0        ' Colapsar el rango al final del documento base
-        oRng.InsertFile sFile        ' Insertar el contenido del archivo actual
-        
-        ' Insertar un salto de p?gina despu?s de cada documento insertado (excepto el último)
-        If i < UBound(documentsList) Then
-            Set oRng = baseDoc.Range
-            oRng.Collapse 0        ' Colapsar el rango al final del documento base
-            'oRng.InsertBreak Type:=6 ' Insertar un salto de p?gina
-        End If
-    Next i
-    
-    ' Guardar el archivo final
-    baseDoc.SaveAs finalDocumentPath
-    
-    ' Cerrar el documento base
-    baseDoc.Close
-    
-    ' Limpiar objetos
-    Set baseDoc = Nothing
-    Set oRng = Nothing
-    
-    Exit Sub
-    
-err_Handler:
-    MsgBox "Error: " & Err.Number & vbCrLf & Err.Description
-    Err.Clear
-    Exit Sub
-End Sub
-
-
 Sub WordAppReemplazarParrafo(WordApp As Object, WordDoc As Object, wordToFind As String, replaceWord As String)
     Dim findInRange As Boolean
     Dim searchRange As Object
@@ -3422,13 +2833,6 @@ Sub WordAppReemplazarParrafo(WordApp As Object, WordDoc As Object, wordToFind As
         searchRange.Collapse Direction:=wdCollapseEnd
     Loop
 End Sub
-
-
-
-
-
-
-
 
 
 
@@ -3760,7 +3164,7 @@ Set regex = CreateObject("VBScript.RegExp")
     ' Definir los campos requeridos en la tabla
     requiredFields = Array("Severidad", "Nombre de vulnerabilidad", "Salidas de herramienta", "IPv4 Interna", "Puerto")
     For Each field In requiredFields
-        If Not dict.exists(field) Then
+        If Not dict.Exists(field) Then
             MsgBox "La columna '" & field & "' no se encontr? en la tabla.", vbExclamation
             Exit Sub
         End If
@@ -4232,7 +3636,7 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
     Dim coincidencias As Boolean
     coincidencias = False
     For Each celda In Selection
-        If valoresTabla.exists(celda.value) Then
+        If valoresTabla.Exists(celda.value) Then
             celda.Interior.Color = RGB(0, 255, 0) ' Verde chill?n
             coincidencias = True
         End If
@@ -4247,7 +3651,6 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
 End Sub
 
 Sub CYB041_IrACatalogoVulnerabilidad()
-Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
 
     Dim wsOrigen As Worksheet, wsCatalogo As Worksheet
     Dim tblOrigen As ListObject, tblCatalogo As ListObject
@@ -4302,7 +3705,7 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
         Exit Sub
     End If
     
-    If Not dictColumnas.exists(tipoOrigen) Then
+    If Not dictColumnas.Exists(tipoOrigen) Then
         MsgBox "El tipo de origen '" & tipoOrigen & "' no tiene una columna asignada en el catálogo.", vbExclamation, "Error"
         Exit Sub
     End If
@@ -4394,12 +3797,12 @@ Sub CYB042_Estandarizar()
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
         If key <> "" Then
-            If Not dict.exists(key) Then
+            If Not dict.Exists(key) Then
                 dict.Add key, CreateObject("Scripting.Dictionary")
             End If
             
             ' Guardar valores no vacíos en cada columna relevante
-            For Each colName In colIndex.keys
+            For Each colName In colIndex.Keys
                 Dim colNum As Integer
                 colNum = colIndex(colName)
                 If ws.Cells(i, colNum).value <> "" Then
@@ -4412,10 +3815,10 @@ Sub CYB042_Estandarizar()
     ' Rellenar valores en base a los datos agrupados
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
-        If key <> "" And dict.exists(key) Then
-            For Each colName In colIndex.keys
+        If key <> "" And dict.Exists(key) Then
+            For Each colName In colIndex.Keys
                 colNum = colIndex(colName)
-                If ws.Cells(i, colNum).value = "" And dict(key).exists(colName) Then
+                If ws.Cells(i, colNum).value = "" And dict(key).Exists(colName) Then
                     ws.Cells(i, colNum).value = dict(key)(colName)
                 End If
             Next
@@ -4752,8 +4155,8 @@ Sub ObtenerRespuestasGeminiCVSS4()
 
             ' Validar JSON
             If Not json Is Nothing Then
-                If json.exists("candidates") And json("candidates").Count > 0 Then
-                    If json("candidates")(0).exists("content") And json("candidates")(0)("content").exists("parts") Then
+                If json.Exists("candidates") And json("candidates").Count > 0 Then
+                    If json("candidates")(0).Exists("content") And json("candidates")(0)("content").Exists("parts") Then
                         If json("candidates")(0)("content")("parts").Count > 0 Then
                             answerID = json("candidates")(0)("content")("parts")(0)("text")
                         Else
@@ -5577,7 +4980,1266 @@ End Sub
 
 
 
+Public Sub InsertarTextoMarkdownEnWordConFormato(WordApp As Object, WordDoc As Object, placeholder As String, markdownText As String, basePath As String)
+    ' --- Constantes de Word para Late Binding (definidas localmente) ---
+    Const wdStory As Long = 6
+    Const wdFindContinue As Long = 1
+    Const wdReplaceOne As Long = 1 ' Reemplaza solo la primera ocurrencia encontrada
+    Const wdReplaceAll As Long = 2 ' Reemplaza todas las ocurrencias
+    Const wdCollapseEnd As Long = 0
+    Const wdLineStyleSingle As Long = 1
+    Const wdLineWidth050pt As Long = 4 ' Ancho línea 0.5 pt
+    Const wdColorGray25 As Long = 14277081 ' RGB(217, 217, 217) Aprox
+    Const wdColorAutomatic As Long = -16777216
+    Const wdAlignParagraphCenter As Long = 1
+    Const wdAlignParagraphLeft As Long = 0
+    Const wdListApplyToSelection As Long = 0
+    Const wdListNumberStyleBullet As Long = 23 ' Viñeta común (puede variar según plantilla)
+    Const wdContinueList As Long = 1
+    Const wdRestartNumbering As Long = 0
+    Const wdListNoNumbering As Long = 0 ' Constante para RemoveNumbers
+    Const wdFormatDocument As Long = 0 ' Para ApplyListTemplate ListLevelNumber
+    Const wdNumberListNum As Long = 2 ' Tipo de lista numerada (puede variar)
+    Const wdBulletListNum As Long = 1 ' Tipo de lista con viñetas (puede variar)
+    ' Constantes de borde (WdBorderType)
+    Const wdBorderTop As Long = -1
+    Const wdBorderLeft As Long = -2
+    Const wdBorderBottom As Long = -3
+    Const wdBorderRight As Long = -4
+    Const wdBorderHorizontal As Long = -5 ' Borde entre líneas dentro de la selección
+    Const wdBorderVertical As Long = -6   ' Borde entre columnas dentro de la selección
+
+    ' --- Declaración de variables ---
+    Dim sel As Object ' La selección actual en Word
+    Dim lines() As String ' Array con las líneas del Markdown
+    Dim i As Long ' Contador para el bucle de líneas
+    Dim lineText As String ' El texto de la línea actual
+    Dim trimmedLine As String ' Línea sin espacios al inicio/final
+    Dim inCodeBlock As Boolean ' Estado: ¿estamos dentro de un bloque ``` ?
+    Dim fs As Object ' FileSystemObject para manejo de archivos/rutas
+    Dim fullImgPath As String ' Ruta completa a la imagen (usada en la sub de imágenes)
+    Dim codeBlockStartRange As Object ' Rango donde empieza el bloque de código
+    Dim currentListType As String ' "bullet", "number", o "" (ninguna)
+    Dim lastLineWasList As Boolean ' Para continuar listas
+    Dim hLevel As Integer ' Nivel de encabezado (1-6)
+    Dim contentText As String ' Texto limpio (sin marcadores iniciales como #, *, 1.)
+    Dim listMarkerPos As Integer ' Posición del marcador de lista numerada (.)
+    Dim isPathAbsolute As Boolean ' Flag para ruta de imagen absoluta (usada en la sub de imágenes)
+    Dim paraRange As Object ' Para referenciar el párrafo actual
+
+    ' --- Manejador de errores global ---
+    On Error GoTo ErrorHandler
+
+    ' *** Validación Rigurosa de Objetos de Entrada ***
+    If WordApp Is Nothing Then MsgBox "Error crítico: La variable 'WordApp' no representa una instancia válida de Word.", vbCritical, "Error de Parámetro": Exit Sub
+    If WordDoc Is Nothing Then MsgBox "Error crítico: La variable 'WordDoc' no representa un documento de Word válido.", vbCritical, "Error de Parámetro": Exit Sub
+    On Error Resume Next ' Temporalmente para probar acceso a propiedades
+    Dim testAppName As String: testAppName = WordApp.Name
+    If Err.Number <> 0 Then MsgBox "Error crítico: La variable 'WordApp' no parece ser una aplicación Word válida (Error: " & Err.Description & ").", vbCritical, "Error de Aplicación Word": Err.Clear: On Error GoTo ErrorHandler: Exit Sub
+    Dim testDocName As String: testDocName = WordDoc.Name
+    If Err.Number <> 0 Then MsgBox "Error crítico: La variable 'WordDoc' no parece ser un documento Word válido (Error: " & Err.Description & ").", vbCritical, "Error de Documento Word": Err.Clear: On Error GoTo ErrorHandler: Exit Sub
+    On Error GoTo ErrorHandler ' Restaurar manejador global
+
+    ' *** Crear FileSystemObject ***
+    On Error Resume Next
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    If Err.Number <> 0 Or fs Is Nothing Then
+        MsgBox "Error crítico: No se pudo crear el 'Scripting.FileSystemObject', necesario para manejar rutas de archivo. Verifique que esté registrado en su sistema.", vbCritical, "Error de Creación FSO"
+        Exit Sub
+    End If
+    On Error GoTo ErrorHandler
+
+    ' *** Activar Documento/App y Obtener Selección ***
+    On Error Resume Next ' Puede fallar si Word está ocupado o cerrado inesperadamente
+    WordDoc.Activate
+    WordApp.Activate
+    If Err.Number <> 0 Then
+        Debug.Print "Advertencia: No se pudo activar la ventana de Word o el documento. Se continuará, pero podría haber problemas si Word no está visible/activo. Error: " & Err.Description
+        Err.Clear
+    End If
+    On Error GoTo ErrorHandler ' Restaurar
+
+    Set sel = WordApp.Selection
+    If sel Is Nothing Then MsgBox "Error crítico: No se pudo obtener el objeto 'Selection' de Word.", vbCritical, "Error de Selección": Exit Sub
+
+    ' *** Asegurar que basePath (si se proporciona) termine con separador de ruta ***
+    If Len(Trim(basePath)) > 0 Then
+        If Right(basePath, 1) <> fs.GetStandardStream(1).Write(vbNullString) And Right(basePath, 1) <> "/" Then ' fs.PathSeparator no existe, truco para obtener '\'
+            Dim pathSep As String
+             On Error Resume Next ' Acceder a Application puede fallar si WordApp no es válido
+             pathSep = WordApp.PathSeparator
+             If Err.Number <> 0 Then pathSep = "\" ' Fallback final si WordApp no es válido
+             Err.Clear
+             On Error GoTo ErrorHandler
+            basePath = basePath & pathSep
+             Debug.Print "BasePath con separador añadido manualmente: '" & basePath & "'"
+         End If
+         Debug.Print "BasePath final: '" & basePath & "'"
+    Else
+        Debug.Print "No se proporcionó BasePath. Las rutas relativas de imágenes podrían fallar si se procesan posteriormente."
+    End If
+
+
+    ' *** 1. Encontrar y Reemplazar el Placeholder ***
+    ' Ir al inicio para asegurar que busca desde el principio
+    sel.HomeKey wdStory
+    sel.Find.ClearFormatting
+    sel.Find.Replacement.ClearFormatting
+    With sel.Find
+        .text = placeholder
+        .Replacement.text = "" ' Borrar el placeholder antes de insertar
+        .Forward = True
+        .Wrap = wdFindContinue ' Buscar en todo el documento desde el inicio
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        .Execute Replace:=wdReplaceOne ' Ejecutar y reemplazar solo la PRIMERA ocurrencia
+    End With
+
+    ' Verificar si se encontró y reemplazó
+    If sel.Find.found Then
+        Debug.Print "Placeholder '" & placeholder & "' encontrado y reemplazado. Insertando contenido Markdown..."
+
+        ' *** 2. Preparar y Procesar el Texto Markdown línea por línea ***
+        markdownText = Replace(markdownText, vbCrLf, vbLf) ' Normalizar saltos de línea a LF (Chr(10))
+        markdownText = Replace(markdownText, vbCr, vbLf)   ' Normalizar saltos CR a LF
+        lines = Split(markdownText, vbLf)
+
+        ' Inicializar estados
+        inCodeBlock = False
+        currentListType = ""
+        lastLineWasList = False
+        Set codeBlockStartRange = Nothing
+
+        ' Establecer el estilo Normal por defecto al inicio de la inserción
+        On Error Resume Next ' El estilo "Normal" podría no existir o tener otro nombre
+        sel.Range.Style = WordDoc.Styles("Normal")
+        If Err.Number <> 0 Then
+            Debug.Print "Advertencia: No se pudo aplicar el estilo 'Normal'. Se usará el formato por defecto. Error: " & Err.Description
+            Err.Clear
+        End If
+        On Error GoTo ErrorHandler
+        sel.Font.Reset ' Resetear formato de fuente explícitamente
+        sel.ParagraphFormat.Reset ' Resetear formato de párrafo explícitamente
+
+        ' *** Bucle principal de procesamiento de líneas ***
+        For i = 0 To UBound(lines)
+            lineText = lines(i)
+            trimmedLine = Trim(lineText)
+
+            ' --- Resetear estado de lista si la línea NO es de lista o está vacía Y no estamos en bloque de código ---
+            If Not inCodeBlock Then
+                 ' Condición para resetear lista: línea vacía O (NO empieza con marcador de lista Y NO es continuación de lista)
+                Dim isBulleted As Boolean: isBulleted = (Left(trimmedLine, 1) = "*" Or Left(trimmedLine, 1) = "-" Or Left(trimmedLine, 1) = "+") And Len(trimmedLine) > 1
+                Dim isNumbered As Boolean: isNumbered = False
+                If IsNumeric(Left(trimmedLine, 1)) Then
+                    listMarkerPos = InStr(trimmedLine, ". ")
+                    If listMarkerPos > 1 And listMarkerPos <= Len(Left(trimmedLine, 1)) + 2 Then ' Asegura que sea "N. " o "NN. "
+                        isNumbered = True
+                    End If
+                End If
+
+                If Len(trimmedLine) = 0 Or Not (isBulleted Or isNumbered) Then
+                    If currentListType <> "" Then
+                        ' Salir del modo lista
+                        On Error Resume Next
+                        ' Intenta quitar el formato de lista del párrafo actual (puede ser redundante si Word ya lo hizo)
+                        sel.Range.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
+                        If Err.Number <> 0 Then Debug.Print "Advertencia leve: No se pudo quitar formato de lista explícitamente. Error: " & Err.Description: Err.Clear
+                        ' Restablecer formato normal para el párrafo actual si está vacío
+                        If Len(Trim(sel.Paragraphs(1).Range.text)) <= 1 Then
+                            sel.ParagraphFormat.Reset
+                            sel.Font.Reset
+                        End If
+                        On Error GoTo ErrorHandler
+                        currentListType = ""
+                        Debug.Print "Fin de lista detectado (Línea no es de lista o vacía)."
+                    End If
+                    lastLineWasList = False ' Reiniciar flag
+                End If
+            End If
+
+            ' --- Manejo de Párrafo Vacío (fuera de bloque de código) ---
+            If Len(trimmedLine) = 0 And Not inCodeBlock Then
+                ' Insertar párrafo vacío solo si el párrafo actual NO está ya vacío
+                ' (La lógica anterior ya reseteó la lista si era necesario)
+                Dim currentParaText As String
+                On Error Resume Next
+                currentParaText = sel.Paragraphs(1).Range.text
+                If Err.Number <> 0 Then currentParaText = "Error": Err.Clear  ' Asumir no vacío si hay error
+                On Error GoTo ErrorHandler
+
+                If Len(Trim(currentParaText)) > 1 Then ' > 1 para ignorar solo el marcador de párrafo
+                   sel.TypeParagraph
+                   Debug.Print "Insertando párrafo vacío."
+                   ' Asegurarse de que el nuevo párrafo tenga formato Normal
+                   On Error Resume Next
+                   sel.Range.Style = WordDoc.Styles("Normal")
+                   If Err.Number <> 0 Then Debug.Print "Adv: No se pudo aplicar estilo Normal a párrafo vacío.": Err.Clear
+                   On Error GoTo ErrorHandler
+                   sel.Font.Reset
+                   sel.ParagraphFormat.Reset
+                Else
+                   Debug.Print "Párrafo ya vacío, omitiendo inserción extra."
+                   ' Si estamos en una línea vacía pero el párrafo anterior era de lista,
+                   ' nos aseguramos de que este párrafo vacío no tenga formato de lista.
+                   If lastLineWasList Then
+                       On Error Resume Next
+                       sel.Range.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
+                       sel.ParagraphFormat.Reset ' Quitar sangría de lista
+                       sel.Font.Reset
+                       Err.Clear
+                       On Error GoTo ErrorHandler
+                       currentListType = "" ' Marcar que ya no estamos en lista
+                       lastLineWasList = False
+                   End If
+                End If
+                GoTo NextLine ' Procesar siguiente línea
+            End If ' Fin manejo línea vacía
+
+            ' --- Manejo de Bloques de Código (```) ---
+            If trimmedLine = "```" Then
+                inCodeBlock = Not inCodeBlock
+                If inCodeBlock Then ' Iniciando bloque
+                    ' Insertar un párrafo ANTES del bloque si el actual no está vacío
+                    Dim isEmptyParaCodeStart As Boolean
+                    On Error Resume Next
+                    isEmptyParaCodeStart = (Len(Trim(sel.Paragraphs(1).Range.text)) <= 1)
+                    If Err.Number <> 0 Then isEmptyParaCodeStart = False: Err.Clear
+                    On Error GoTo ErrorHandler
+                    If Not isEmptyParaCodeStart Then sel.TypeParagraph
+
+                    Set codeBlockStartRange = sel.Paragraphs(1).Range ' Marcar inicio del rango (el párrafo actual)
+                    ' Aplicar formato al párrafo actual (donde empezará el código)
+                    sel.Font.Name = "Courier New"
+                    sel.Font.Size = 10
+                    sel.Font.Bold = False ' Asegurar no negrita
+                    sel.Font.Italic = False ' Asegurar no cursiva
+                    sel.ParagraphFormat.SpaceBefore = 6
+                    sel.ParagraphFormat.SpaceAfter = 0
+                    sel.ParagraphFormat.LeftIndent = WordApp.InchesToPoints(0.25) ' Añadir una pequeña sangría
+                    sel.ParagraphFormat.RightIndent = WordApp.InchesToPoints(0.25)
+                    Debug.Print "Inicio de bloque de código detectado."
+                Else ' Cerrando bloque de código
+                    If Not codeBlockStartRange Is Nothing Then
+                        Dim endParaRange As Object
+                        Dim blockRange As Object
+                        On Error Resume Next ' El párrafo actual podría ser el último del doc
+
+                        ' El párrafo actual es el que contiene el ``` de cierre.
+                        ' Queremos el rango desde el inicio del párrafo de apertura
+                        ' hasta el *final* del párrafo *anterior* al de cierre.
+                        Set endParaRange = sel.Paragraphs(1).Previous.Range
+                        If Err.Number <> 0 Or endParaRange Is Nothing Then
+                           ' Si no hay párrafo anterior (bloque de 1 línea o error),
+                           ' el rango es solo el párrafo inicial.
+                           Set blockRange = codeBlockStartRange
+                           Debug.Print "Advertencia: Bloque de código corto o error al obtener párrafo anterior. Formateando solo el párrafo inicial."
+                           Err.Clear
+                        Else
+                           ' Rango desde el inicio del párrafo de apertura hasta el final del párrafo anterior al cierre
+                           Set blockRange = WordDoc.Range(Start:=codeBlockStartRange.Start, End:=endParaRange.End)
+                        End If
+                        On Error GoTo ErrorHandler
+
+                        If Not blockRange Is Nothing Then
+                            ' Aplicar borde y sombreado al rango completo del bloque
+                            If blockRange.Start < blockRange.End Or blockRange.Characters.Count > 1 Then ' Asegurarse rango válido
+                                On Error Resume Next ' Operaciones de formato pueden fallar
+                                With blockRange.ParagraphFormat.Borders
+                                     .Enable = True ' Activar bordes para el párrafo(s)
+                                     ' Definir borde exterior
+                                     Dim borderType As Variant
+                                     For Each borderType In Array(wdBorderTop, wdBorderLeft, wdBorderBottom, wdBorderRight)
+                                         With .Item(CLng(borderType))
+                                             .LineStyle = wdLineStyleSingle
+                                             .LineWidth = wdLineWidth050pt
+                                             .Color = wdColorGray25
+                                         End With
+                                     Next borderType
+                                     ' Quitar bordes internos (por si acaso)
+                                     .Item(wdBorderHorizontal).LineStyle = 0 ' wdLineStyleNone = 0
+                                     .Item(wdBorderVertical).LineStyle = 0   ' wdLineStyleNone = 0
+                                End With
+                                blockRange.Shading.BackgroundPatternColor = RGB(248, 248, 248) ' Gris muy claro
+                                If Err.Number <> 0 Then Debug.Print "Adv: Error parcial al aplicar formato al bloque de código. " & Err.Description: Err.Clear
+                                Debug.Print "Bloque de código formateado. Rango: " & blockRange.Start & "-" & blockRange.End
+                            Else
+                                Debug.Print "Advertencia: Rango de bloque de código inválido o vacío (" & blockRange.Start & "-" & blockRange.End & "). No se aplicó formato de borde/sombreado."
+                            End If
+                            Err.Clear ' Limpiar errores de formato
+                            On Error GoTo ErrorHandler
+                            Set blockRange = Nothing ' Liberar
+                        End If
+
+                        ' Mover cursor después del bloque y resetear formato
+                        sel.Collapse wdCollapseEnd ' Mover al final del párrafo del ```
+                        sel.TypeParagraph ' Nuevo párrafo para contenido normal
+                        sel.ParagraphFormat.Reset ' Resetear formato párrafo
+                        sel.Font.Reset          ' Resetear formato fuente
+                         ' Asegurarse de quitar borde y sombreado del nuevo párrafo explícitamente
+                        On Error Resume Next
+                        sel.ParagraphFormat.Borders.Enable = False
+                        sel.Shading.BackgroundPatternColor = wdColorAutomatic
+                        Err.Clear
+                        On Error GoTo ErrorHandler
+                        Debug.Print "Fin de bloque de código. Formato reseteado."
+                    Else
+                        Debug.Print "Advertencia: Se encontró '```' de cierre sin uno de apertura registrado."
+                        ' Insertar un párrafo para evitar que el texto siguiente se pegue
+                        sel.TypeParagraph
+                    End If
+                    Set codeBlockStartRange = Nothing ' Resetear marcador de inicio
+                End If
+                lastLineWasList = False ' Un bloque de código rompe la lista
+
+            ElseIf inCodeBlock Then
+                ' Dentro de un bloque de código: Insertar texto tal cual
+                ' No usar ProcessInlineFormatting aquí
+                sel.TypeText text:=lineText
+                sel.TypeParagraph ' Siguiente línea dentro del bloque
+                ' Asegurar que la fuente/formato se mantenga (Word a veces la resetea)
+                sel.Font.Name = "Courier New"
+                sel.Font.Size = 10
+                sel.Font.Bold = False
+                sel.Font.Italic = False
+                sel.ParagraphFormat.LeftIndent = WordApp.InchesToPoints(0.25) ' Mantener sangría
+                sel.ParagraphFormat.RightIndent = WordApp.InchesToPoints(0.25)
+                sel.ParagraphFormat.SpaceBefore = 0 ' Sin espacio extra entre líneas de código
+                sel.ParagraphFormat.SpaceAfter = 0
+                lastLineWasList = False
+
+            ' --- Manejo de Encabezados (# a ######) ---
+            ElseIf Left(trimmedLine, 1) = "#" Then
+                hLevel = 0
+                Do While Left(trimmedLine, hLevel + 1) Like String(hLevel + 1, "#") And hLevel < 6
+                    hLevel = hLevel + 1
+                Loop
+
+                ' Verificar si hay un espacio después de los #
+                If hLevel > 0 And Mid(trimmedLine, hLevel + 1, 1) = " " Then
+                    contentText = Trim(Mid(trimmedLine, hLevel + 2)) ' Texto después de "# "
+                    Debug.Print "Encabezado Nivel " & hLevel & " detectado: '" & contentText & "'"
+
+                    ' Asegurarse de estar en un párrafo nuevo si el actual no está vacío
+                    Set paraRange = sel.Paragraphs(1).Range
+                    If Len(Trim(paraRange.text)) > 1 Then sel.TypeParagraph
+
+                    ' *** Aplicar SOLO negrita ***
+                    sel.Font.Bold = True
+                    ' Opcional: Aplicar tamaños decrecientes (pero no estilos)
+                    Select Case hLevel
+                        Case 1: sel.Font.Size = 16
+                        Case 2: sel.Font.Size = 14
+                        Case 3: sel.Font.Size = 13
+                        Case 4: sel.Font.Size = 12
+                        Case Else: sel.Font.Size = 11
+                    End Select
+                    sel.ParagraphFormat.SpaceBefore = IIf(hLevel <= 2, 12, 6) ' Espacio antes de headers
+                    sel.ParagraphFormat.SpaceAfter = IIf(hLevel <= 3, 6, 4)  ' Espacio después de headers
+
+                    ' Insertar el texto del encabezado procesando formato inline (que puede estar dentro del header)
+                    ' ProcessInlineFormatting NO añadirá TypeParagraph si isHeader = True
+                    ProcessInlineFormatting sel, contentText, isHeader:=True
+
+                    ' Mover al final de la línea insertada y añadir párrafo
+                    sel.Collapse wdCollapseEnd
+                    sel.TypeParagraph
+
+                    ' *** Resetear formato para el siguiente párrafo ***
+                    sel.Font.Reset ' Quita negrita, tamaño, etc.
+                    sel.ParagraphFormat.Reset ' Quita espacio antes/después, etc.
+                    On Error Resume Next ' Aplicar estilo Normal si existe
+                    sel.Range.Style = WordDoc.Styles("Normal")
+                    Err.Clear
+                    On Error GoTo ErrorHandler
+
+                    lastLineWasList = False ' Encabezado rompe lista
+                Else ' No parece un encabezado válido (ej. #sin espacio)
+                    Debug.Print "Tratando línea que empieza con # pero no es encabezado como texto normal."
+                     Set paraRange = sel.Paragraphs(1).Range ' Comprobar si párrafo está vacío
+                     If Len(Trim(paraRange.text)) > 1 Then sel.TypeParagraph ' Si no está vacío, empezar nuevo párrafo
+                     sel.ParagraphFormat.Reset ' Resetear formato para texto normal
+                     sel.Font.Reset
+                     ProcessInlineFormatting sel, trimmedLine
+                     lastLineWasList = False
+                End If
+
+            ' --- Manejo de Listas con Viñetas (*, -, +) ---
+            ElseIf (Left(trimmedLine, 1) = "*" Or Left(trimmedLine, 1) = "-" Or Left(trimmedLine, 1) = "+") And Mid(trimmedLine, 2, 1) = " " Then
+                contentText = Trim(Mid(trimmedLine, 3)) ' Quitar el marcador y espacio
+                Debug.Print "Elemento de lista con viñeta detectado: '" & contentText & "'"
+
+                Set paraRange = sel.Paragraphs(1).Range
+                If Len(Trim(paraRange.text)) > 1 And Not lastLineWasList Then
+                    sel.TypeParagraph ' Nuevo párrafo si el actual no está vacío y no es continuación de lista
+                End If
+
+                ' Aplicar/Continuar formato de lista
+                If currentListType <> "bullet" Or Not lastLineWasList Then ' Nueva lista o cambio de tipo
+                    On Error Resume Next
+                    ' Usar ApplyListTemplate para más control si ApplyBulletDefault falla
+                    Dim listGalleryBullet As Object
+                    Set listGalleryBullet = WordApp.ListGalleries(wdBulletListNum) ' wdBulletGallery = 2
+                    sel.Range.ListFormat.ApplyListTemplateWithLevel ListTemplate:=listGalleryBullet.ListTemplates(1), ContinuePreviousList:=False, ApplyTo:=wdListApplyToSelection
+                    If Err.Number <> 0 Then
+                       Debug.Print "Error aplicando plantilla de viñeta (" & Err.Description & "). Intentando ApplyBulletDefault."
+                       Err.Clear
+                       sel.Range.ListFormat.ApplyBulletDefault
+                       If Err.Number <> 0 Then
+                            Debug.Print "Error aplicando formato de viñeta. Insertando texto con tabulación."
+                            Err.Clear
+                            sel.TypeText vbTab ' Simular indentación
+                        Else
+                           currentListType = "bullet"
+                           Debug.Print "Aplicado formato de lista con viñetas (ApplyBulletDefault)."
+                       End If
+                    Else
+                        currentListType = "bullet"
+                        Debug.Print "Aplicado formato de lista con viñetas (ApplyListTemplate)."
+                    End If
+                    On Error GoTo ErrorHandler
+                Else ' Continuación de lista
+                    ' Word debería manejarlo automáticamente al escribir, pero forzar párrafo si no se creó antes
+                    If sel.Start = paraRange.Start And Len(Trim(paraRange.text)) <= 1 Then
+                         ' No hacer nada, Word insertará la viñeta al escribir
+                    ElseIf sel.Start > paraRange.Start Or Len(Trim(paraRange.text)) > 1 Then
+                         sel.TypeParagraph ' Forzar nuevo item si no estamos al inicio de un párrafo vacío
+                    End If
+                     Debug.Print "Continuando lista con viñetas."
+                End If
+
+                ' Insertar el texto del elemento procesando formato inline
+                ' isListItem=True evitará que ProcessInlineFormatting añada TypeParagraph extra
+                ProcessInlineFormatting sel, contentText, isListItem:=True
+                lastLineWasList = True
+
+            ' --- Manejo de Listas Numeradas (1., 2., etc.) ---
+            ElseIf isNumbered Then ' Variable calculada al inicio del bucle
+                contentText = Trim(Mid(trimmedLine, listMarkerPos + 1)) ' Texto después de "N. "
+                Debug.Print "Elemento de lista numerada detectado: '" & contentText & "'"
+
+                 Set paraRange = sel.Paragraphs(1).Range
+                 If Len(Trim(paraRange.text)) > 1 And Not lastLineWasList Then
+                     sel.TypeParagraph ' Nuevo párrafo si el actual no está vacío y no es continuación de lista
+                 End If
+
+                 ' Aplicar/Continuar formato de lista numerada
+                 If currentListType <> "number" Or Not lastLineWasList Then ' Nueva lista o cambio de tipo
+                    On Error Resume Next
+                     ' Usar ApplyListTemplate para más control
+                     Dim listGalleryNumber As Object
+                     Set listGalleryNumber = WordApp.ListGalleries(wdNumberListNum) ' wdNumberGallery = 3
+                     sel.Range.ListFormat.ApplyListTemplateWithLevel ListTemplate:=listGalleryNumber.ListTemplates(1), ContinuePreviousList:=False, ApplyTo:=wdListApplyToSelection, DefaultListBehavior:=wdWord10ListBehavior ' Ajustar comportamiento
+                    If Err.Number <> 0 Then
+                         Debug.Print "Error aplicando plantilla numerada (" & Err.Description & "). Intentando ApplyNumberDefault."
+                         Err.Clear
+                         sel.Range.ListFormat.ApplyNumberDefault
+                         If Err.Number <> 0 Then
+                            Debug.Print "Error aplicando formato numerado. Insertando texto con número y tab."
+                            Err.Clear
+                            sel.TypeText Trim(Left(trimmedLine, listMarkerPos)) & vbTab ' Insertar número y tab
+                         Else
+                            currentListType = "number"
+                            Debug.Print "Aplicado formato de lista numerada (ApplyNumberDefault)."
+                        End If
+                    Else
+                       currentListType = "number"
+                       Debug.Print "Aplicado formato de lista numerada (ApplyListTemplate)."
+                    End If
+                    On Error GoTo ErrorHandler
+                 Else ' Continuación de lista
+                    ' Word debería manejarlo, forzar párrafo si es necesario
+                    If sel.Start = paraRange.Start And Len(Trim(paraRange.text)) <= 1 Then
+                         ' No hacer nada
+                    ElseIf sel.Start > paraRange.Start Or Len(Trim(paraRange.text)) > 1 Then
+                        sel.TypeParagraph ' Forzar nuevo item
+                    End If
+                    Debug.Print "Continuando lista numerada."
+                 End If
+
+                ' Insertar el texto del elemento procesando formato inline
+                ProcessInlineFormatting sel, contentText, isListItem:=True
+                lastLineWasList = True
+
+            ' --- Texto Normal (Párrafo) ---
+            Else
+                Debug.Print "Procesando como texto normal: '" & trimmedLine & "'"
+                Set paraRange = sel.Paragraphs(1).Range
+                ' Si el párrafo actual no está vacío Y (la línea anterior no era lista O estamos al inicio de un texto nuevo), empezar nuevo párrafo.
+                 If Len(Trim(paraRange.text)) > 1 And (Not lastLineWasList Or i = 0) Then
+                    sel.TypeParagraph
+                    sel.ParagraphFormat.Reset ' Asegurar formato normal
+                    sel.Font.Reset
+                 End If
+                 ' Asegurar formato normal si venimos de una lista
+                 If lastLineWasList Then
+                    sel.ParagraphFormat.Reset
+                    sel.Font.Reset
+                 End If
+
+                ProcessInlineFormatting sel, trimmedLine
+                lastLineWasList = False ' Texto normal rompe lista (ya se hizo al inicio del loop, pero redundancia segura)
+                currentListType = ""    ' Asegurar que no hay lista activa
+            End If
+
+NextLine:       ' Etiqueta para saltar al final del bucle si era línea vacía
+        Next i
+        ' ------ Fin del Bucle Principal ------
+
+        ' --- Limpieza Final después del bucle ---
+        ' Si el último elemento fue un bloque de código sin cerrar
+        If inCodeBlock Then
+            Debug.Print "Advertencia: El texto Markdown terminó dentro de un bloque de código sin cierre '```'."
+            ' Intentar aplicar formato final al bloque incompleto
+             If Not codeBlockStartRange Is Nothing Then
+                 Dim lastRange As Object
+                 Set lastRange = WordDoc.Range(Start:=codeBlockStartRange.Start, End:=sel.Range.End)
+                 On Error Resume Next
+                 With lastRange.ParagraphFormat.Borders
+                      .Enable = True
+                      Dim borderTypeEnd As Variant
+                      For Each borderTypeEnd In Array(wdBorderTop, wdBorderLeft, wdBorderBottom, wdBorderRight)
+                          With .Item(CLng(borderTypeEnd))
+                             .LineStyle = wdLineStyleSingle
+                             .LineWidth = wdLineWidth050pt
+                             .Color = wdColorGray25
+                          End With
+                      Next borderTypeEnd
+                      .Item(wdBorderHorizontal).LineStyle = 0
+                      .Item(wdBorderVertical).LineStyle = 0
+                 End With
+                 lastRange.Shading.BackgroundPatternColor = RGB(248, 248, 248)
+                 If Err.Number <> 0 Then Debug.Print "Adv: Error formato bloque final: " & Err.Description: Err.Clear
+                 On Error GoTo ErrorHandler
+                 Set lastRange = Nothing
+            End If
+            ' Resetear formato para cualquier cosa que venga después
+            sel.Collapse wdCollapseEnd
+            sel.TypeParagraph ' Asegurar un párrafo final limpio
+            sel.Font.Reset
+            sel.ParagraphFormat.Reset
+            On Error Resume Next
+            sel.ParagraphFormat.Borders.Enable = False
+            sel.Shading.BackgroundPatternColor = wdColorAutomatic
+            Err.Clear
+            On Error GoTo ErrorHandler
+        End If
+
+        ' Si el último elemento fue parte de una lista, quitar el formato del último párrafo (que suele estar vacío)
+        If currentListType <> "" Then
+            On Error Resume Next
+             Set paraRange = sel.Paragraphs(1).Range
+             If Len(Trim(paraRange.text)) <= 1 Then ' Solo si el último párrafo está vacío
+                 paraRange.ListFormat.RemoveNumbers NumberType:=wdListNoNumbering
+                 paraRange.ParagraphFormat.Reset ' Quitar sangría
+                 If Err.Number <> 0 Then Debug.Print "Advertencia: No se pudo quitar formato de lista final explícitamente. Error: " & Err.Description: Err.Clear
+             End If
+            On Error GoTo ErrorHandler
+        End If
+
+        Debug.Print "Procesamiento de Markdown completado."
+
+    Else
+        MsgBox "Error: No se encontró el placeholder '" & placeholder & "' en el documento.", vbExclamation, "Placeholder No Encontrado"
+    End If ' Fin de If sel.Find.Found
+
+    ' Liberar objetos
+    Set sel = Nothing
+    Set fs = Nothing
+    Set codeBlockStartRange = Nothing
+    Set paraRange = Nothing
+
+    Exit Sub ' Salida normal
+
+ErrorHandler:
+    ' Mostrar un mensaje de error más detallado
+    Dim errMsg As String
+    errMsg = "Se produjo un error inesperado en 'InsertarMarkdownEnWord'." & vbCrLf & vbCrLf & _
+             "Error Número: " & Err.Number & vbCrLf & _
+             "Descripción: " & Err.Description & vbCrLf & _
+             "Fuente: " & Err.Source & vbCrLf & vbCrLf
+    ' Intentar añadir información de línea si i está en un rango válido
+    On Error Resume Next ' Evitar error si i no está inicializado o fuera de rango
+    errMsg = errMsg & "Última línea procesada (aprox.): " & i
+    If i >= 0 And i <= UBound(lines) Then
+       errMsg = errMsg & " -> '" & lines(i) & "'"
+    End If
+    If Err.Number <> 0 Then
+        errMsg = errMsg & " (No se pudo determinar el contenido de la línea)."
+        Err.Clear
+    End If
+    On Error GoTo 0 ' Desactivar manejo de errores temporalmente
+
+    MsgBox errMsg, vbCritical, "Error en Ejecución VBA"
+
+    ' Limpiar objetos por si acaso antes de salir
+    On Error Resume Next ' Ignorar errores durante la limpieza
+    Set sel = Nothing
+    Set fs = Nothing
+    Set codeBlockStartRange = Nothing
+    Set paraRange = Nothing
+    On Error GoTo 0 ' Desactivar manejo de errores antes de salir
+
+End Sub
+
+
+
+Private Sub ProcessInlineFormatting(sel As Object, text As String, Optional isListItem As Boolean = False, Optional isHeader As Boolean = False)
+    ' --- Constantes locales ---
+    Const BOLD_MARKER As String = "**"
+    Const ITALIC_MARKER As String = "*" ' Importante: Usar '*' para cursiva, no '_'
+    Const CODE_MARKER As String = "`"
+    Const ESCAPE_CHAR As String = "\" ' Caracter de escape
+    Const CODE_FONT_NAME As String = "Courier New"
+    Const CODE_FONT_SIZE As Long = 10
+    Const WD_COLLAPSE_END As Long = 0 ' Definir localmente
+    Dim wdColorAutomaticInline As Long: wdColorAutomaticInline = -16777216 ' Definir localmente
+
+    ' --- Variables ---
+    Dim currPos As Long
+    Dim char As String, nextChar As String, prevChar As String
+    Dim textToInsert As String
+    Dim initialFont As Object ' Para recordar fuente/tamaño base del párrafo
+    Dim initialBold As Boolean, initialItalic As Boolean ' Estado inicial antes del código inline
+    Dim isCurrentlyCode As Boolean ' Estado local para fuente de código
+    Dim tempRange As Object ' Para obtener la fuente base
+
+    On Error GoTo InlineErrorHandler
+
+    ' --- 1. Preparar Selección y Guardar Estado Inicial de Fuente ---
+    ' No añadir párrafo aquí, se maneja en el bucle principal.
+    ' Solo guardar el estado de la fuente actual ANTES de procesar inline.
+    Set tempRange = sel.Range ' Clonar selección actual para no moverla
+    Set initialFont = tempRange.Font.Duplicate ' Guardar una copia del formato de fuente
+    Set tempRange = Nothing
+    isCurrentlyCode = False ' Asegurar que no empezamos en modo código
+
+    ' --- 2. Bucle de Procesamiento Inline ---
+    currPos = 1
+    textToInsert = ""
+
+    Do While currPos <= Len(text)
+        char = Mid(text, currPos, 1)
+        ' Mirar el siguiente y anterior carácter
+        If currPos < Len(text) Then nextChar = Mid(text, currPos + 1, 1) Else nextChar = ""
+        If currPos > 1 Then prevChar = Mid(text, currPos - 1, 1) Else prevChar = ""
+
+        ' --- Manejo de Caracter de Escape (\) ---
+        If char = ESCAPE_CHAR Then
+             ' Si el siguiente es un marcador o \ , añadir el siguiente y saltar ambos
+            If nextChar = Left(BOLD_MARKER, 1) Or nextChar = ITALIC_MARKER Or nextChar = CODE_MARKER Or nextChar = ESCAPE_CHAR Then
+                textToInsert = textToInsert & nextChar
+                currPos = currPos + 2 ' Saltar \ y el carácter escapado
+                GoTo ContinueLoopInline
+            Else ' Escape de otro carácter (no especial), añadir el escape y el carácter
+                textToInsert = textToInsert & char ' Añadir la barra invertida también
+                ' El carácter siguiente se añadirá en la siguiente iteración como normal
+                currPos = currPos + 1
+                GoTo ContinueLoopInline
+            End If
+        End If
+
+        ' --- Detectar Marcadores (priorizar **) ---
+        Dim markerFound As Boolean: markerFound = False
+
+        ' Negrita (**)
+        If char = ITALIC_MARKER And nextChar = ITALIC_MARKER Then
+            If Len(textToInsert) > 0 Then sel.TypeText textToInsert: textToInsert = "" ' Insertar texto acumulado
+            sel.Font.Bold = Not sel.Font.Bold ' Alternar negrita
+            currPos = currPos + 2 ' Saltar **
+            markerFound = True
+        ' Cursiva (*) - Asegurarse que NO sea parte de **
+        ElseIf char = ITALIC_MARKER Then
+            ' Si el anterior NO era *, entonces este es un * de inicio/fin de cursiva
+            If prevChar <> ITALIC_MARKER Then
+                 If Len(textToInsert) > 0 Then sel.TypeText textToInsert: textToInsert = ""
+                 sel.Font.Italic = Not sel.Font.Italic ' Alternar cursiva
+                 currPos = currPos + 1 ' Saltar *
+                 markerFound = True
+            Else ' El anterior ERA *, este es el segundo * de **, ya procesado. Solo saltar.
+                 currPos = currPos + 1
+                 markerFound = True ' Evita que se añada al texto normal
+            End If
+        ' Código Inline (`)
+        ElseIf char = CODE_MARKER Then
+            If Len(textToInsert) > 0 Then sel.TypeText textToInsert: textToInsert = ""
+            isCurrentlyCode = Not isCurrentlyCode ' Alternar estado
+            If isCurrentlyCode Then
+                ' Guardar estado actual antes de aplicar formato código
+                initialBold = sel.Font.Bold
+                initialItalic = sel.Font.Italic
+                ' Aplicar formato código
+                sel.Font.Name = CODE_FONT_NAME
+                sel.Font.Size = CODE_FONT_SIZE
+                sel.Font.Bold = False
+                sel.Font.Italic = False
+                 ' Opcional: Añadir un sombreado ligero al código inline
+                 sel.Shading.BackgroundPatternColor = RGB(240, 240, 240)
+            Else ' Salir de modo código
+                ' Resetear a la fuente/tamaño base guardada al inicio de la función
+                 If Not initialFont Is Nothing Then
+                     sel.Font.Name = initialFont.Name
+                     sel.Font.Size = initialFont.Size
+                     sel.Shading.BackgroundPatternColor = wdColorAutomaticInline ' Quitar sombreado
+                     ' Restaurar negrita/cursiva que había ANTES del código
+                     sel.Font.Bold = initialBold
+                     sel.Font.Italic = initialItalic
+                 Else ' Fallback si falló al guardar initialFont
+                     sel.Font.Reset
+                     sel.Shading.BackgroundPatternColor = wdColorAutomaticInline
+                 End If
+            End If
+            currPos = currPos + 1 ' Saltar `
+            markerFound = True
+        End If
+
+        ' --- Acumular texto normal ---
+        If Not markerFound Then
+            textToInsert = textToInsert & char
+            currPos = currPos + 1
+        End If
+
+ContinueLoopInline:
+    Loop ' Fin del Do While
+
+    ' Insertar cualquier texto restante acumulado
+    If Len(textToInsert) > 0 Then sel.TypeText textToInsert
+
+    ' --- 3. Finalizar la línea (NO añadir TypeParagraph si es item de lista o header) ---
+    If Not isListItem And Not isHeader Then
+        ' Solo para texto normal que no sea parte de lista/header
+        sel.Collapse WD_COLLAPSE_END
+        sel.TypeParagraph ' Añadir párrafo al final de líneas de texto normales
+    End If
+    ' Para items de lista (isListItem=True) y headers (isHeader=True),
+    ' el TypeParagraph se maneja en el bucle principal DESPUÉS de llamar a esta función.
+
+    Set initialFont = Nothing ' Liberar objeto
+    Exit Sub
+
+InlineErrorHandler:
+    MsgBox "Error en 'ProcessInlineFormatting':" & vbCrLf & _
+           "Error: " & Err.Number & " - " & Err.Description & vbCrLf & _
+           "Procesando texto (inicio): '" & Left(text, 50) & "...'", vbCritical, "Error de Formato Inline"
+    ' Intentar insertar el texto sin formato como fallback
+    On Error Resume Next
+    sel.TypeText text ' Insertar el texto original sin formato
+    If Not isListItem And Not isHeader Then sel.TypeParagraph ' Añadir párrafo si era texto normal
+    Err.Clear
+    On Error GoTo 0 ' Desactivar manejo de errores local
+    Set initialFont = Nothing
+End Sub
 
 
 
 
+
+Sub FusionarDocumentosInsertando(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
+    Dim baseDoc     As Object
+    Dim sFile       As String
+    Dim oRng        As Object
+    Dim i           As Integer
+    
+    On Error GoTo err_Handler
+    
+    ' Crear un nuevo documento base
+    Set baseDoc = WordApp.Documents.Add
+    
+    ' Iterar sobre la lista de documentos a fusionar
+    For i = LBound(documentsList) To UBound(documentsList)
+        sFile = documentsList(i)
+        
+        ' Insertar el contenido del documento actual al final del documento base
+        Set oRng = baseDoc.Range
+        oRng.Collapse 0        ' Colapsar el rango al final del documento base
+        oRng.InsertFile sFile, , , , True ' Mantener formato original
+        
+        ' Insertar un salto de página después de cada documento insertado (excepto el último)
+        If i < UBound(documentsList) Then
+            Set oRng = baseDoc.Range
+            oRng.Collapse 0        ' Colapsar el rango al final del documento base
+            oRng.InsertBreak Type:=6 ' Insertar un salto de página
+        End If
+    Next i
+    
+    ' Guardar el archivo final
+    baseDoc.SaveAs finalDocumentPath
+    
+    ' Cerrar el documento base
+    baseDoc.Close
+    
+    ' Limpiar objetos
+    Set baseDoc = Nothing
+    Set oRng = Nothing
+    
+    Exit Sub
+    
+err_Handler:
+    MsgBox "Error: " & Err.Number & vbCrLf & Err.Description
+    Err.Clear
+    Exit Sub
+End Sub
+
+
+
+
+
+
+
+Private Function IsAbsolutePath(path As String, fs As Object) As Boolean
+    On Error Resume Next
+    IsAbsolutePath = False
+    
+    ' Validar si fs es válido
+    If fs Is Nothing Then
+        Debug.Print "FSO inválido en IsAbsolutePath"
+        Exit Function
+    End If
+
+    ' Limpiar y convertir el path a minúsculas
+    Dim lowerPath As String: lowerPath = LCase(Trim(path))
+
+    ' Verificar si es un URL absoluto
+    If Left(lowerPath, 7) = "http://" Or Left(lowerPath, 8) = "https://" Then
+        IsAbsolutePath = True
+        GoTo CleanExitAbsPath
+    End If
+
+    ' Verificar si es una ruta UNC
+    Dim driveName As String
+    driveName = fs.GetDriveName(path)
+
+    ' Verificar si es UNC o una ruta local absoluta
+    If Err.Number = 0 Then
+        ' Verificar si es una ruta UNC
+        If Left(driveName, 2) = "\\" Then
+            IsAbsolutePath = True
+        ' Verificar si es una ruta local absoluta (por ejemplo, "F:")
+        ElseIf Len(driveName) = 2 And Right(driveName, 1) = ":" Then
+            If Asc(LCase(Left(driveName, 1))) >= 97 And Asc(LCase(Left(driveName, 1))) <= 122 Then
+                IsAbsolutePath = True
+            End If
+        End If
+    End If
+    Err.Clear
+
+CleanExitAbsPath:
+    ' Limpiar cualquier error no manejado
+    If Err.Number <> 0 Then Err.Clear
+    On Error GoTo 0
+End Function
+
+
+Sub RawPrint(inputText As String)
+    Dim saltoCarro As Integer
+    Dim saltoLinea As Integer
+    Dim formattedText As String
+    
+    ' Inicializar contadores
+    saltoCarro = 0
+    saltoLinea = 0
+    formattedText = inputText
+    
+    ' Contar saltos de carro y saltos de línea
+    saltoCarro = Len(inputText) - Len(Replace(inputText, vbCr, ""))
+    saltoLinea = Len(inputText) - Len(Replace(inputText, vbLf, ""))
+    
+    ' Reemplazar saltos de línea y salto de carro con símbolos visibles
+    formattedText = Replace(formattedText, vbCrLf, "[CRLF]")
+    formattedText = Replace(formattedText, vbCr, "[CR]")
+    formattedText = Replace(formattedText, vbLf, "[LF]")
+    
+    ' Imprimir el texto con los saltos de línea visibles
+    Debug.Print "Texto formateado con saltos visibles:" & vbCrLf & formattedText
+    Debug.Print vbCrLf & "Resumen de saltos:"
+    Debug.Print "Cantidad de saltos de carro (CR): " & saltoCarro
+    Debug.Print "Cantidad de saltos de línea (LF): " & saltoLinea
+End Sub
+
+
+
+
+
+
+Public Sub SustituirTextoMarkdownPorImagenes(WordApp As Object, WordDoc As Object, basePath As String)
+    Dim docRange As Object          ' Word.Range completo del documento
+    Dim searchRange As Object       ' Rango para buscar el marcador (se ajusta en cada iteración)
+    Dim tagRange As Object          ' Rango que contiene solo el tag Markdown ![...]()
+    Dim expandedTagRange As Object  ' Rango expandido para incluir saltos de línea/párrafo adyacentes
+    Dim fs As Object                ' FileSystemObject
+    Dim imgAltText As String        ' Texto alternativo que se usará como caption
+    Dim imgPath As String           ' Ruta extraída (cruda) del tag Markdown
+    Dim fullImgPath As String       ' Ruta completa, ya procesada
+    Dim altEndMarkerPos As Long     ' Posición donde finaliza el ALT, antes de ]( (relativa a tempSearchRange)
+    Dim pathEndMarkerPos As Long    ' Posición de final de la ruta, es decir, del carácter ')' (relativa a tempSearchRange)
+    Dim inlineShape As Object       ' Objeto para la imagen insertada (InlineShape)
+    Dim originalTagText As String   ' El texto original del tag Markdown (posible con LFs/CRs)
+    Dim fileExists As Boolean       ' Bandera para comprobar la existencia del archivo
+    Dim continueSearching As Boolean
+    Dim pathSep As String           ' Separador de carpeta (de Word)
+    Dim charCodeBefore As Long      ' Código del carácter antes del tag
+    Dim charCodeAfter As Long       ' Código del carácter después del tag
+    Dim currentSearchStart As Long  ' Posición desde donde iniciar la búsqueda en cada iteración
+    Dim tempSearchRange As Object   ' Rango temporal para buscar dentro del tag
+    Dim coreTagText As String       ' Texto del tag ![alt](path)
+    Dim relAltEndPos As Long, relPathStartPos As Long
+    Dim insertionPointRange As Object ' Punto donde insertar la imagen
+    Dim rngAfterPic As Object       ' Rango después de la imagen insertada
+    Dim addPictureErrNum As Long    ' Para capturar error específico de AddPicture
+    Dim pathIsAbsolute As Boolean   ' Para chequeo de ruta
+
+    ' Constantes para los códigos de caracteres especiales en Word
+    Const CR As Long = 13 ' Código ASCII para Carriage Return (Salto de párrafo ¶)
+    Const LF As Long = 10 ' Código ASCII para Line Feed (Salto de línea manual - Shift+Enter)
+
+    ' Constantes para los marcadores Markdown
+    Const START_MARKER As String = "!["
+    Const ALT_END_MARKER As String = "]("
+    Const PATH_END_MARKER As String = ")"
+
+    ' Constantes Word (Late Binding) - Definidas localmente para independencia
+    Const wdFindStop As Long = 0
+    Const wdCollapseStart As Long = 1
+    Const wdCollapseEnd As Long = 0
+    Const wdAlignParagraphCenter As Long = 1
+    Const wdParagraph As Long = 4 ' Para MoveStart
+
+    ' --- Manejador de Errores Principal ---
+    On Error GoTo GlobalErrorHandler
+
+    ' --- Validación Inicial ---
+    If WordApp Is Nothing Or WordDoc Is Nothing Then
+        MsgBox "Error: La aplicación Word o el Documento no son válidos.", vbCritical, "Error de Entrada"
+        Exit Sub
+    End If
+
+    ' --- Crear FileSystemObject ---
+    On Error Resume Next ' Intentar crear FSO
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    If fs Is Nothing Or Err.Number <> 0 Then
+        On Error GoTo 0 ' Desactivar Resume Next
+        MsgBox "Error crítico: No se pudo crear el FileSystemObject.", vbCritical, "Error FSO"
+        Exit Sub
+    End If
+    On Error GoTo GlobalErrorHandler ' Restaurar manejador de errores normal
+
+    ' --- Obtener separador de ruta y normalizar basePath ---
+    pathSep = WordApp.PathSeparator
+    basePath = Trim(basePath)
+    If Len(basePath) > 0 Then
+        ' Quitar separadores al final si existen
+        Do While Right(basePath, 1) = "\" Or Right(basePath, 1) = "/"
+            If Len(basePath) = 1 Then
+                basePath = "" ' Evitar bucle infinito si es solo "\" o "/"
+                Exit Do
+            End If
+            basePath = Left(basePath, Len(basePath) - 1)
+        Loop
+        ' Añadir separador al final si basePath no quedó vacío
+        If Len(basePath) > 0 Then
+            basePath = basePath & pathSep
+        End If
+        Debug.Print "BasePath normalizado: """ & basePath & """"
+    End If
+
+    ' --- Inicializar búsqueda ---
+    currentSearchStart = 0 ' Empezar desde el inicio del documento
+    continueSearching = True
+    WordApp.ScreenUpdating = False ' Desactivar actualización para rapidez
+
+    ' --- Bucle Principal de Búsqueda y Reemplazo ---
+    Do While continueSearching
+        ' Define el rango para esta búsqueda específica, desde la última posición
+        Set searchRange = WordDoc.Range(Start:=currentSearchStart, End:=WordDoc.content.End)
+
+        searchRange.Find.ClearFormatting
+        searchRange.Find.text = START_MARKER
+        searchRange.Find.Forward = True
+        searchRange.Find.Wrap = wdFindStop ' Detener al final del documento
+        searchRange.Find.MatchCase = False ' Ignorar mayúsculas/minúsculas
+
+        If searchRange.Find.Execute Then ' Encontró el inicio del tag "!["
+            Dim foundRange As Object
+            Set foundRange = searchRange.Duplicate ' foundRange AHORA es donde se encontró "!["
+
+            ' Preparar la próxima búsqueda para DESPUÉS de este hallazgo inicial
+            ' Se actualizará más adelante si se procesa el tag, si no, buscará desde aquí
+            currentSearchStart = foundRange.End
+
+            ' Buscar los marcadores de fin "](" y ")" DENTRO del texto que sigue a "!["
+            Set tempSearchRange = WordDoc.Range(Start:=foundRange.End, End:=WordDoc.content.End)
+            ' Usar vbTextCompare para ignorar mayúsculas/minúsculas en marcadores si se desea, aunque no es estándar MD
+            altEndMarkerPos = InStr(1, tempSearchRange.text, ALT_END_MARKER, vbTextCompare)
+
+            If altEndMarkerPos > 0 Then ' Encontró "]("
+                 ' Buscar ")" DESPUÉS de "]("
+                pathEndMarkerPos = InStr(altEndMarkerPos + Len(ALT_END_MARKER), tempSearchRange.text, PATH_END_MARKER, vbTextCompare)
+
+                If pathEndMarkerPos > 0 Then ' Encontró ")" también, tenemos un tag completo
+                    ' --- Definir el rango exacto del tag ![alt](path) ---
+                    Dim tagStartDocPos As Long, tagEndDocPos As Long
+                    tagStartDocPos = foundRange.Start ' Inicio del "!["
+                    ' End del tag es el inicio del rango de búsqueda temporal + pos final - 1 (por base 1 de InStr) + longitud del marcador final
+                    tagEndDocPos = tempSearchRange.Start + pathEndMarkerPos - 1 + Len(PATH_END_MARKER)
+
+                    Set tagRange = WordDoc.Range(Start:=tagStartDocPos, End:=tagEndDocPos)
+                    coreTagText = tagRange.text ' Contiene ![alt](path) potencialmente con saltos de línea internos
+
+                    ' --- Extraer ALT y Path del coreTagText ---
+                    relAltEndPos = InStr(1, coreTagText, ALT_END_MARKER, vbTextCompare)
+                    If relAltEndPos = 0 Then
+                        Debug.Print "Error interno: No se encontró ALT_END_MARKER en coreTagText. Saltando."
+                        ' currentSearchStart ya está en foundRange.End, buscará el próximo "!["
+                        GoTo ContinueNextFind ' Saltar al final del bucle Do While
+                    End If
+
+                    relPathStartPos = relAltEndPos + Len(ALT_END_MARKER)
+                    imgAltText = Trim(Mid(coreTagText, Len(START_MARKER) + 1, relAltEndPos - Len(START_MARKER) - 1))
+                    imgPath = Trim(Mid(coreTagText, relPathStartPos, pathEndMarkerPos - relPathStartPos)) 'pathEndMarkerPos es relativo a tempSearchRange, no a coreTagText. Recalcular.
+                    ' Corrección para extraer imgPath correctamente desde coreTagText
+                    Dim relPathEndPos As Long
+                    relPathEndPos = InStr(relPathStartPos, coreTagText, PATH_END_MARKER, vbTextCompare)
+                    If relPathEndPos > 0 Then
+                       imgPath = Trim(Mid(coreTagText, relPathStartPos, relPathEndPos - relPathStartPos))
+                    Else
+                       Debug.Print "Error interno: No se encontró PATH_END_MARKER en coreTagText. Saltando."
+                       GoTo ContinueNextFind ' Saltar al final del bucle Do While
+                    End If
+
+                    Debug.Print "Tag encontrado: """ & Replace(Replace(coreTagText, Chr(CR), "[CR]"), Chr(LF), "[LF]") & """"
+                    Debug.Print "Texto Alt extraído: """ & imgAltText & """"
+                    Debug.Print "Ruta extraída (cruda): """ & imgPath & """"
+
+                    If Len(imgPath) = 0 Then
+                        Debug.Print "Advertencia: Ruta de imagen vacía. Saltando tag."
+                        currentSearchStart = tagRange.End ' Avanzar después del tag vacío encontrado
+                        GoTo ContinueNextFind
+                    End If
+
+                    ' --- Expandir rango para incluir CR (saltos de párrafo) adyacentes si existen ---
+                    ' Esto ayuda a eliminar el párrafo donde estaba el tag si estaba solo
+                    Set expandedTagRange = tagRange.Duplicate
+                    originalTagText = expandedTagRange.text ' Guardar antes de expandir
+                    Debug.Print "Rango tag inicial: " & expandedTagRange.Start & "-" & expandedTagRange.End
+
+                    ' Comprobar carácter ANTES
+                    If expandedTagRange.Start > 0 Then ' Asegurar que no estamos al inicio absoluto
+                        On Error Resume Next ' Por si Start=1
+                         Dim rngBefore As Object
+                         Set rngBefore = WordDoc.Range(expandedTagRange.Start - 1, expandedTagRange.Start)
+                         If Err.Number = 0 Then
+                            charCodeBefore = AscW(rngBefore.Characters(1).text) ' Usar AscW para Unicode
+                            If charCodeBefore = CR Then
+                                expandedTagRange.Start = expandedTagRange.Start - 1
+                                Debug.Print "CR encontrado antes. Rango expandido a: " & expandedTagRange.Start
+                            End If
+                         End If
+                         Set rngBefore = Nothing
+                         Err.Clear
+                        On Error GoTo GlobalErrorHandler ' Restaurar
+                    End If
+
+                    ' Comprobar carácter DESPUÉS
+                    If expandedTagRange.End < WordDoc.content.End Then ' Asegurar que no estamos al final absoluto
+                         On Error Resume Next ' Por si End es el último carácter
+                         Dim rngAfter As Object
+                         Set rngAfter = WordDoc.Range(expandedTagRange.End, expandedTagRange.End + 1)
+                          If Err.Number = 0 Then
+                            charCodeAfter = AscW(rngAfter.Characters(1).text) ' Usar AscW para Unicode
+                            If charCodeAfter = CR Then
+                                expandedTagRange.End = expandedTagRange.End + 1
+                                Debug.Print "CR encontrado después. Rango expandido a: " & expandedTagRange.End
+                            End If
+                          End If
+                          Set rngAfter = Nothing
+                          Err.Clear
+                         On Error GoTo GlobalErrorHandler ' Restaurar
+                    End If
+                    Debug.Print "Texto a reemplazar (expandido): """ & Replace(Replace(expandedTagRange.text, Chr(CR), "[CR]"), Chr(LF), "[LF]") & """"
+
+                    ' --- Construir ruta completa y verificar existencia ---
+                    fullImgPath = ""
+                    fileExists = False
+                    ' Reemplazar barras inclinadas por el separador del sistema
+                    imgPath = Replace(imgPath, "/", pathSep)
+                    imgPath = Replace(imgPath, "\", pathSep) ' Asegurar consistencia
+
+                    ' Verificar si la ruta es absoluta (local o UNC) o URL
+                    On Error Resume Next ' Intentar con FSO.IsAbsolutePath
+                    pathIsAbsolute = fs.IsAbsolutePath(imgPath)
+                    If Err.Number <> 0 Then ' Fallback manual si FSO falla o no está disponible
+                        Err.Clear
+                        Debug.Print "Advertencia: fs.IsAbsolutePath falló. Usando chequeo manual."
+                        pathIsAbsolute = (InStr(imgPath, ":\") > 0 Or Left(imgPath, 2) = "\\")
+                    End If
+                    On Error GoTo GlobalErrorHandler ' Restaurar
+
+                    If pathIsAbsolute Then
+                        fullImgPath = imgPath
+                        On Error Resume Next ' Chequear existencia con FSO
+                        fileExists = fs.fileExists(fullImgPath)
+                        If Err.Number <> 0 Then
+                            Debug.Print "Error FSO chequeando existencia de: " & fullImgPath
+                            fileExists = False ' Asumir que no existe si FSO falla
+                            Err.Clear
+                        End If
+                        On Error GoTo GlobalErrorHandler
+                    ElseIf Left(LCase(imgPath), 4) = "http" Then ' Es una URL
+                        fullImgPath = imgPath
+                        fileExists = True ' Asumir OK, AddPicture lo verifica realmente
+                        Debug.Print "Ruta es URL: """ & fullImgPath & """"
+                    ElseIf Len(basePath) > 0 Then ' Es relativa y tenemos basePath
+                        On Error Resume Next
+                        fullImgPath = fs.BuildPath(basePath, imgPath)
+                        If Err.Number = 0 Then
+                           fileExists = fs.fileExists(fullImgPath)
+                           If Err.Number <> 0 Then
+                                Debug.Print "Error FSO chequeando existencia de ruta construida: " & fullImgPath
+                                fileExists = False
+                                Err.Clear
+                           End If
+                        Else ' Error en BuildPath
+                           Debug.Print "Error FSO en BuildPath con: """ & basePath & """ y """ & imgPath & """"
+                           fullImgPath = basePath & imgPath ' Intento manual simple
+                           fileExists = False ' No se pudo construir bien, probablemente no exista
+                           Err.Clear
+                        End If
+                        On Error GoTo GlobalErrorHandler
+                        Debug.Print "Ruta relativa construida: """ & fullImgPath & """"
+                    Else ' Es relativa pero NO tenemos basePath
+                        Debug.Print "Advertencia: Ruta relativa (""" & imgPath & """) encontrada pero no se proporcionó BasePath."
+                        fullImgPath = imgPath ' Guardar la ruta relativa por si acaso
+                        fileExists = False
+                    End If
+
+                    ' --- Insertar Imagen o Mantener Texto ---
+                    If fileExists And Len(fullImgPath) > 0 Then
+                        Debug.Print "Archivo/URL parece existir: """ & fullImgPath & """. Intentando insertar..."
+                        Set insertionPointRange = expandedTagRange.Duplicate
+                        insertionPointRange.Collapse Direction:=wdCollapseStart ' Colapsar al inicio del rango a reemplazar
+
+                        expandedTagRange.text = "" ' Borrar texto original (tag + CRs opcionales)
+
+                        ' *** Intento de inserción con manejo de error específico ***
+                        Set inlineShape = Nothing
+                        addPictureErrNum = 0
+                        On Error Resume Next ' Activar manejo de error SOLO para AddPicture
+                        Set inlineShape = insertionPointRange.InlineShapes.AddPicture( _
+                            fileName:=fullImgPath, LinkToFile:=False, SaveWithDocument:=True)
+                        addPictureErrNum = Err.Number ' Guardar número de error si ocurrió
+                        On Error GoTo GlobalErrorHandler ' !!! Restaurar manejador global INMEDIATAMENTE !!!
+
+                        If addPictureErrNum = 0 And Not inlineShape Is Nothing Then
+                            ' --- Éxito al insertar ---
+                            Debug.Print "Imagen insertada con éxito."
+                            inlineShape.AlternativeText = imgAltText ' Establecer texto alternativo en la imagen
+
+                            ' --- Añadir Caption (Pie de foto) ---
+                            Set rngAfterPic = inlineShape.Range ' Obtener el rango de la imagen insertada
+                            rngAfterPic.Collapse Direction:=wdCollapseEnd ' Mover al final de la imagen
+                            
+                            ' Insertar párrafo después Y luego escribir en él para evitar problemas de formato
+                            rngAfterPic.InsertParagraphAfter
+                            ' Mover al nuevo párrafo creado
+                            rngAfterPic.MoveStart unit:=wdParagraph, Count:=1
+                            rngAfterPic.MoveEnd unit:=wdParagraph, Count:=1 ' Asegurar que el rango cubre solo el nuevo párrafo
+                            
+                            rngAfterPic.text = imgAltText ' Poner el texto del pie de foto
+                            rngAfterPic.ParagraphFormat.Alignment = wdAlignParagraphCenter ' Centrar pie de foto
+                            rngAfterPic.Font.Italic = True ' Opcional: Poner cursiva al pie de foto
+                            rngAfterPic.Font.Size = 9     ' Opcional: Tamaño más pequeño para pie de foto
+
+                            ' La próxima búsqueda debe empezar DESPUÉS del pie de foto
+                            currentSearchStart = rngAfterPic.End
+
+                        Else
+                            ' --- Fallo al insertar (Error 4120 u otro) ---
+                            Debug.Print "*** ERROR " & addPictureErrNum & " al insertar imagen: """ & fullImgPath & """ ***"
+                            Debug.Print "Descripción del error: " & Err.Description ' Mostrar descripción del error específico
+                            ' Opcional: Insertar un marcador de error en el documento en lugar de la imagen
+                            insertionPointRange.InsertAfter "[ERROR AL INSERTAR IMAGEN: " & imgPath & "]"
+                            ' La próxima búsqueda debe empezar DESPUÉS del punto de inserción original
+                            ' (donde estaba el tag que falló)
+                            currentSearchStart = insertionPointRange.End + Len("[ERROR AL INSERTAR IMAGEN: " & imgPath & "]")
+                            Err.Clear ' Limpiar el error para continuar
+                        End If
+                        ' Liberar objetos de esta iteración de inserción
+                        Set insertionPointRange = Nothing
+                        Set rngAfterPic = Nothing
+                        Set inlineShape = Nothing
+                    Else
+                        ' --- Archivo NO encontrado o ruta vacía ---
+                        Debug.Print "Archivo NO encontrado o ruta inválida: """ & fullImgPath & """. Se mantiene el texto original."
+                        ' Dejar el texto original (expandedTagRange NO fue borrado)
+                        ' La próxima búsqueda debe empezar DESPUÉS del tag original que no se reemplazó
+                        currentSearchStart = expandedTagRange.End
+                    End If
+
+                    ' Liberar objetos del tag procesado
+                    Set expandedTagRange = Nothing
+                    Set tagRange = Nothing
+
+                Else ' No se encontró ")" después de "]("
+                    Debug.Print "Tag incompleto: Se encontró '!["; y; "](' pero no el ')' final. Saltando."
+                    ' Avanzar la búsqueda después del "](" encontrado
+                    currentSearchStart = tempSearchRange.Start + altEndMarkerPos + Len(ALT_END_MARKER) - 1
+                End If ' pathEndMarkerPos > 0
+            Else ' No se encontró "](" después de "!["
+                 ' Tag inválido o texto normal que empieza con "!["
+                 ' currentSearchStart ya está en foundRange.End, buscará el próximo "!["
+                 Debug.Print "Marcador '![' encontrado pero no seguido por ']('. Tratado como texto normal."
+            End If ' altEndMarkerPos > 0
+
+            ' Liberar objetos de búsqueda de esta iteración
+             Set tempSearchRange = Nothing
+             Set foundRange = Nothing
+
+        Else ' Find.Execute no encontró más "!["
+            continueSearching = False ' Salir del bucle Do While
+            Debug.Print "No se encontraron más marcadores '!['."
+        End If ' Find.Execute
+
+ContinueNextFind: ' Etiqueta para saltar aquí si hay error recuperable o tag inválido
+        DoEvents ' Permitir que Word procese eventos (útil en bucles largos)
+    Loop ' While continueSearching
+
+    GoTo CleanExit
+
+GlobalErrorHandler:
+    ' Mostrar un mensaje de error más detallado para errores NO manejados específicamente
+    MsgBox "Se produjo un error inesperado en 'SustituirTextoMarkdownPorImagenes'." & vbCrLf & vbCrLf & _
+           "Error " & Err.Number & ": " & Err.Description & vbCrLf & _
+           "Fuente: " & Err.Source & vbCrLf & vbCrLf & _
+           "Última ruta procesada (aprox): """ & fullImgPath & """", vbCritical, "Error Global en Ejecución"
+    ' Intentar restaurar ScreenUpdating antes de salir
+    If Not WordApp Is Nothing Then
+       On Error Resume Next ' Ignorar error si WordApp ya no es válido
+       WordApp.ScreenUpdating = True
+       On Error GoTo 0
+    End If
+    GoTo ForcedCleanup ' Ir a la limpieza forzada
+
+CleanExit:
+    Debug.Print "--- Fin de SustituirTextoMarkdownPorImagenes (Normal) ---"
+    ' Salida normal
+
+ForcedCleanup:
+    ' Liberar todos los objetos para evitar memoria colgada
+    On Error Resume Next ' Ignorar errores durante la limpieza
+    If Not fs Is Nothing Then Set fs = Nothing
+    Set docRange = Nothing
+    Set searchRange = Nothing
+    Set tagRange = Nothing
+    Set expandedTagRange = Nothing
+    Set inlineShape = Nothing
+    Set tempSearchRange = Nothing
+    Set insertionPointRange = Nothing
+    Set rngAfterPic = Nothing
+    ' Restaurar actualización de pantalla
+    If Not WordApp Is Nothing Then WordApp.ScreenUpdating = True
+    On Error GoTo 0 ' Desactivar cualquier manejo de errores restante
+End Sub
