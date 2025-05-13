@@ -1,34 +1,165 @@
 Attribute VB_Name = "NewMacros"
-Sub NegritaPalabrasClave()
-    Dim palabrasTexto As String
-    Dim palabrasClave As Variant
-    Dim palabra As Variant
-    Dim rango As Range
+Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido()
+
+    ' Declaración de variables
+    Dim palabrasClaveParte1 As Variant
+    Dim palabrasClaveParte2 As Variant
+    Dim palabrasClaveParte3 As Variant
+    ' Si necesitas más partes, decláralas aquí:
+    ' Dim palabrasClaveParte4 As Variant
+    ' Dim palabrasClaveParte5 As Variant
+    ' ... y así sucesivamente
+
+    Dim todasLasPalabrasClaveList As Object ' Usaremos un ArrayList para combinar
+    Dim palabrasClaveOrdenadas As Variant
+    Dim palabra As Variant ' Para iterar sobre las palabras clave
+    Dim item As Variant    ' Para iterar sobre el ArrayList
+    Dim rangoAProcesar As Range
+    Dim i As Long          ' Contador para el bucle de ordenación
+    Dim temp As String     ' Variable temporal para el intercambio en la ordenación
+    Dim swapped As Boolean ' Bandera para el bucle de ordenación
+
+    ' --- INICIO: Definición de palabras clave en fragmentos de Arrays ---
+    ' Distribuye tus palabras clave aquí.
+    ' Asegúrate de que cada array individual no exceda el límite de continuación de línea.
+    ' Ejemplo con una porción de tu lista:
+
+palabrasClaveParte1 = Array( _
+    "XSS", "Stored XSS", "DOM-based XSS", _
+    "Session Hijacking", "Phishing", "CSP", _
+    "Validación de entradas", "Sanitización", "Interceptación", _
+    "TLS 1.0", "Protocolo débil", "Man-in-the-Middle" _
+)
+
+palabrasClaveParte2 = Array( _
+    "Malware", "Explotación", "TLS 1.1", "controles de restricción adecuados", _
+    "Downgrade Attack", "Tráfico TLS", "Sweet32", _
+    "Wireshark", "Tshark", "tcpdump", _
+    "Gestión de vulnerabilidades", "Seguridad de aplicaciones web", "Divulgación de información" _
+)
+
+palabrasClaveParte3 = Array( _
+    "Fuga de información", "Hardening", "HTTP Headers", _
+ "Autodiscover", "X-Frame-Options", "HttpOnly", _
+  "SSL Stripping", "Componentes vulnerables", _
+    "OWASP DependencyCheck", "Subresource Integrity", "Clickjacking", _
+    "Cookies HttpOnly", "Cookies Secure", "Fingerprinting", _
+    "CVE", _
+    "Metodología de pentesting", "Seguridad en la nube", "Acceso no autorizado", _
+    "Credenciales", "Confidencialidad", "Remediación" _
+)
+
+
+    Set todasLasPalabrasClaveList = CreateObject("System.Collections.ArrayList")
+
+    ' Añadir elementos de cada parte del array a la lista combinada
+    For Each palabra In palabrasClaveParte1
+        If Len(Trim(CStr(palabra))) > 0 Then ' Asegurar que no se añadan strings vacíos
+            todasLasPalabrasClaveList.Add Trim(CStr(palabra))
+        End If
+    Next palabra
+
+    For Each palabra In palabrasClaveParte2
+        If Len(Trim(CStr(palabra))) > 0 Then
+            todasLasPalabrasClaveList.Add Trim(CStr(palabra))
+        End If
+    Next palabra
+
+    For Each palabra In palabrasClaveParte3
+        If Len(Trim(CStr(palabra))) > 0 Then
+            todasLasPalabrasClaveList.Add Trim(CStr(palabra))
+        End If
+    Next palabra
+
+    ' Si añadiste más partes (palabrasClaveParte4, etc.), añade bucles para ellas aquí:
+    ' For Each palabra In palabrasClaveParte4
+    '    If Len(Trim(CStr(palabra))) > 0 Then
+    '        todasLasPalabrasClaveList.Add Trim(CStr(palabra))
+    '    End If
+    ' Next palabra
+
+
+    ' --- Ordenar la lista combinada por longitud de cadena, de mayor a menor ---
+    ' Esto es importante si MatchWholeWord = False
+    If todasLasPalabrasClaveList.count > 1 Then
+        Do
+            swapped = False
+            For i = 0 To todasLasPalabrasClaveList.count - 2
+                If Len(todasLasPalabrasClaveList(i)) < Len(todasLasPalabrasClaveList(i + 1)) Then
+                    temp = todasLasPalabrasClaveList(i)
+                    todasLasPalabrasClaveList(i) = todasLasPalabrasClaveList(i + 1)
+                    todasLasPalabrasClaveList(i + 1) = temp
+                    swapped = True
+                End If
+            Next i
+        Loop While swapped
+    End If
+    palabrasClaveOrdenadas = todasLasPalabrasClaveList.ToArray() ' Convertir ArrayList a Array VBA
+
+    ' --- Determinar el rango a procesar ---
+    If Selection.Type = wdSelectionIP Or Selection.Type = wdNoSelection Then
+        MsgBox "Por favor, seleccione el texto donde desea aplicar la negrita.", vbExclamation
+        Exit Sub ' Salir si no hay selección válida
+    End If
+    Set rangoAProcesar = Selection.Range
+    ' Para procesar todo el documento en lugar de la selección, descomenta la siguiente línea
+    ' y comenta la línea anterior:
+    ' Set rangoAProcesar = ActiveDocument.Content
     
-
-palabrasTexto = "Cross-Site Scripting (XSS), XSS Reflected, Reflected XSS, XSS Persistent, Stored XSS, DOM-based XSS, Inyección, Scripts maliciosos, Malicious Scripts, Ejecución de acciones en nombre del usuario, Robo de cookies de sesión, Session Hijacking, Redirección a sitios fraudulentos, Phishing, Content Security Policy (CSP), Validación, Sanitización, Manipulación de sesiones de usuario, Formulario malicioso, TLS 1.0, Protocolo débil, Algoritmos de cifrado, Interceptación, Hombre en el medio, Escucha pasiva, Malware, Explotación,TLS 1.1, downgrade, Interceptar tráfico cifrado, Atacante, Wireshark, Tshark, tcpdump, Tráfico TLS, Sweet32, Colisiones, CBC, (Cipher Block Chaining)"
-
-
-    palabrasClave = Split(palabrasTexto, ",")
-
-    Set rango = Selection.Range
+    ' Desactivar actualización de pantalla para mejorar rendimiento
+    Application.ScreenUpdating = False
     
-    For Each palabra In palabrasClave
-        With rango.Find
+    ' Preparar el objeto Find para el rango a procesar
+    Dim findObj As Find
+    Set findObj = rangoAProcesar.Find
+
+    ' --- Bucle principal para buscar y reemplazar cada palabra clave ---
+    For Each palabra In palabrasClaveOrdenadas
+        ' 'palabra' ya está trimeada y no está vacía gracias al preprocesamiento
+        
+        With findObj
             .ClearFormatting
-            .Text = Trim(palabra)
+            .Text = palabra ' La palabra clave actual a buscar
             .Replacement.ClearFormatting
-            .Replacement.Font.Bold = True
-            .Forward = True
-            .Wrap = wdFindStop
-            .Format = True
-            .MatchCase = False
-            .MatchWholeWord = False
-            .Execute Replace:=wdReplaceAll
+            .Replacement.Font.Bold = True ' Aplicar negrita al reemplazo
+            .Forward = True               ' Buscar hacia adelante
+            .Wrap = wdFindContinue        ' Continuar buscando en todo el rango especificado
+            .Format = True                ' Considerar el formato en la búsqueda (aunque aquí se limpia)
+            .MatchCase = False            ' Ignorar mayúsculas/minúsculas
+            .MatchWholeWord = False       ' No buscar solo palabras completas (la ordenación ayuda aquí)
+            .MatchWildcards = False
+            .MatchSoundsLike = False
+            .MatchAllWordForms = False
+            
+            .Execute Replace:=wdReplaceAll ' Reemplazar todas las ocurrencias
         End With
     Next palabra
     
+    ' --- Restaurar la configuración del objeto Find de la Selección a un estado más neutral ---
+    ' Esto es para evitar que la macro afecte las búsquedas manuales posteriores del usuario.
+    With Selection.Find
+        .ClearFormatting
+        .Replacement.ClearFormatting
+        .Text = "" ' Limpiar el texto de búsqueda
+        .Forward = True
+        .Wrap = wdFindAsk ' O wdFindStop, según preferencia para búsquedas manuales
+        .Format = False   ' Generalmente False para búsquedas manuales sin formato específico
+        .MatchCase = False
+        .MatchWholeWord = False
+        .MatchWildcards = False
+        .MatchSoundsLike = False
+        .MatchAllWordForms = False
+        ' Asegurarse de que no haya formato de reemplazo persistente
+        .Replacement.Font.Bold = False
+        ' Si se modificaron otras propiedades de .Replacement.Font, restaurarlas también.
+    End With
+
+    ' Reactivar actualización de pantalla
+    Application.ScreenUpdating = True
+    
+    ' Mensaje de finalización
     MsgBox "Palabras clave en negrita aplicadas.", vbInformation
+
 End Sub
 
 
@@ -78,6 +209,52 @@ Sub AjustarFormatoColumnasTablaVulnes()
         MsgBox "Por favor selecciona una tabla primero.", vbExclamation
     End If
 End Sub
+
+
+
+
+
+
+
+
+
+
+
+Sub NegritaPalabrasClave()
+    Dim palabrasTexto As String
+    Dim palabrasClave As Variant
+    Dim palabra As Variant
+    Dim rango As Range
+    
+
+palabrasTexto = "Cross-Site Scripting (XSS), XSS Reflected, Reflected XSS, XSS Persistent, Stored XSS, DOM-based XSS, Inyección, Scripts maliciosos, Malicious Scripts, Ejecución de acciones en nombre del usuario, Robo de cookies de sesión, Session Hijacking, Redirección a sitios fraudulentos, Phishing, Content Security Policy (CSP), Validación, Sanitización, Manipulación de sesiones de usuario, Formulario malicioso, TLS 1.0, Protocolo débil, Algoritmos de cifrado, Interceptación, Hombre en el medio, Escucha pasiva, Malware, Explotación,TLS 1.1, downgrade, Interceptar tráfico cifrado, Atacante, Wireshark, Tshark, tcpdump, Tráfico TLS, Sweet32, Colisiones, CBC, (Cipher Block Chaining)"
+
+
+    palabrasClave = Split(palabrasTexto, ",")
+
+    Set rango = Selection.Range
+    
+    For Each palabra In palabrasClave
+        With rango.Find
+            .ClearFormatting
+            .Text = Trim(palabra)
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = True
+            .Forward = True
+            .Wrap = wdFindStop
+            .Format = True
+            .MatchCase = False
+            .MatchWholeWord = False
+            .Execute Replace:=wdReplaceAll
+        End With
+    Next palabra
+    
+    MsgBox "Palabras clave en negrita aplicadas.", vbInformation
+End Sub
+
+
+
+
 
 
 

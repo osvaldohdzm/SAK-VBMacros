@@ -1846,16 +1846,19 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(3, 1).Range.text, Chr(13) & Chr(7), ""))
         If textoCelda = "AMENAZA" Then
             FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(3, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(3, 2)
         End If
         
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(4, 1).Range.text, Chr(13) & Chr(7), ""))
         If textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
             FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(4, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(4, 2)
         End If
         
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(5, 1).Range.text, Chr(13) & Chr(7), ""))
         If textoCelda = "AMENAZA" Or textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
             FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(5, 2)
+             AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(5, 2)
         End If
         
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(7, 1).Range.text, Chr(13) & Chr(7), ""))
@@ -1869,6 +1872,7 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
             AjustarMarcadorCeldaEnTablaWord WordApp, WordDoc, 1, 8, 1
             EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
             'AplicarFormatoCeldaEnTablaWord WordDoc, 1, 8, 1, "Cuerpo de tabla"
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(8, 1)
         End If
         
         finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
@@ -1890,6 +1894,8 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     Set fs = Nothing
     
 End Sub
+
+
 
 
 Sub CYB007_GenerarReportesVulnsAppsINAI()
@@ -2825,6 +2831,49 @@ Sub FormatearParrafosGuionesCelda(cell As Object)
     Next p
 End Sub
 
+Sub AplicarNegritaPalabrasClaveEnCeldaWord(ByVal celda As Object)
+    Dim palabrasClave As Variant
+    Dim palabra As Variant
+    Dim rng As Object
+    Dim findObj As Object
+
+    palabrasClave = Array( _
+        "XSS", "Stored XSS", "DOM-based XSS", _
+        "Session Hijacking", "Phishing", "CSP", _
+        "Validación de entradas", "Sanitización", "Interceptación", _
+        "TLS 1.0", "Protocolo débil", "Man-in-the-Middle", _
+        "Malware", "Explotación", "TLS 1.1", "Downgrade Attack", _
+        "Wireshark", "tcpdump", "Gestión de vulnerabilidades", _
+        "Divulgación de información", "Fuga de información", "Hardening", _
+        "HTTP Headers", "X-Frame-Options", "HttpOnly", "SSL Stripping", _
+        "Componentes vulnerables", "OWASP DependencyCheck", "Clickjacking", _
+        "Cookies HttpOnly", "Cookies Secure", "Fingerprinting", _
+        "CVE", "Acceso no autorizado", "Credenciales", "Remediación" _
+    )
+
+    Set rng = celda.Range
+    rng.End = rng.End - 1 ' Evitar seleccionar el final de celda (marca invisible)
+
+    Set findObj = rng.Find
+
+    For Each palabra In palabrasClave
+        With findObj
+            .ClearFormatting
+            .text = palabra
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = True
+            .Forward = True
+            .Wrap = 1 ' wdFindContinue
+            .Format = True
+            .MatchCase = False
+            .MatchWholeWord = False
+            .MatchWildcards = False
+            .Execute Replace:=2 ' wdReplaceAll
+        End With
+    Next palabra
+End Sub
+
+
 
 Sub FormatearCeldaNivelRiesgo(cell As Object)
     Dim cellText As String
@@ -2879,6 +2928,9 @@ Sub FormatearCeldaNivelRiesgo(cell As Object)
         End Select
     End If
 End Sub
+
+
+
 
 
 Function TransformarTexto(text As String) As String
@@ -3942,6 +3994,95 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
         End If
     End If
 End Sub
+
+Sub CYB042_MarcarMultiplesEnCatalogoVulnerabilidad()
+
+    Dim wsOrigen As Worksheet, wsCatalogo As Worksheet
+    Dim tblOrigen As ListObject, tblCatalogo As ListObject
+    Dim rngCeldaActual As Range, rngSeleccion As Range
+    Dim idVulnerabilidad As Variant, tipoOrigen As String
+    Dim colBusqueda As String, rngBusqueda As Range, celdaEncontrada As Range
+    Dim dictColumnas As Object
+    Dim respuesta As VbMsgBoxResult
+    Dim colSourceDetection As Long, colLastEditedBy As Long, colLastUpdateDate As Long
+    Dim fechaActual As String
+    Dim fila As Range
+
+    Set wsOrigen = ActiveSheet
+    Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades")
+    
+    ' Verificar que haya una tabla en la hoja activa
+    If wsOrigen.ListObjects.Count = 0 Then
+        MsgBox "No se encontró una tabla en la hoja actual.", vbExclamation, "Error"
+        Exit Sub
+    End If
+    Set tblOrigen = wsOrigen.ListObjects(1)
+    
+    ' Configurar el diccionario para mapear los tipos de origen a las columnas
+    Set dictColumnas = CreateObject("Scripting.Dictionary")
+    dictColumnas.Add "Nessus", "NessusPluginId"
+    dictColumnas.Add "Invicti", "InvictiName"
+    dictColumnas.Add "VulnerabilityManagerPlus", "VulnerabilityManagerPlusName"
+    dictColumnas.Add "SonarQube", "SonarRuleId"
+    dictColumnas.Add "DerScanner", "DerScannerName"
+    dictColumnas.Add "Roslynator", "RoslynatorId"
+    dictColumnas.Add "OWASPZAP", "OWASPZAPScanRuleId"
+    dictColumnas.Add "Acunetix", "AcunetixName"
+    dictColumnas.Add "OpenVas", "OpenVasNVTId"
+    dictColumnas.Add "Nexpose", "NexposeName"
+    dictColumnas.Add "InsightAppSec", "InsightAppSecInsightAppSec"
+    dictColumnas.Add "Nmap", "NmapScriptName"
+    dictColumnas.Add "Fortify", "FortifyName"
+    dictColumnas.Add "Manual", "StandardVulnerabilityName"
+    
+    ' Comprobar que la celda seleccionada está dentro de la tabla
+    Set rngSeleccion = Selection
+    If Intersect(rngSeleccion, tblOrigen.DataBodyRange) Is Nothing Then
+        MsgBox "Selecciona celdas dentro de la tabla de vulnerabilidades.", vbExclamation, "Error"
+        Exit Sub
+    End If
+
+    ' Iterar sobre todas las celdas seleccionadas
+    For Each rngCeldaActual In rngSeleccion
+        If Not Intersect(rngCeldaActual, tblOrigen.DataBodyRange) Is Nothing Then
+            tipoOrigen = tblOrigen.ListColumns("Tipo de origen").DataBodyRange.Cells(rngCeldaActual.row - tblOrigen.DataBodyRange.row + 1, 1).value
+            idVulnerabilidad = tblOrigen.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange.Cells(rngCeldaActual.row - tblOrigen.DataBodyRange.row + 1, 1).value
+            
+            If tipoOrigen = "" Or IsEmpty(idVulnerabilidad) Then
+                MsgBox "Falta el Tipo de Origen o Identificador en la fila seleccionada.", vbExclamation, "Error"
+                Exit Sub
+            End If
+            
+            If Not dictColumnas.exists(tipoOrigen) Then
+                MsgBox "El tipo de origen no es válido.", vbExclamation, "Error"
+                Exit Sub
+            End If
+            
+            colBusqueda = dictColumnas(tipoOrigen)
+            
+            ' Buscar el identificador de vulnerabilidad en el catálogo
+            On Error Resume Next
+            Set tblCatalogo = wsCatalogo.ListObjects("Tbl_Catalogo_vulnerabilidades")
+            On Error GoTo 0
+            
+            If tblCatalogo Is Nothing Then
+                MsgBox "No se encontró la tabla en el catálogo.", vbExclamation, "Error"
+                Exit Sub
+            End If
+            
+            Set rngBusqueda = tblCatalogo.ListColumns(colBusqueda).DataBodyRange
+            Set celdaEncontrada = rngBusqueda.Find(What:=idVulnerabilidad, LookAt:=xlWhole)
+            
+            ' Si se encuentra la vulnerabilidad en el catálogo, marcar la celda correspondiente
+            If Not celdaEncontrada Is Nothing Then
+                celdaEncontrada.EntireRow.Cells(1).Interior.Color = RGB(255, 255, 0) ' Color amarillo
+            End If
+        End If
+    Next rngCeldaActual
+
+    MsgBox "Se han marcado las celdas correspondientes en el catálogo.", vbInformation, "Éxito"
+End Sub
+
 
 
 Sub CYB042_Estandarizar()
@@ -6427,7 +6568,7 @@ Private Sub EliminarLineasVaciasEnCeldaTablaWord(WordDoc As Object, tablenum As 
         Loop
     End With
 
-    MsgBox WordDoc.Tables(tablenum).cell(row, col).Range.text
+    '  MsgBox WordDoc.Tables(tablenum).cell(row, col).Range.text
 End Sub
 
 Sub AjustarMarcadorCeldaEnTablaWord(ByRef WordApp As Object, ByRef WordDoc As Object, _
@@ -6464,7 +6605,6 @@ Sub AjustarMarcadorCeldaEnTablaWord(ByRef WordApp As Object, ByRef WordDoc As Ob
 
         ' Seleccionar el rango (coloca el cursor allí)
         rng.SetRange Start:=lastPara.Range.End - 2, End:=lastPara.Range.End
-        MsgBox 1
 
         ' Mover el cursor hacia abajo una línea
         'WordApp.Selection.MoveDown Unit:=wdLine, Count:=1
