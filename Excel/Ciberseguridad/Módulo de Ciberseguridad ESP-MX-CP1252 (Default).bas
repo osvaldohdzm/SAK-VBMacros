@@ -609,6 +609,70 @@ Sub CYB027_QuitarEspacios()
 End Sub
 
 
+Sub CYB009_ProcesadoCompletoSalidaHerramientas()
+    Dim celda As Range
+    Dim lineas As Variant
+    Dim i As Integer
+
+    ' Iterar sobre cada celda seleccionada
+    For Each celda In Selection
+        ' Verificar si la celda tiene texto
+        If Not IsEmpty(celda.value) Then
+            ' Reemplazar diferentes saltos de línea con vbLf
+            Dim contenido As String
+            contenido = Replace(Replace(Replace(celda.value, vbCrLf, vbLf), vbCr, vbLf), vbLf & vbLf, vbLf)
+            
+                     
+            
+            
+            ' Si el contenido comienza con vbLf, quitarlo
+            If Left(contenido, 1) = vbLf Then
+                contenido = Mid(contenido, 2)
+            End If
+            
+            ' Si el contenido termina con vbLf, quitarlo
+            If Right(contenido, 1) = vbLf Then
+                contenido = Left(contenido, Len(contenido) - 1)
+            End If
+            
+            ' Dividir el contenido de la celda en un array de líneas
+            lineas = Split(contenido, vbLf)
+            
+            ' Crear un nuevo array para almacenar las líneas no vacías
+            Dim lineasSinVacias() As String
+            ReDim lineasSinVacias(0 To UBound(lineas))
+            Dim idx As Integer
+            idx = 0
+            
+            ' Iterar sobre cada línea del array
+            For i = LBound(lineas) To UBound(lineas)
+                ' Verificar si la línea está vacía y no agregarla al nuevo array
+                If Trim(lineas(i)) <> "" Then
+                    lineasSinVacias(idx) = lineas(i)
+                    idx = idx + 1
+                End If
+            Next i
+            
+            ' Redimensionar el array resultante
+            ReDim Preserve lineasSinVacias(0 To idx - 1)
+            
+            ' Unir el array de líneas de nuevo en una cadena
+            contenido = Join(lineasSinVacias, vbLf)
+
+            ' Reemplazar "Nessus" por "The scanner tool"
+            contenido = Replace(contenido, "Nessus", "The scanner tool")
+            
+            contenido = Replace(contenido, "/http", "/" & vbCrLf & "http")
+
+            ' Asignar el contenido limpio a la celda
+            celda.value = contenido
+        End If
+    Next celda
+
+    MsgBox "Proceso completado: Se han eliminado los saltos de línea innecesarios y reemplazado 'Nessus' por 'The scanner tool'.", vbInformation
+End Sub
+
+
 Sub CYB009_LimpiarSalida()
     Dim rng As Range
     Dim celda As Range
@@ -1205,9 +1269,9 @@ Sub CYB026_OrdenaSegunColorRelleno()
     End If
     
     
-    respuesta = MsgBox("Se ordenar? la tabla por la columna
-                       "Orden: Morado ? Rojo ? Amarillo ? Verde." & vbCrLf & vbCrLf & _
-                       "¿Deseas continuar?", vbYesNo + vbQuestion, "Confirmaci?n")
+respuesta = MsgBox("Se ordenará la tabla por la columna Orden: Morado ? Rojo ? Amarillo ? Verde." & vbCrLf & vbCrLf & _
+                   "¿Deseas continuar?", vbYesNo + vbQuestion, "Confirmación")
+
     
     If respuesta <> vbYes Then Exit Sub
     
@@ -2832,31 +2896,45 @@ Sub FormatearParrafosGuionesCelda(cell As Object)
 End Sub
 
 Sub AplicarNegritaPalabrasClaveEnCeldaWord(ByVal celda As Object)
-    Dim palabrasClave As Variant
+    Dim palabrasClaveParte1 As Variant
+    Dim palabrasClaveParte2 As Variant
+    Dim palabrasClaveParte3 As Variant
     Dim palabra As Variant
     Dim rng As Object
     Dim findObj As Object
 
-    palabrasClave = Array( _
+    ' Dividiendo las palabras clave en tres partes
+    palabrasClaveParte1 = Array( _
         "XSS", "Stored XSS", "DOM-based XSS", _
         "Session Hijacking", "Phishing", "CSP", _
         "Validación de entradas", "Sanitización", "Interceptación", _
-        "TLS 1.0", "Protocolo débil", "Man-in-the-Middle", _
-        "Malware", "Explotación", "TLS 1.1", "Downgrade Attack", _
-        "Wireshark", "tcpdump", "Gestión de vulnerabilidades", _
-        "Divulgación de información", "Fuga de información", "Hardening", _
-        "HTTP Headers", "X-Frame-Options", "HttpOnly", "SSL Stripping", _
-        "Componentes vulnerables", "OWASP DependencyCheck", "Clickjacking", _
+        "TLS 1.0", "Protocolo débil", "Man-in-the-Middle" _
+    )
+    
+    palabrasClaveParte2 = Array( _
+        "Malware", "Explotación", "TLS 1.1", "controles de restricción adecuados", _
+        "Downgrade Attack", "Tráfico TLS", "Sweet32", _
+        "Wireshark", "Tshark", "tcpdump", _
+        "Gestión de vulnerabilidades", "Seguridad de aplicaciones web", "Divulgación de información" _
+    )
+    
+    palabrasClaveParte3 = Array( _
+        "Fuga de información", "Hardening", "HTTP Headers", _
+        "Autodiscover", "X-Frame-Options", "HttpOnly", _
+        "SSL Stripping", "Componentes vulnerables", _
+        "OWASP DependencyCheck", "Subresource Integrity", "Clickjacking", _
         "Cookies HttpOnly", "Cookies Secure", "Fingerprinting", _
-        "CVE", "Acceso no autorizado", "Credenciales", "Remediación" _
+        "CVE", _
+        "Metodología de pentesting", "Seguridad en la nube", "Acceso no autorizado", _
+        "Credenciales", "Confidencialidad", "Remediación" _
     )
 
+    ' Crear rango de la celda para búsqueda
     Set rng = celda.Range
-    rng.End = rng.End - 1 ' Evitar seleccionar el final de celda (marca invisible)
-
     Set findObj = rng.Find
-
-    For Each palabra In palabrasClave
+    
+    ' Aplicar negrita a las palabras clave de cada parte
+    For Each palabra In palabrasClaveParte1
         With findObj
             .ClearFormatting
             .text = palabra
@@ -2866,7 +2944,39 @@ Sub AplicarNegritaPalabrasClaveEnCeldaWord(ByVal celda As Object)
             .Wrap = 1 ' wdFindContinue
             .Format = True
             .MatchCase = False
-            .MatchWholeWord = False
+            .MatchWholeWord = True
+            .MatchWildcards = False
+            .Execute Replace:=2 ' wdReplaceAll
+        End With
+    Next palabra
+    
+    For Each palabra In palabrasClaveParte2
+        With findObj
+            .ClearFormatting
+            .text = palabra
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = True
+            .Forward = True
+            .Wrap = 1 ' wdFindContinue
+            .Format = True
+            .MatchCase = False
+            .MatchWholeWord = True
+            .MatchWildcards = False
+            .Execute Replace:=2 ' wdReplaceAll
+        End With
+    Next palabra
+    
+    For Each palabra In palabrasClaveParte3
+        With findObj
+            .ClearFormatting
+            .text = palabra
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = True
+            .Forward = True
+            .Wrap = 1 ' wdFindContinue
+            .Format = True
+            .MatchCase = False
+            .MatchWholeWord = True
             .MatchWildcards = False
             .Execute Replace:=2 ' wdReplaceAll
         End With
@@ -3435,6 +3545,22 @@ Next resultNode
     MsgBox "Datos cargados con ?xito.", vbInformation
 End Sub
 
+' Helper function to get node text safely
+Private Function GetNodeTextFromNode(ByVal parentNode As Object, ByVal xPathQuery As String) As String
+    Dim selectedNode As Object
+    On Error Resume Next ' Temporarily ignore errors if node not found
+    Set selectedNode = parentNode.SelectSingleNode(xPathQuery)
+    If Err.Number <> 0 Or selectedNode Is Nothing Then
+        GetNodeTextFromNode = "N/A"
+        Err.Clear
+    Else
+        GetNodeTextFromNode = Trim(selectedNode.text)
+    End If
+    On Error GoTo 0 ' Restore default error handling
+    Set selectedNode = Nothing
+End Function
+
+
 
 Sub CYB037_CargarResultados_DatosDesdeCSVAcunetix()
     Dim wb As Workbook
@@ -3826,6 +3952,25 @@ End Sub
         On Error GoTo 0
     End Sub
 
+
+' Helper function to strip HTML tags
+Private Function StripHTML(ByVal htmlText As String) As String
+    Dim regexHTML As Object
+    Set regexHTML = CreateObject("VBScript.RegExp")
+    With regexHTML
+        .Global = True
+        .MultiLine = True
+        .IgnoreCase = True
+        .pattern = "<[^>]+>" ' Matches any HTML tag
+    End With
+    StripHTML = regexHTML.Replace(htmlText, "")
+    StripHTML = Replace(StripHTML, " ", " ") ' Replace non-breaking space
+    StripHTML = Replace(StripHTML, vbCrLf & vbCrLf, vbCrLf) ' Reduce multiple newlines
+    StripHTML = Trim(StripHTML)
+    Set regexHTML = Nothing
+End Function
+
+
 Sub CYB040_ResaltarFalsosPositivosEnVerde()
    Dim ws As Worksheet
     Dim tbl As ListObject
@@ -3887,6 +4032,316 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
     Else
         MsgBox "No hay coincidencias en la tabla.", vbExclamation
     End If
+End Sub
+
+
+' Helper function to strip HTML tags and format text
+Private Function FormatDetailsText(ByVal rawText As String) As String
+    Dim tempText As String
+    Dim regexHTML As Object
+    
+    Set regexHTML = CreateObject("VBScript.RegExp")
+    With regexHTML
+        .Global = True
+        .MultiLine = True
+        .IgnoreCase = True
+        .pattern = "<[^>]+>" ' Matches any HTML tag
+    End With
+    
+    tempText = regexHTML.Replace(rawText, "") ' Remove HTML tags first
+    Set regexHTML = Nothing
+    
+    ' Replace specific characters with themselves + newline
+    
+
+
+   Set regexColon = CreateObject("VBScript.RegExp")
+    With regexColon
+        .Global = True
+        .MultiLine = True
+        .IgnoreCase = True ' Though not strictly needed for this pattern
+        ' Pattern: Match a colon (:) NOT followed by:
+        '   - "//" (to protect http://, ftp:// etc.)
+        '   - two digits (to protect times like 16:51 or 01:51)
+        .pattern = ":(?!\/\/|\d{2})"
+    End With
+    tempText = regexColon.Replace(tempText, ":" & vbCrLf)
+    Set regexColon = Nothing
+    
+    
+    tempText = Replace(tempText, ":http", ": http" & vbCrLf)
+    tempText = Replace(tempText, ";", ";" & vbCrLf)
+    
+    tempText = Replace(tempText, "  ", " " & vbCrLf)
+    
+    ' Clean up potential extra spaces around newlines or at the start/end
+    tempText = Replace(tempText, vbCrLf & " ", vbCrLf) ' Remove space after newline
+    tempText = Replace(tempText, " " & vbCrLf, vbCrLf) ' Remove space before newline
+    tempText = Replace(tempText, vbCrLf & vbCrLf, vbCrLf) ' Consolidate multiple newlines
+    
+    ' Replace common HTML entities that might remain
+    tempText = Replace(tempText, " ", " ")
+    tempText = Replace(tempText, "<", "<")
+    tempText = Replace(tempText, ">", ">")
+    tempText = Replace(tempText, "&", "&")
+    tempText = Replace(tempText, "'", "'")
+
+    FormatDetailsText = Trim(tempText)
+End Function
+
+
+Sub CYB036_CargarResultados_DatosDesdeXMLAcunetix_v5()
+    Dim wb As Workbook, ws As Worksheet, tbl As ListObject
+    Dim archivo As String
+    Dim xmlDoc As Object, reportItemNodes As Object, reportItemNode As Object
+    Dim respuesta As Integer, mensaje As String
+    Dim fila As ListRow
+    Dim dict As Object, header As Range
+    Dim requiredFields As Variant, field As Variant
+    
+    Dim regexLi As Object, liMatches As Object, liMatch As Object
+    Dim regexUrl As Object, urlMatch As Object
+    
+    Dim detailsNode As Object
+    Dim detailsRawText As String ' Raw text from XML node
+    Dim detailsFormattedText As String ' Text after stripping HTML and formatting
+    Dim firstUrlFound As String
+    Dim cweStr As String
+    Dim cweNodes As Object, cweNode As Object
+    Dim firstItem As Boolean
+
+    Set wb = ThisWorkbook
+    Set ws = wb.ActiveSheet
+
+    ' --- Check if active cell is within a table ---
+    Dim celdaEnTabla As Boolean, t As ListObject
+    celdaEnTabla = False
+    If ws.ListObjects.Count = 0 Then
+        MsgBox "No hay tablas en la hoja activa.", vbExclamation
+        Exit Sub
+    End If
+    For Each t In ws.ListObjects
+        If Not t.DataBodyRange Is Nothing Then
+            If Not Intersect(ActiveCell, t.Range) Is Nothing Then
+                Set tbl = t
+                celdaEnTabla = True
+                Exit For
+            End If
+        Else
+            If Not Intersect(ActiveCell, t.HeaderRowRange) Is Nothing Then
+                Set tbl = t
+                celdaEnTabla = True
+                Exit For
+            End If
+        End If
+    Next t
+
+    If Not celdaEnTabla Then
+        MsgBox "La celda seleccionada no está dentro de una tabla o la tabla está vacía." & vbCrLf & _
+               "Por favor, seleccione una celda dentro de la tabla de destino.", vbExclamation
+        Exit Sub
+    End If
+
+    ' --- Confirmation ---
+    mensaje = "¿Está seguro que desea cargar datos del archivo XML de Acunetix en la tabla '" & tbl.Name & "'?"
+    respuesta = MsgBox(mensaje, vbYesNo + vbQuestion, "Confirmación")
+    If respuesta = vbNo Then Exit Sub
+
+    ' --- Get XML File ---
+    archivo = Application.GetOpenFilename("Archivos XML (*.xml), *.xml", , "Seleccionar archivo XML de Acunetix")
+    If archivo = "False" Then Exit Sub
+    If LCase(Trim(Right(archivo, 4))) <> ".xml" Then
+        MsgBox "El archivo seleccionado no es un archivo XML.", vbExclamation
+        Exit Sub
+    End If
+
+    ' --- Load XML Document ---
+    Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
+    xmlDoc.async = False
+    xmlDoc.SetProperty "SelectionLanguage", "XPath"
+    xmlDoc.Load archivo
+    If xmlDoc.parseError.ErrorCode <> 0 Then
+        MsgBox "Error al cargar el archivo XML: " & xmlDoc.parseError.Reason, vbExclamation
+        Exit Sub
+    End If
+
+    ' --- Get ReportItem Nodes ---
+    Set reportItemNodes = xmlDoc.SelectNodes("/ScanGroup/Scan/ReportItems/ReportItem")
+    If reportItemNodes Is Nothing Or reportItemNodes.Length = 0 Then
+        MsgBox "No se encontraron registros de vulnerabilidades (ReportItem) en el XML. XPath: /ScanGroup/Scan/ReportItems/ReportItem", vbExclamation
+        Exit Sub
+    End If
+
+    ' --- Create Dictionary of Column Headers ---
+    Set dict = CreateObject("Scripting.Dictionary")
+    On Error Resume Next
+    For Each header In tbl.HeaderRowRange.Cells
+        If Trim(header.value) <> "" Then
+            dict(Trim(header.value)) = header.Column - tbl.Range.Cells(1, 1).Column + 1
+        End If
+    Next header
+    On Error GoTo 0
+    If dict.Count = 0 Then
+        MsgBox "La tabla seleccionada no tiene cabeceras válidas.", vbExclamation
+        Exit Sub
+    End If
+
+    ' --- Check for Required Fields in the Table ---
+    requiredFields = Array("Explicación técnica", "Nombre original de la vulnerabilidad", "Identificador de detección usado", "Tipo de origen", "Identificador original de la vulnerabilidad", "CWE", "Salidas de herramienta")
+    For Each field In requiredFields
+        If Not dict.exists(field) Then
+            MsgBox "La columna '" & field & "' no se encuentra en la tabla '" & tbl.Name & "'. Asegúrese de que todas las columnas requeridas existan.", vbCritical
+            Exit Sub
+        End If
+    Next field
+
+    ' --- Initialize Regex for <li> tags ---
+    Set regexLi = CreateObject("VBScript.RegExp")
+    With regexLi
+        .Global = True
+        .MultiLine = True
+        .IgnoreCase = True
+        .pattern = "<li>(.*?)</li>"
+    End With
+    
+    ' --- Initialize Regex for URLs ---
+    Set regexUrl = CreateObject("VBScript.RegExp")
+    With regexUrl
+        .Global = False
+        .IgnoreCase = True
+        .pattern = "(https?://[^\s<>"";]+)" ' Added semicolon to excluded chars for URL
+    End With
+
+
+    Application.ScreenUpdating = False
+
+    ' --- Process Each ReportItem Node ---
+    For Each reportItemNode In reportItemNodes
+        Set fila = tbl.ListRows.Add
+        
+        ' Explicación técnica -> <Description>
+        fila.Range.Cells(1, dict("Explicación técnica")).value = GetNodeTextFromNode(reportItemNode, "Description")
+
+        ' Nombre original de la vulnerabilidad -> <ModuleName>
+        fila.Range.Cells(1, dict("Nombre original de la vulnerabilidad")).value = GetNodeTextFromNode(reportItemNode, "ModuleName")
+
+        ' Salidas de herramienta -> Formatted plain text from <Details>
+        detailsFormattedText = "N/A"
+        Set detailsNode = Nothing
+        On Error Resume Next
+        Set detailsNode = reportItemNode.SelectSingleNode("Details")
+        On Error GoTo 0
+        If Not detailsNode Is Nothing Then
+            detailsRawText = Trim(detailsNode.text) ' Get raw text from CDATA
+            If Len(detailsRawText) = 0 And Len(Trim(detailsNode.XML)) > 0 Then ' Fallback to full XML if .text is empty
+                detailsRawText = Trim(detailsNode.XML)
+            End If
+            
+            If Len(detailsRawText) > 0 Then
+                detailsFormattedText = FormatDetailsText(detailsRawText)
+            End If
+        End If
+        If Len(detailsFormattedText) = 0 Or detailsFormattedText = "N/A" Then
+             detailsFormattedText = "N/A (no <Details> content)"
+        End If
+        fila.Range.Cells(1, dict("Salidas de herramienta")).value = detailsFormattedText
+
+
+        ' Identificador de detección usado -> First URL from <li> within <Details>
+        firstUrlFound = "N/A"
+        Set detailsNode = Nothing
+        On Error Resume Next
+        Set detailsNode = reportItemNode.SelectSingleNode("Details")
+        On Error GoTo 0
+
+        If Not detailsNode Is Nothing Then
+            detailsRawText = Trim(detailsNode.text)
+            If Len(detailsRawText) > 0 Then
+                Set liMatches = regexLi.Execute(detailsRawText) ' Execute on raw text to find <li>
+                If liMatches.Count > 0 Then
+                    For Each liMatch In liMatches
+                        Dim liContent As String
+                        liContent = Trim(liMatch.SubMatches(0)) ' Content of <li>
+                        
+                        Set urlMatch = regexUrl.Execute(liContent) ' Find URL within this <li>
+                        If urlMatch.Count > 0 Then
+                            firstUrlFound = Trim(urlMatch(0).value)
+                            Exit For
+                        End If
+                    Next liMatch
+                End If
+            End If
+        End If
+        fila.Range.Cells(1, dict("Identificador de detección usado")).value = firstUrlFound
+
+
+        ' Tipo de origen -> "Acunetix"
+        fila.Range.Cells(1, dict("Tipo de origen")).value = "Acunetix"
+
+        ' Identificador original de la vulnerabilidad -> <Name>
+        fila.Range.Cells(1, dict("Identificador original de la vulnerabilidad")).value = GetNodeTextFromNode(reportItemNode, "Name")
+
+        ' CWE -> <CWEList/CWE>
+        cweStr = ""
+        Set cweNodes = Nothing
+        On Error Resume Next
+        Set cweNodes = reportItemNode.SelectNodes("CWEList/CWE")
+        On Error GoTo 0
+
+        If Not cweNodes Is Nothing Then
+            If cweNodes.Length > 0 Then
+                firstItem = True
+                For Each cweNode In cweNodes
+                    Dim cweIdAttr As Object, cweVal As String
+                    cweVal = ""
+                    Set cweIdAttr = Nothing
+                    On Error Resume Next
+                    Set cweIdAttr = cweNode.Attributes.getNamedItem("id")
+                    On Error GoTo 0
+
+                    If Not cweIdAttr Is Nothing And Len(Trim(cweIdAttr.text)) > 0 Then
+                        cweVal = "CWE-" & Trim(cweIdAttr.text)
+                    ElseIf Len(Trim(cweNode.text)) > 0 Then
+                        cweVal = Trim(cweNode.text)
+                        If Not (UCase(Left(cweVal, 4)) = "CWE-") And IsNumeric(Replace(cweVal, "CWE-", "")) Then
+                            If IsNumeric(cweVal) Then cweVal = "CWE-" & cweVal
+                        End If
+                    End If
+
+                    If Len(cweVal) > 0 Then
+                        If Not firstItem Then
+                            cweStr = cweStr & "; "
+                        End If
+                        cweStr = cweStr & cweVal
+                        firstItem = False
+                    End If
+                Next cweNode
+            End If
+        End If
+        If Len(cweStr) = 0 Then cweStr = "N/A"
+        fila.Range.Cells(1, dict("CWE")).value = cweStr
+
+        ' Clear objects for next iteration
+        Set detailsNode = Nothing
+        Set cweNodes = Nothing
+        Set cweNode = Nothing
+        Set liMatches = Nothing
+        Set urlMatch = Nothing
+    Next reportItemNode
+
+    Application.ScreenUpdating = True
+    MsgBox "Datos cargados con éxito desde el archivo Acunetix (v5).", vbInformation
+
+    ' Clean up
+    Set xmlDoc = Nothing
+    Set reportItemNodes = Nothing
+    Set reportItemNode = Nothing
+    Set dict = Nothing
+    Set tbl = Nothing
+    Set ws = Nothing
+    Set wb = Nothing
+    Set regexLi = Nothing
+    Set regexUrl = Nothing
 End Sub
 
 Sub CYB041_IrACatalogoVulnerabilidad()
@@ -5257,6 +5712,53 @@ Sub CYB082_PreparePromptFromSelection_PropuestaRemediacionVuln_FromCode()
     End If
 End Sub
 
+Sub CYB082_PreparePromptFromSelection_MetodoDeteccion()
+    Dim celda As Range
+    Dim listaVulnerabilidades As String
+    Dim prompt As String
+    
+    
+    listaVulnerabilidades = ""
+    
+    
+    For Each celda In Selection
+        If Not IsEmpty(celda.value) Then
+            If listaVulnerabilidades <> "" Then
+                listaVulnerabilidades = listaVulnerabilidades & "," & vbCrLf
+            End If
+            listaVulnerabilidades = listaVulnerabilidades & celda.value
+        End If
+    Next celda
+    
+    
+If listaVulnerabilidades <> "" Then
+    prompt = "Redacta un párrafo técnico breve que describa cómo se identificó una vulnerabilidad a partir de la salida de una herramienta de análisis de seguridad."
+    prompt = prompt & " El párrafo debe seguir esta estructura:"
+    prompt = prompt & " 1. Comienza indicando que se detectó la vulnerabilidad."
+    prompt = prompt & " 2. Menciona la herramienta empleada y la técnica o enfoque utilizado (por ejemplo: escaneo de red, análisis de cabeceras, envío de solicitudes HTTP, validación de configuraciones, etc.)."
+    prompt = prompt & " 3. Resume de manera concisa qué analiza la herramienta o qué tipo de fallo identifica, mencionando el servicio, tecnología o componente afectado."
+    prompt = prompt & " 4. Opcionalmente, incluye entre paréntesis el nombre del script o módulo específico usado."
+    prompt = prompt & " Usa un lenguaje técnico adecuado y profesional."
+    prompt = prompt & " Ejemplos:"
+    prompt = prompt & " - Detectamos esta vulnerabilidad mediante una herramienta que envía solicitudes HTTP del tipo GET (shcheck.py) y examina la presencia o ausencia de cabeceras que usa el navegador web para asegurar algunas interacciones con el usuario final."
+    prompt = prompt & " - Usamos un escáner de red (Nessus) para detectar fallos en Apache que permiten la explotación de vulnerabilidades conocidas que podrían comprometer la disponibilidad y seguridad de los servicios web."
+    prompt = prompt & " - La vulnerabilidad fue identificada utilizando una herramienta de escaneo automatizado (Acunetix), que evalúa configuraciones inseguras y comportamientos anómalos en aplicaciones web."
+    prompt = prompt & " Herramientas típicas a considerar: Acunetix, shcheck.py, sshcrik, Nessus, OpenVAS, Nexpose, sqlmap, entre otras."
+    prompt = prompt & " Genera el párrafo basándote en la siguiente salida de herramienta:"
+    prompt = prompt & vbCrLf & Chr(10) & listaVulnerabilidades & vbCrLf & Chr(10)
+       
+        
+        CopiarAlPortapapeles prompt
+        
+        
+        MsgBox "El prompt ha sido copiado al portapapeles.", vbInformation, "Prompt Generado"
+    Else
+        MsgBox "No se encontraron valores en la selecci?n.", vbExclamation, "Sin Datos"
+    End If
+End Sub
+
+
+
 
 Sub CYB083_Verificar_VectorCVSS4_0()
     Dim celda As Range
@@ -6601,7 +7103,6 @@ Sub AjustarMarcadorCeldaEnTablaWord(ByRef WordApp As Object, ByRef WordDoc As Ob
      
         ' Mover el cursor al inicio del primer párrafo
         rng.SetRange Start:=firstPara.Range.Start, End:=firstPara.Range.Start
-        MsgBox 1
 
         ' Seleccionar el rango (coloca el cursor allí)
         rng.SetRange Start:=lastPara.Range.End - 2, End:=lastPara.Range.End
@@ -6610,7 +7111,6 @@ Sub AjustarMarcadorCeldaEnTablaWord(ByRef WordApp As Object, ByRef WordDoc As Ob
         'WordApp.Selection.MoveDown Unit:=wdLine, Count:=1
         'MsgBox 1
         WordApp.Selection.TypeBackspace
-        MsgBox 1
     End If
 End Sub
 
