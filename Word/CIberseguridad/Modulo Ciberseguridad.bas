@@ -1,3 +1,4 @@
+<<<<<<< ours
 Attribute VB_Name = "Ciber"
 Option Explicit
 
@@ -152,6 +153,12 @@ End Sub
 Sub FormatearTablaVulnerabilidadesAvanzado()
 
     Dim tbl As table
+=======
+Attribute VB_Name = "NewMacros"
+Sub FormatearTablaVulnerabilidadesAvanzado()
+
+    Dim tbl As Table
+>>>>>>> theirs
     Dim i As Long ' Índice para filas
     Dim j As Long ' Índice para columnas (al escanear encabezado)
     
@@ -203,8 +210,13 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     Set tbl = Selection.Tables(1)
     
     ' --- 1. Encontrar Índices de Columnas desde el Encabezado ---
+<<<<<<< ours
     If tbl.Rows.count >= 1 Then
         For j = 1 To tbl.Rows(1).Cells.count
+=======
+    If tbl.Rows.Count >= 1 Then
+        For j = 1 To tbl.Rows(1).Cells.Count
+>>>>>>> theirs
             Dim rawHeaderText As String
             rawHeaderText = tbl.Rows(1).Cells(j).Range.Text
             
@@ -227,13 +239,21 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     End If
 
     ' --- 2. Formato del Encabezado ---
+<<<<<<< ours
     If tbl.Rows.count >= 1 Then
+=======
+    If tbl.Rows.Count >= 1 Then
+>>>>>>> theirs
         With tbl.Rows(1)
             .Shading.BackgroundPatternColor = HEADER_BLUE
             .Range.Font.ColorIndex = wdWhite
             .Range.Font.Bold = True
             .Cells.VerticalAlignment = wdCellAlignVerticalCenter ' Centrado Vertical
+<<<<<<< ours
             Dim cl As cell
+=======
+            Dim cl As Cell
+>>>>>>> theirs
             For Each cl In .Cells
                 cl.Range.ParagraphFormat.Alignment = wdAlignParagraphCenter ' Centrado Horizontal
             Next cl
@@ -246,8 +266,13 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     End If
 
     ' --- 4. Formato de Filas de Datos (Zebra, Severidad y Estado) ---
+<<<<<<< ours
     If tbl.Rows.count >= 2 Then
         For i = 2 To tbl.Rows.count
+=======
+    If tbl.Rows.Count >= 2 Then
+        For i = 2 To tbl.Rows.Count
+>>>>>>> theirs
             
             ' Aplicar formato Zebra a toda la fila primero
             If (i Mod 2) = 0 Then
@@ -262,9 +287,15 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
 
             ' Formato condicional para la celda de "Severidad"
             If severityColIndex > 0 Then
+<<<<<<< ours
                 If tbl.Rows(i).Cells.count >= severityColIndex Then
                     With tbl.cell(i, severityColIndex)
                         If .Range.Characters.count > 0 Then
+=======
+                If tbl.Rows(i).Cells.Count >= severityColIndex Then
+                    With tbl.Cell(i, severityColIndex)
+                        If .Range.Characters.Count > 0 Then
+>>>>>>> theirs
                              Dim tempSeverityText As String
                              tempSeverityText = .Range.Text
                              tempSeverityText = Replace(tempSeverityText, Chr(7), "")
@@ -305,9 +336,15 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
             
             ' Formato condicional para la celda de "Estado"
             If estadoColIndex > 0 Then
+<<<<<<< ours
                 If tbl.Rows(i).Cells.count >= estadoColIndex Then
                     With tbl.cell(i, estadoColIndex)
                         If .Range.Characters.count > 0 Then
+=======
+                If tbl.Rows(i).Cells.Count >= estadoColIndex Then
+                    With tbl.Cell(i, estadoColIndex)
+                        If .Range.Characters.Count > 0 Then
+>>>>>>> theirs
                              Dim tempEstadoText As String
                              tempEstadoText = .Range.Text
                              tempEstadoText = Replace(tempEstadoText, Chr(7), "")
@@ -344,6 +381,7 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     End If
     
     ' --- 5. Aplicar Bordes ---
+<<<<<<< ours
     
 ' --- 5. Aplicar Bordes ---
 
@@ -416,6 +454,17 @@ End With
 
     Selection.Collapse Direction:=wdCollapseEnd
 
+=======
+    With tbl.Borders
+        .Enable = True
+        .InsideLineStyle = wdLineStyleSingle
+        .OutsideLineStyle = wdLineStyleSingle
+        .InsideColor = wdColorAutomatic
+        .OutsideColor = wdColorAutomatic
+    End With
+
+    Selection.Collapse Direction:=wdCollapseEnd
+>>>>>>> theirs
     
     Dim feedbackMsg As String
     feedbackMsg = "Formato de tabla de vulnerabilidades aplicado."
@@ -432,8 +481,12 @@ End With
     MsgBox feedbackMsg, vbInformation, "Macro Finalizada"
 
 End Sub
+<<<<<<< ours
 
 Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
+=======
+Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido()
+>>>>>>> theirs
 
     Dim palabrasClaveParte1 As Variant
     Dim palabrasClaveParte2 As Variant
@@ -475,6 +528,7 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     
     Dim palabrasClaveReporteSMB As Variant
 
+<<<<<<< ours
     palabrasClaveReporteSMB = Array( _
         "firma SMB", "validación criptográfica", "interceptado", "alterado", _
         "vulnerabilidad", "MITM", "ataque Man-in-the-Middle", "manipular", _
@@ -483,6 +537,15 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
         "versiones obsoletas de SMB", "SMBv1", "SMBv2", "SMBv3" _
     )
 
+=======
+palabrasClaveReporteSMB = Array( _
+    "firma SMB", "validación criptográfica", "interceptado", "alterado", _
+    "vulnerabilidad", "MITM", "ataque Man-in-the-Middle", "manipular", _
+    "red interna", "remediar", "habilitada", "autenticidad", "integridad", _
+    "políticas de grupo", "GPO", "actualizar sistemas operativos", "parches de seguridad", _
+    "versiones obsoletas de SMB", "SMBv1", "SMBv2", "SMBv3" _
+)
+>>>>>>> theirs
     ' Crear ArrayList para juntar todas las palabras
     Set todasLasPalabrasClaveList = CreateObject("System.Collections.ArrayList")
 
@@ -496,6 +559,7 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     For Each palabra In palabrasClaveParte3
         If Len(Trim(palabra)) > 0 Then todasLasPalabrasClaveList.Add Trim(palabra)
     Next
+<<<<<<< ours
     For Each palabra In palabrasClaveReporteSMB
         If Len(Trim(palabra)) > 0 Then todasLasPalabrasClaveList.Add Trim(palabra)
     Next
@@ -504,6 +568,18 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     Do
         swapped = False
         For i = 0 To todasLasPalabrasClaveList.count - 2
+=======
+    
+    
+      For Each palabra In palabrasClaveReporteSMB
+        If Len(Trim(palabra)) > 0 Then todasLasPalabrasClaveList.Add Trim(palabra)
+    Next
+
+    ' Ordenar por longitud descendente para evitar conflictos en palabras que son substrings de otras
+    Do
+        swapped = False
+        For i = 0 To todasLasPalabrasClaveList.Count - 2
+>>>>>>> theirs
             If Len(todasLasPalabrasClaveList(i)) < Len(todasLasPalabrasClaveList(i + 1)) Then
                 temp = todasLasPalabrasClaveList(i)
                 todasLasPalabrasClaveList(i) = todasLasPalabrasClaveList(i + 1)
@@ -515,7 +591,11 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
 
     palabrasClaveOrdenadas = todasLasPalabrasClaveList.ToArray()
 
+<<<<<<< ours
     ' Definir el rango a procesar
+=======
+    ' Definir el rango a procesar (selección)
+>>>>>>> theirs
     If Selection.Type = wdSelectionIP Or Selection.Type = wdNoSelection Then
         MsgBox "Por favor, seleccione el texto donde desea aplicar la negrita.", vbExclamation
         Exit Sub
@@ -524,13 +604,18 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
 
     Application.ScreenUpdating = False
 
+<<<<<<< ours
     ' Primero negrita para palabras clave
+=======
+    ' Buscar y aplicar negrita para cada palabra clave
+>>>>>>> theirs
     For Each palabra In palabrasClaveOrdenadas
         Set findObj = rangoAProcesar.Duplicate.Find
         With findObj
             .ClearFormatting
             .Text = palabra
             .Replacement.ClearFormatting
+<<<<<<< ours
             .Replacement.Text = "^&"
             .Replacement.Font.Bold = True
             .Forward = True
@@ -538,11 +623,21 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
             .Format = True
             .MatchCase = False
             .MatchWholeWord = False
+=======
+            .Replacement.Text = "^&" ' Mantener el texto encontrado
+            .Replacement.Font.Bold = True
+            .Forward = True
+            .Wrap = wdFindStop ' Importante usar wdFindStop en rangos
+            .Format = True
+            .MatchCase = False
+            .MatchWholeWord = False ' Cambiar a True si quieres solo palabras completas
+>>>>>>> theirs
             .MatchWildcards = False
             .Execute Replace:=wdReplaceAll
         End With
     Next palabra
 
+<<<<<<< ours
     ' Luego negrita para **CVE completas** usando comodines
     Set findObj = rangoAProcesar.Duplicate.Find
     With findObj
@@ -561,10 +656,16 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     Application.ScreenUpdating = True
 
     MsgBox "Palabras clave y CVE completas en negrita aplicadas.", vbInformation
+=======
+    Application.ScreenUpdating = True
+
+    MsgBox "Palabras clave en negrita aplicadas.", vbInformation
+>>>>>>> theirs
 
 End Sub
 
 
+<<<<<<< ours
 
 
 Sub AjustarFormatoColumnasTablaVulnes()
@@ -731,11 +832,67 @@ Sub AjustarFormatoColumnasTablaVulnes()
     Else
         ' Mensaje de error si no se selecciona una tabla
         MsgBox "Por favor, coloca el cursor dentro de la tabla que deseas formatear.", vbExclamation, "Tabla no seleccionada"
+=======
+Sub AjustarFormatoColumnasTablaVulnes()
+    Dim tbl As Table
+    Dim colWidths(1 To 4) As Double
+
+    ' Definir anchos en cm
+    colWidths(1) = 2
+    colWidths(2) = 7
+    colWidths(3) = 5
+    colWidths(4) = 4
+
+    ' Verifica que haya una tabla seleccionada
+    If Selection.Information(wdWithInTable) Then
+        Set tbl = Selection.Tables(1)
+
+        ' Desactivar ajuste automático de columnas
+        tbl.AllowAutoFit = False
+
+        ' Centrar la tabla en la página
+        tbl.Rows.Alignment = wdAlignRowCenter
+
+        ' Ajustar fuente de encabezado
+        tbl.Rows(1).Range.Font.Size = 11
+
+        ' Ajustar fuente del resto de filas
+        Dim r As Integer
+        For r = 2 To tbl.Rows.Count
+            tbl.Rows(r).Range.Font.Size = 10
+        Next r
+
+        ' Ajustar anchos de columnas (fijos)
+        Dim i As Integer
+        For i = 1 To 4
+            If i <= tbl.Columns.Count Then
+                With tbl.Columns(i)
+                    .PreferredWidthType = wdPreferredWidthPoints
+                    .PreferredWidth = CentimetersToPoints(colWidths(i))
+                    .Width = CentimetersToPoints(colWidths(i))
+                End With
+            End If
+        Next i
+
+    Else
+        MsgBox "Por favor selecciona una tabla primero.", vbExclamation
+>>>>>>> theirs
     End If
 End Sub
 
 
 
+<<<<<<< ours
+=======
+
+
+
+
+
+
+
+
+>>>>>>> theirs
 Sub NegritaPalabrasClave()
     Dim palabrasTexto As String
     Dim palabrasClave As Variant
@@ -770,6 +927,7 @@ End Sub
 
 
 
+<<<<<<< ours
 Sub InsertarBloqueCodigoFormateado()
     If Selection.Type = wdSelectionIP Then
         MsgBox "Por favor, seleccione el código que desea convertir en bloque de código.", vbInformation
@@ -1036,6 +1194,8 @@ Private Sub FormatWithWildcards(ByVal rng As Range, ByVal pattern As String, ByV
         Loop
     End With
 End Sub
+=======
+>>>>>>> theirs
 
 
 
@@ -1143,6 +1303,358 @@ NextWord:
 
 End Sub
 
+<<<<<<< ours
+=======
+Sub FormatearComoCodigoXML()
+    ' Declaración de variables
+    Dim selText As String
+    Dim oTable As Table
+    Dim oCell As Cell
+    Dim oDoc As Document
+    Dim itemRange As Range ' Rango para aplicar formato (reusado)
+    Dim arrKeywords As Variant
+    Dim arrSymbols As Variant
+    Dim i As Long
+    Dim strItem As String
+    Dim originalRange As Range
+
+    ' --- Obtener documento actual y selección ---
+    Set oDoc = ActiveDocument
+    
+    ' Verificar si el documento está protegido
+    If oDoc.ReadOnlyRecommended Or oDoc.ProtectionType <> wdNoProtection Then
+        MsgBox "El documento está protegido o es de solo lectura y no se puede modificar.", vbExclamation, "Documento Protegido"
+        Exit Sub
+    End If
+    
+    ' Verificar si hay texto seleccionado
+    If Selection.Type = wdSelectionIP Or Len(Selection.Text) <= 1 Then
+        MsgBox "Por favor, seleccione el texto XML que desea formatear.", vbInformation, "Selección Vacía"
+        Exit Sub
+    End If
+
+    ' Guardar el texto seleccionado y el rango original
+    selText = Selection.Text
+    Set originalRange = Selection.Range
+
+    ' --- Definir palabras clave XML (etiquetas, atributos, valores comunes) ---
+    ' Esta lista puede ser extendida según sea necesario.
+    ' Ejemplo de palabras clave (incluyendo las de tu ejemplo):
+    arrKeywords = Array("domain-config", "cleartextTrafficPermitted", "domain", "includeSubdomains", _
+                        "xml", "version", "encoding", "xs:schema", "xmlns:xs", "xs:element", "xs:complexType", _
+                        "xs:sequence", "xs:attribute", "name", "type", "minOccurs", "maxOccurs", "use", "required", "optional", _
+                        "configuration", "appSettings", "connectionStrings", "system.web", "compilation", "authentication", _
+                        "authorization", "add", "remove", "key", "value", "mode", "debug", "targetFramework", "httpRuntime", _
+                        "true", "false", "item", "property", "class", "method", "parameter")
+
+    ' --- Definir símbolos XML (elementos estructurales) ---
+    ' El orden es importante: los símbolos más largos primero para evitar coincidencias parciales (ej: "</" antes que "<").
+    arrSymbols = Array("</", "/>", "<", ">", "=", """") ' Incluye comillas dobles
+
+    ' --- Crear la tabla y reemplazar la selección actual ---
+    ' Al pasar originalRange (que es Selection.Range), la selección se reemplaza por la tabla.
+    ' CORRECCIÓN AQUÍ: NumCols -> NumColumns
+    Set oTable = oDoc.Tables.Add(Range:=originalRange, NumRows:=1, NumColumns:=1)
+    Set oCell = oTable.Cell(1, 1)
+
+    ' --- Insertar el texto original en la celda y establecer fuente base ---
+    oCell.Range.Text = selText
+    oCell.Range.Font.Name = "Consolas" ' Fuente monoespaciada recomendada para código
+    oCell.Range.Font.Size = 10         ' Tamaño de fuente común para código
+
+    ' --- Aplicar fondo gris a la celda ---
+    oCell.Shading.BackgroundPatternColor = RGB(240, 240, 240) ' Gris claro (ej: #F0F0F0)
+
+    ' --- PASO 1: Resaltar valores de atributos (texto entre comillas dobles) ---
+    Set itemRange = oCell.Range ' Trabajar dentro del rango de la celda
+    With itemRange.Find
+        .ClearFormatting
+        .Text = """*""" ' Encuentra texto encerrado entre comillas dobles (ej: "valor")
+        .MatchWildcards = True ' Habilitar comodines para el asterisco
+        .Replacement.ClearFormatting
+        .Replacement.Font.color = RGB(0, 128, 0)  ' Verde oscuro para los valores de strings
+        .Replacement.Font.Name = "Consolas"       ' Mantener la fuente monoespaciada
+        .Replacement.Font.Size = 10               ' Mantener el tamaño de fuente
+        .Wrap = wdFindStop                        ' No buscar fuera del rango de la celda
+        .Execute Replace:=wdReplaceAll            ' Reemplazar todas las ocurrencias
+    End With
+
+    ' --- PASO 2: Formatear palabras clave XML ---
+    Set itemRange = oCell.Range ' Resetear el rango a la celda completa para la búsqueda
+    For i = LBound(arrKeywords) To UBound(arrKeywords)
+        strItem = arrKeywords(i)
+        With itemRange.Find
+            .ClearFormatting
+            .Text = strItem
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = True
+            .Replacement.Font.color = RGB(0, 0, 255)   ' Azul para palabras clave
+            .Replacement.Font.Name = "Consolas"        ' Mantener fuente
+            .Replacement.Font.Size = 10                ' Mantener tamaño
+            .MatchCase = True        ' XML es sensible a mayúsculas/minúsculas para etiquetas y atributos
+            .MatchWholeWord = True   ' Solo palabras completas
+            .MatchWildcards = False
+            .Wrap = wdFindStop
+            .Execute Replace:=wdReplaceAll
+        End With
+    Next i
+
+    ' --- PASO 3: Formatear símbolos XML ---
+    ' Esto se hace después para que los símbolos (como las comillas) tengan su propio color,
+    ' incluso si eran parte del resaltado de "valores de atributos".
+    Set itemRange = oCell.Range ' Resetear el rango a la celda completa para la búsqueda
+    For i = LBound(arrSymbols) To UBound(arrSymbols)
+        strItem = arrSymbols(i)
+        With itemRange.Find
+            .ClearFormatting
+            .Text = strItem
+            .Replacement.ClearFormatting
+            .Replacement.Font.Bold = False ' Los símbolos generalmente no van en negrita
+            .Replacement.Font.color = RGB(165, 42, 42)    ' Rojo oscuro/marrón (similar a "Brown" en HTML) para símbolos
+            .Replacement.Font.Name = "Consolas"         ' Mantener fuente
+            .Replacement.Font.Size = 10                 ' Mantener tamaño
+            .MatchCase = True         ' Los símbolos son sensibles a mayúsculas/minúsculas
+            .MatchWholeWord = False   ' Los símbolos pueden estar pegados a otros caracteres (ej: <tag>)
+            .MatchWildcards = False
+            .Wrap = wdFindStop
+            .Execute Replace:=wdReplaceAll
+        End With
+    Next i
+
+    ' --- Mover el cursor después de la tabla ---
+    Dim endRange As Range
+    Set endRange = oDoc.Range(Start:=oTable.Range.End, End:=oTable.Range.End)
+
+    ' Verificar si la tabla es el último elemento en el cuerpo del documento
+    If oTable.Range.End >= oDoc.Content.End - 1 Then ' -1 para la marca de párrafo final del documento
+        ' Si es así, añadir un nuevo párrafo después de la tabla para que el cursor se ubique allí
+        oDoc.Content.InsertParagraphAfter
+        ' Mover el punto de inserción al nuevo párrafo (final del documento)
+        Set endRange = oDoc.Range(Start:=oDoc.Content.End - 1, End:=oDoc.Content.End - 1)
+    End If
+    
+    endRange.Collapse wdCollapseStart ' Colapsar al inicio del rango (justo después de la tabla o en el nuevo párrafo)
+    endRange.Select                  ' Seleccionar para mover el cursor del usuario
+
+    ' --- Limpiar objetos VBA ---
+    Set itemRange = Nothing
+    Set oCell = Nothing
+    Set oTable = Nothing
+    Set originalRange = Nothing
+    Set endRange = Nothing
+    ' Set oDoc = Nothing ' No es estrictamente necesario para ActiveDocument
+
+    ' Mensaje de finalización opcional (descomentar si se desea)
+    ' MsgBox "Texto XML formateado como código en una tabla.", vbInformation, "Proceso Completado"
+End Sub
+
+
+Sub FormatearComoCodigoHTML()
+    Dim selText As String
+    Dim oTable As Table
+    Dim oCell As Cell
+    Dim oDoc As Document
+    Dim rCelda As Range
+    Dim etiquetasHTML As Variant
+    Dim atributosHTML As Variant
+    Dim simbolosHTML As Variant
+    Dim itemHTML As Variant
+    Dim originalRange As Range
+
+    ' Obtener documento actual
+    Set oDoc = ActiveDocument
+
+    ' Verificar protección
+    If oDoc.ReadOnlyRecommended Or oDoc.ProtectionType <> wdNoProtection Then
+        MsgBox "El documento está protegido o es de solo lectura.", vbExclamation, "Error"
+        Exit Sub
+    End If
+
+    ' Verificar texto seleccionado
+    If Selection.Type = wdSelectionIP Or Len(Selection.Text) <= 1 Then
+        MsgBox "Selecciona el texto HTML que deseas formatear.", vbInformation, "Selección vacía"
+        Exit Sub
+    End If
+
+    ' Guardar texto seleccionado y rango original
+    selText = Selection.Text
+    Set originalRange = Selection.Range
+
+    ' Listas de palabras clave y símbolos
+    etiquetasHTML = Array("html", "head", "title", "meta", "link", "style", "script", "body", "div", "p", "span", "a", "img", "ul", "ol", "li", "table", "tr", "td", "th", "thead", "tbody", "tfoot", "form", "input", "textarea", "button")
+    atributosHTML = Array("class", "id", "href", "src", "alt", "name", "type", "value", "placeholder", "method", "action", "style", "rel", "target", "width", "height")
+    simbolosHTML = Array("<", ">", "</", "/>", "=", """", "'")
+
+    ' Crear tabla y reemplazar selección
+    Set oTable = oDoc.Tables.Add(Range:=originalRange, NumRows:=1, NumColumns:=1)
+    Set oCell = oTable.Cell(1, 1)
+    Set rCelda = oCell.Range
+    rCelda.Text = selText
+    rCelda.End = rCelda.End - 1 ' Eliminar marca de fin de celda
+
+    ' Resaltar etiquetas
+    For Each itemHTML In etiquetasHTML
+        Call ResaltarTexto(rCelda, CStr(itemHTML), wdColorBlue, True)
+    Next itemHTML
+
+    ' Resaltar atributos
+    For Each itemHTML In atributosHTML
+        Call ResaltarTexto(rCelda, CStr(itemHTML), wdColorGray50, False)
+    Next itemHTML
+
+    ' Resaltar símbolos
+    For Each itemHTML In simbolosHTML
+        Call ResaltarTexto(rCelda, CStr(itemHTML), wdColorRed, False)
+    Next itemHTML
+End Sub
+
+' ----------------------------------------------
+' SUB auxiliar para resaltar palabras en un rango
+' ----------------------------------------------
+Sub ResaltarTexto(rangoBusqueda As Range, textoObjetivo As String, colorTexto As WdColor, subrayar As Boolean)
+    Dim inicio As Long
+    Dim encontrado As Range
+
+    Set encontrado = rangoBusqueda.Duplicate
+    With encontrado.Find
+        .ClearFormatting
+        .Text = textoObjetivo
+        .Forward = True
+        .Format = False
+        .MatchCase = False
+        .MatchWholeWord = False
+        .Wrap = wdFindStop
+        Do While .Execute
+            encontrado.Font.color = colorTexto
+            encontrado.Font.Bold = False
+            encontrado.Font.Underline = IIf(subrayar, wdUnderlineSingle, wdUnderlineNone)
+            encontrado.Collapse Direction:=wdCollapseEnd
+        Loop
+    End With
+End Sub
+
+
+' Sub auxiliar para resaltar palabras en un rango con opción de formato
+Sub ResaltarTextoHTTP(rangoBusqueda As Range, textoObjetivo As String, colorTexto As Long, negrita As Boolean, subrayado As Boolean, Optional cursiva As Boolean = False)
+    Dim encontrado As Range
+    Set encontrado = rangoBusqueda.Duplicate
+
+    With encontrado.Find
+        .ClearFormatting
+        .Text = textoObjetivo
+        .Forward = True
+        .Format = False
+        .MatchCase = True
+        .MatchWholeWord = True
+        .Wrap = wdFindStop
+
+        Do While .Execute
+            encontrado.Font.color = colorTexto
+            encontrado.Font.Bold = negrita
+            encontrado.Font.Italic = cursiva
+            If subrayado Then
+                encontrado.Font.Underline = wdUnderlineSingle
+            Else
+                encontrado.Font.Underline = wdUnderlineNone
+            End If
+            encontrado.Collapse Direction:=wdCollapseEnd
+        Loop
+    End With
+End Sub
+
+
+
+' Sub principal para insertar y formatear solicitudes HTTP en una tabla
+Sub FormatearSolicitudHTTP()
+    Dim oDoc As Document
+    Dim selText As String
+    Dim originalRange As Range
+    Dim oTable As Table
+    Dim oCell As Cell
+    Dim rCelda As Range
+    Dim metodosHTTP As Variant
+    Dim encabezadosHTTP As Variant
+    Dim i As Long
+
+    ' Obtener documento actual
+    Set oDoc = ActiveDocument
+
+    ' Verificar protección
+    If oDoc.ReadOnlyRecommended Or oDoc.ProtectionType <> wdNoProtection Then
+        MsgBox "El documento está protegido o es de solo lectura.", vbExclamation, "Error"
+        Exit Sub
+    End If
+
+    ' Verificar texto seleccionado
+    If Selection.Type = wdSelectionIP Or Len(Selection.Text) <= 1 Then
+        MsgBox "Selecciona la solicitud HTTP que deseas formatear.", vbInformation, "Selección vacía"
+        Exit Sub
+    End If
+
+    ' Guardar texto seleccionado y rango original
+    selText = Selection.Text
+    Set originalRange = Selection.Range
+
+    ' Crear tabla y reemplazar selección
+    Set oTable = oDoc.Tables.Add(Range:=originalRange, NumRows:=1, NumColumns:=1)
+    Set oCell = oTable.Cell(1, 1)
+    Set rCelda = oCell.Range
+    rCelda.Text = selText
+    rCelda.End = rCelda.End - 1 ' Eliminar marca de fin de celda
+    
+    ' Asegurar que el texto tenga color automático antes de aplicar formatos
+rCelda.Font.color = wdColorAutomatic
+
+    ' Definir métodos y encabezados HTTP
+    metodosHTTP = Array("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
+    encabezadosHTTP = Array("Host", "User-Agent", "Accept", "Content-Type", "Content-Length", "Authorization", "Connection", "Accept-Encoding")
+
+    ' Aplicar formato a métodos HTTP
+    For i = LBound(metodosHTTP) To UBound(metodosHTTP)
+        Call ResaltarTextoHTTP(rCelda, CStr(metodosHTTP(i)), wdColorBlue, True, True)
+    Next i
+
+    ' Aplicar formato a encabezados HTTP
+    For i = LBound(encabezadosHTTP) To UBound(encabezadosHTTP)
+        Call ResaltarTextoHTTP(rCelda, CStr(encabezadosHTTP(i)), wdColorDarkRed, True, False, True)
+    Next i
+
+    MsgBox "Solicitud HTTP formateada correctamente.", vbInformation
+End Sub
+
+
+' Sub auxiliar para resaltar URLs (http:// o https://)
+Sub ResaltarURL(rangoBusqueda As Range)
+    Dim regex As Object
+    Dim matches As Object
+    Dim match As Object
+    Dim startPos As Long, lengthURL As Long
+    Dim rURL As Range
+    
+    ' Crear expresión regular para URL básica http/https
+    Set regex = CreateObject("VBScript.RegExp")
+    regex.Pattern = "(http|https)://[^\s]+"
+    regex.Global = True
+    regex.IgnoreCase = True
+    
+    Set matches = regex.Execute(rangoBusqueda.Text)
+    
+    For Each match In matches
+        startPos = match.FirstIndex + 1 ' +1 porque VBA es 1-based
+        lengthURL = match.Length
+        
+        Set rURL = rangoBusqueda.Duplicate
+        rURL.Start = rangoBusqueda.Start + startPos - 1
+        rURL.End = rURL.Start + lengthURL
+        
+        With rURL.Font
+            .color = wdColorDarkRed
+            .Bold = True
+            .Underline = wdUnderlineSingle
+        End With
+    Next
+End Sub
+>>>>>>> theirs
 
 
 Sub PalabrasClaveVerde_Corregida()
@@ -1217,7 +1729,11 @@ Sub PalabrasClaveVerde_Corregida()
 
     ' --- Procesar cada patrón ---
     For i = LBound(patterns) To UBound(patterns)
+<<<<<<< ours
         regex.pattern = patterns(i) ' Establecer el patrón actual
+=======
+        regex.Pattern = patterns(i) ' Establecer el patrón actual
+>>>>>>> theirs
 
         ' Ejecutar la búsqueda en el texto del rango seleccionado
         If regex.Test(searchRng.Text) Then ' Optimización: Ejecutar solo si hay al menos una coincidencia
@@ -1226,7 +1742,11 @@ Sub PalabrasClaveVerde_Corregida()
             ' Iterar sobre las coincidencias EN ORDEN INVERSO
             ' Esto es importante porque al aplicar formato (resaltado), las posiciones
             ' de las coincidencias posteriores podrían cambiar si iteramos hacia adelante.
+<<<<<<< ours
             For k = matches.count - 1 To 0 Step -1
+=======
+            For k = matches.Count - 1 To 0 Step -1
+>>>>>>> theirs
                 Set match = matches(k)
 
                 ' Comprobar si la coincidencia es la palabra a ignorar (comparando en minúsculas)
