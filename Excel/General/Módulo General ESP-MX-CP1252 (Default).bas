@@ -8,6 +8,15 @@ Sub GEN003_Lowercase()
     Next cell
 End Sub
 
+
+Sub GEN003_Uppercase()
+ For Each cell In Selection
+        If Not cell.HasFormula Then
+            cell.value = UCase(cell.value)
+        End If
+    Next cell
+End Sub
+
 Sub GEN004_CopyAsListSpaces()
     Dim cell As Range
     Dim text As String
@@ -79,6 +88,85 @@ Sub GEN017_EliminarTextoAntesEspacio()
     Next celda
 End Sub
 
+Sub GEN019_EliminarTextoAntesDosPuntos()
+    Dim celda As Range
+    Dim textoOriginal As String
+    Dim posicionEspacio As Long
+
+    ' Recorre cada celda en la selección
+    For Each celda In Selection
+        If Not IsEmpty(celda) And VarType(celda.value) = vbString Then
+            textoOriginal = celda.value
+            posicionEspacio = InStr(1, textoOriginal, ":")
+            
+            ' Si hay al menos un espacio
+            If posicionEspacio > 0 Then
+                ' Elimina el texto antes del primer espacio, incluyendo el espacio
+                celda.value = Mid(textoOriginal, posicionEspacio + 1)
+            End If
+        End If
+    Next celda
+End Sub
+
+Sub GEN020_ReemplazarTextos()
+    Dim celda As Range
+    
+    ' Recorre cada celda seleccionada
+    For Each celda In Selection
+        Select Case celda.value
+            Case "Entregar código en producción con funciones de depuración activadas es sensible a la seguridad"
+                celda.value = "Potencial depuración activa en entornos de producción"
+            Case "Deshabilitar las funciones de integridad de recursos es un tema sensible a la seguridad"
+                celda.value = "Controles de integridad de recursos deshabilitados"
+            Case "Credenciales Codificadas"
+                celda.value = "Credenciales embebidas en el código fuente"
+            Case "Asegúrese de que la contraseña de esta base de datos se cambie y elimine del código."
+                celda.value = "Secretos de base de datos presentes en el código fuente"
+            Case "Divulgación de información del servidor de acceso de cliente de Microsoft Exchange"
+                celda.value = "Divulgación de información sensible del servidor Microsoft Exchange"
+            Case "Exposición a PATH no confiable en ejecución de comandos"
+                celda.value = "Potencial ejecución de comandos desde rutas PATH no confiables"
+            Case "Uso de protocolos de texto claro"
+                celda.value = "Uso de protocolos en texto plano"
+            Case "Usar direcciones IP codificadas"
+                celda.value = "Direcciones IP embebidas en el código fuente"
+        End Select
+    Next celda
+    
+    MsgBox "Reemplazo completado.", vbInformation
+End Sub
+
+
+Sub GEN021_ResaltarAmarilloSegunTexto()
+    Dim celda As Range
+    Dim textosSAST As Variant
+    Dim i As Integer
+    
+    ' Lista de textos profesionales de SAST
+    textosSAST = Array( _
+        "Potencial depuración activa en entornos de producción", _
+        "Controles de integridad de recursos deshabilitados", _
+        "Credenciales embebidas en el código fuente", _
+        "Secretos de base de datos presentes en el código fuente", _
+        "Divulgación de información del servidor de acceso de cliente de Microsoft Exchange", _
+        "Potencial ejecución de comandos desde rutas PATH no confiables", _
+        "Uso de protocolos en texto plano", _
+        "Direcciones IP embebidas en el código fuente" _
+    )
+    
+    ' Recorre cada celda seleccionada
+    For Each celda In Selection
+        For i = LBound(textosSAST) To UBound(textosSAST)
+            If celda.value = textosSAST(i) Then
+                celda.Interior.Color = RGB(255, 255, 0) ' Amarillo
+                Exit For
+            End If
+        Next i
+    Next celda
+    
+    MsgBox "Celdas resaltadas en amarillo.", vbInformation
+End Sub
+
 
 Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
@@ -129,6 +217,8 @@ Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
         End If
     Next celda
 End Sub
+
+
 
 Sub GEN007_ExportarTabla()
     Dim celdaActual As Range
@@ -611,5 +701,57 @@ Sub GEN016_IncrementarEnUno()
     MsgBox "Se han incrementado los valores num?ricos en 1.", vbInformation, "Proceso Completado"
 End Sub
 
+
+
+Sub DistribuirColumnaCeldasMultiples()
+    ' Obtén la hoja actual
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.ActiveSheet
+
+    ' Obtén las celdas seleccionadas
+    Dim rng As Range
+    Set rng = Selection
+
+    ' Obtén el número de celdas seleccionadas
+    Dim n As Long
+    n = rng.Count
+
+    ' Definir el número de columnas como 4
+    Dim numColumnas As Integer
+    numColumnas = 4
+
+    ' Calcular la longitud de cada columna
+    Dim longitudColumna As Integer
+    longitudColumna = WorksheetFunction.Ceiling(n / numColumnas, 1)
+
+    ' Crea una nueva hoja
+    Dim wsNew As Worksheet
+    Set wsNew = ThisWorkbook.Sheets.Add(After:=ws)
+    wsNew.Name = "DistributedColumns"
+
+    ' Variables para realizar el bucle de distribución
+    Dim i As Integer
+    Dim col As Integer
+    Dim row As Integer
+
+    ' Inicializa las variables de posición
+    col = 1
+    row = 1
+
+    ' Itera sobre las celdas seleccionadas
+    For i = 1 To n
+        ' Escribe el valor de la celda en la nueva hoja
+        wsNew.Cells(row, col).value = rng.Cells(i).value
+
+        ' Mueve a la siguiente fila
+        row = row + 1
+
+        ' Verifica si es necesario pasar a la siguiente columna
+        If row > longitudColumna Then
+            col = col + 1
+            row = 1
+        End If
+    Next i
+End Sub
 
 

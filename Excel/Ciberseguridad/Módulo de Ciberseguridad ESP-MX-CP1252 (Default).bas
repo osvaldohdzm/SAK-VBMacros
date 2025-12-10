@@ -1959,6 +1959,235 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     
 End Sub
 
+Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
+    Dim rng         As Range
+    Dim tbl         As ListObject
+    Dim WordApp     As Object
+    Dim WordDoc     As Object
+    Dim templatePath As String
+    Dim saveFolder  As String
+    Dim replaceDic  As Object
+    Dim cell        As Range
+    Dim headerCell  As Range
+    Dim colIndex    As Integer
+    Dim explicacionTecnicaCol As Long
+    Dim tipoTextoExplicacionCol As Long
+    Dim rowCount    As Long
+    Dim i           As Long
+    Dim tempFolder  As String
+    Dim tempFolderPath As String
+    Dim documentsList() As String
+    Dim fs          As Object
+    Dim key         As Variant
+    Dim explicacionTecnicaValue As String
+    Dim tipoTextoValue As String
+    Dim excelBasePath As String
+    Dim finalDocumentPath As String
+    Dim textoCelda  As String
+    
+    Dim ultimoActivo As String
+    ultimoActivo = ""
+    
+    ' Seleccionar rango de la tabla
+    On Error Resume Next
+    Set rng = Application.InputBox("Seleccione TODO el rango de la tabla (incluyendo encabezados) que contiene los datos", Type:=8)
+    On Error GoTo 0
+    
+    If rng Is Nothing Then
+        MsgBox "No se ha seleccionado un rango válido.", vbExclamation
+        Exit Sub
+    End If
+    
+    On Error Resume Next
+    Set tbl = rng.ListObject
+    On Error GoTo 0
+    
+    If tbl Is Nothing Then
+        MsgBox "El rango seleccionado no está dentro de una tabla (ListObject)." & vbCrLf & _
+               "Asegúrese de que los datos estén formateados como tabla (Insertar > Tabla).", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Seleccionar plantilla Word
+    templatePath = Application.GetOpenFilename("Documentos de Word (*.docx), *.docx", , "Seleccione un documento de Word como plantilla")
+    If templatePath = "Falso" Then Exit Sub
+    
+    ' Seleccionar carpeta de guardado
+    With Application.FileDialog(msoFileDialogFolderPicker)
+        .Title = "Seleccione la carpeta donde desea guardar los documentos generados"
+        If .Show = -1 Then
+            saveFolder = .SelectedItems(1)
+            If Right(saveFolder, 1) <> "\" Then saveFolder = saveFolder & "\"
+        Else
+            Exit Sub
+        End If
+    End With
+    
+    ' Iniciar Word
+    On Error Resume Next
+    Set WordApp = GetObject(, "Word.Application")
+    If Err.Number <> 0 Then
+        Set WordApp = CreateObject("Word.Application")
+        Err.Clear
+    End If
+    On Error GoTo 0
+    
+    If WordApp Is Nothing Then
+        MsgBox "No se pudo iniciar Microsoft Word.", vbCritical
+        Exit Sub
+    End If
+    WordApp.Visible = True
+    
+    ' Carpeta temporal
+    Set fs = CreateObject("Scripting.FileSystemObject")
+    tempFolder = Environ("TEMP") & "\tmp-" & Format(Now(), "yyyymmddhhmmss")
+    If Not fs.FolderExists(tempFolder) Then MkDir tempFolder
+    tempFolderPath = tempFolder & "\"
+    
+    ' Ruta base de Excel
+    If ThisWorkbook.path <> "" Then
+        excelBasePath = ThisWorkbook.path & "\"
+    Else
+        MsgBox "Guarde primero el libro de Excel para poder resolver rutas relativas de imágenes.", vbExclamation
+        WordApp.Quit
+        Set WordApp = Nothing
+        Set fs = Nothing
+        Exit Sub
+    End If
+    
+    ' Detectar columnas especiales
+    explicacionTecnicaCol = 0
+    tipoTextoExplicacionCol = 0
+    For Each headerCell In tbl.HeaderRowRange.Cells
+        Select Case Trim(headerCell.value)
+            Case "Explicación técnica"
+                explicacionTecnicaCol = headerCell.Column - tbl.Range.Column + 1
+            Case "Tipo de texto de explicación técnica"
+                tipoTextoExplicacionCol = headerCell.Column - tbl.Range.Column + 1
+        End Select
+    Next headerCell
+    
+    If explicacionTecnicaCol = 0 Then
+        MsgBox "No se encontró la columna 'Explicación técnica'."
+        WordApp.Quit
+        Set WordApp = Nothing
+        Set fs = Nothing
+        Exit Sub
+    End If
+    
+    If tipoTextoExplicacionCol = 0 Then
+        MsgBox "Advertencia: No se encontró la columna 'Tipo de texto de explicación técnica'. Se asumirá Texto Plano.", vbInformation
+    End If
+    
+    rowCount = tbl.ListRows.Count
+    ReDim documentsList(0 To rowCount - 1)
+    
+    ' Procesar filas
+    For i = 1 To rowCount
+        Set replaceDic = CreateObject("Scripting.Dictionary")
+        
+        ' Cargar valores de la fila
+        For colIndex = 1 To tbl.ListColumns.Count
+            Dim colName As String
+            Dim cellValue As String
+            colName = tbl.HeaderRowRange.Cells(1, colIndex).value
+            cellValue = tbl.DataBodyRange.Cells(i, colIndex).value
+            replaceDic("«" & colName & "»") = cellValue
+            
+            If colIndex = explicacionTecnicaCol Then explicacionTecnicaValue = cellValue
+            If tipoTextoExplicacionCol > 0 And colIndex = tipoTextoExplicacionCol Then
+                tipoTextoValue = Trim(LCase(cellValue))
+            ElseIf tipoTextoExplicacionCol = 0 Then
+                tipoTextoValue = "texto plano"
+            End If
+        Next colIndex
+        
+        ' Copiar plantilla y abrir documento temporal
+        Dim tempDocPath As String
+        tempDocPath = tempFolderPath & "Documento_" & i & ".docx"
+        fs.CopyFile templatePath, tempDocPath, True
+        Set WordDoc = WordApp.Documents.Open(tempDocPath)
+        WordDoc.Activate
+        
+        ' --- NUEVO: insertar Título 1 con nombre del activo si es distinto al anterior ---
+        Dim nombreActivoActual As String
+        nombreActivoActual = Trim(replaceDic("«Nombre de activo tecnológico»"))
+        
+        If nombreActivoActual <> "" And nombreActivoActual <> ultimoActivo Then
+            WordDoc.Paragraphs(1).Range.InsertBefore nombreActivoActual & vbCrLf
+            WordDoc.Paragraphs(1).Range.Style = "Título 1"
+            ultimoActivo = nombreActivoActual
+        End If
+        ' --- FIN NUEVO ---
+        
+        ' Reemplazo de placeholders
+        For Each key In replaceDic.Keys
+            Dim placeholder As String
+            Dim replacementValue As String
+            placeholder = CStr(key)
+            replacementValue = CStr(replaceDic(key))
+            
+            If placeholder = "«Explicación técnica»" Then
+                If tipoTextoValue = "markdown" Then
+                    InsertarTextoMarkdownEnWordConFormato WordApp, WordDoc, placeholder, explicacionTecnicaValue, excelBasePath, False, "Cuerpo de tabla"
+                    SustituirTextoMarkdownPorImagenes WordApp, WordDoc, excelBasePath
+                Else
+                    WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
+                End If
+            Else
+                WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
+            End If
+        Next key
+        
+        ' Formateo de celdas y tablas
+        FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
+        
+        textoCelda = Trim(Replace(WordDoc.Tables(1).cell(3, 1).Range.text, Chr(13) & Chr(7), ""))
+        If textoCelda = "AMENAZA" Then
+            FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(3, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(3, 2)
+        End If
+        
+        textoCelda = Trim(Replace(WordDoc.Tables(1).cell(4, 1).Range.text, Chr(13) & Chr(7), ""))
+        If textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
+            FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(4, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(4, 2)
+        End If
+        
+        textoCelda = Trim(Replace(WordDoc.Tables(1).cell(5, 1).Range.text, Chr(13) & Chr(7), ""))
+        If textoCelda = "AMENAZA" Or textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
+            FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(5, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(5, 2)
+        End If
+        
+        textoCelda = Trim(Replace(WordDoc.Tables(1).cell(7, 1).Range.text, Chr(13) & Chr(7), ""))
+        If textoCelda = "DETALLE DE PRUEBAS DE SEGURIDAD" Then
+            With WordDoc.Tables(1).cell(8, 1).Range
+                .Font.Color = wdColorBlack
+            End With
+            AjustarMarcadorCeldaEnTablaWord WordApp, WordDoc, 1, 8, 1
+            EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(8, 1)
+        End If
+        
+        finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
+        WordDoc.SaveAs finalDocumentPath
+        WordDoc.Close
+        
+        documentsList(i - 1) = finalDocumentPath
+    Next i
+    
+    ' Fusionar documentos
+    FusionarDocumentosInsertando WordApp, documentsList, saveFolder & "Documento_Completo_Fusionado.docx"
+    
+    WordApp.Quit
+    Set WordApp = Nothing
+    
+    MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
+    
+    Set replaceDic = Nothing
+    Set fs = Nothing
+End Sub
 
 
 
