@@ -1,9 +1,9 @@
-Attribute VB_Name = "Ciber"
+ï»¿Attribute VB_Name = "Ciber"
 Option Explicit
 
 
 ' ==============================================================================
-' PARTE 1: AUTOMATIZACIÓN (Para que funcione en Módulos)
+' PARTE 1: AUTOMATIZACIÃ“N (Para que funcione en MÃ³dulos)
 ' ==============================================================================
 
 Sub AutoOpen()
@@ -16,7 +16,7 @@ Sub AutoClose()
 End Sub
 
 ' ==============================================================================
-' PARTE 2: CREAR EL MENÚ
+' PARTE 2: CREAR EL MENÃš
 ' ==============================================================================
 
 Sub AddSeverityContextMenu()
@@ -36,9 +36,9 @@ Sub AddSeverityContextMenu()
     
     ' --- BOTONES ---
     
-    ' CRÍTICA
+    ' CRÃTICA
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
-    menuItem.Caption = "1 - CRÍTICA"
+    menuItem.Caption = "1 - CRÃTICA"
     menuItem.FaceId = 66
     menuItem.OnAction = "ColorearCritica"
     
@@ -80,14 +80,14 @@ End Sub
 Sub ColorearCritica()
     If Selection.Information(wdWithInTable) Then
         With Selection.Cells(1)
-            ' 1. Escribe el texto en MAYÚSCULAS
+            ' 1. Escribe el texto en MAYÃšSCULAS
             ' (Se usa un caracter especial para no borrar la celda entera)
-            .Range.Text = "CRÍTICA"
+            .Range.Text = "CRÃTICA"
             
             ' 2. Aplica colores (Fondo Rojo / Letra Blanca)
             .Shading.BackgroundPatternColor = wdColorRed
             .Range.Font.color = wdColorWhite
-            .Range.Font.Bold = True ' Opcional: Pone negrita para resaltar más
+            .Range.Font.Bold = True ' Opcional: Pone negrita para resaltar mÃ¡s
         End With
     End If
 End Sub
@@ -151,14 +151,14 @@ End Sub
 Sub FormatearTablaVulnerabilidadesAvanzado()
 
     Dim tbl As table
-    Dim i As Long ' Índice para filas
-    Dim j As Long ' Índice para columnas (al escanear encabezado)
+    Dim i As Long ' Ãndice para filas
+    Dim j As Long ' Ãndice para columnas (al escanear encabezado)
     
     Dim cellText As String         ' Para el texto de las celdas de datos
     Dim headerCellText As String   ' Para el texto de las celdas del encabezado
     Dim estadoCellText As String   ' Para el texto de la celda de estado
     
-    ' Índices de las columnas (0 si no se encuentran)
+    ' Ãndices de las columnas (0 si no se encuentran)
     Dim severityColIndex As Integer
     Dim vulnerabilityNameColIndex As Integer
     Dim estadoColIndex As Integer
@@ -190,7 +190,7 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     
     ESTADO_SIN_REMEDIAR_COLOR = RGB(255, 0, 0)   ' Rojo para "Sin remediar"
     ESTADO_REMEDIADA_COLOR = RGB(0, 176, 80)       ' Verde oscuro para "Remediada"
-    ESTADO_NUEVA_COLOR = RGB(255, 192, 0)      ' Naranja/Ámbar para "Nueva detección"
+    ESTADO_NUEVA_COLOR = RGB(255, 192, 0)      ' Naranja/Ãmbar para "Nueva detecciÃ³n"
 
 
     ' Verificar si hay una tabla seleccionada
@@ -201,7 +201,7 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
     
     Set tbl = Selection.Tables(1)
     
-    ' --- 1. Encontrar Índices de Columnas desde el Encabezado ---
+    ' --- 1. Encontrar Ãndices de Columnas desde el Encabezado ---
     If tbl.Rows.count >= 1 Then
         For j = 1 To tbl.Rows(1).Cells.count
             Dim rawHeaderText As String
@@ -276,7 +276,7 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
                         End If
                         
                         Select Case UCase(cellText)
-                            Case "CRÍTICA"
+                            Case "CRÃTICA"
                                 .Shading.BackgroundPatternColor = CRITICA_PURPLE
                                 .Range.Font.ColorIndex = wdWhite
                             Case "ALTA"
@@ -322,18 +322,18 @@ Sub FormatearTablaVulnerabilidadesAvanzado()
                         Dim originalFontColor As Long
                         originalFontColor = .Range.Font.ColorIndex
 
-                        ' Aplicar color de fuente según el texto (buscando palabras clave)
+                        ' Aplicar color de fuente segÃºn el texto (buscando palabras clave)
                         If InStr(1, UCase(estadoCellText), "SIN REMEDIAR") > 0 Then
                             .Range.Font.color = ESTADO_SIN_REMEDIAR_COLOR
                         ElseIf InStr(1, UCase(estadoCellText), "REMEDIADA") > 0 Then
                             .Range.Font.color = ESTADO_REMEDIADA_COLOR
-                        ElseIf InStr(1, UCase(estadoCellText), "NUEVA DETECCIÓN") > 0 Then
+                        ElseIf InStr(1, UCase(estadoCellText), "NUEVA DETECCIÃ“N") > 0 Then
                             .Range.Font.color = ESTADO_NUEVA_COLOR
                         Else
                             ' Si no coincide, la fuente mantiene el color por defecto de la fila (negro)
                             .Range.Font.ColorIndex = wdBlack
                         End If
-                        ' Aquí puedes añadir alineación para la celda de Estado si es necesario
+                        ' AquÃ­ puedes aÃ±adir alineaciÃ³n para la celda de Estado si es necesario
                         ' .Range.ParagraphFormat.Alignment = wdAlignParagraphLeft ' o Center
                         .VerticalAlignment = wdCellAlignVerticalCenter
                     End With
@@ -403,11 +403,11 @@ End With
 tbl.Rows.Alignment = wdAlignRowCenter
 
 
-' Abrir el diálogo de opciones de tabla y apagar "Allow spacing between cells"
-' Selecciona toda la tabla para que el diálogo se aplique a ella
+' Abrir el diÃ¡logo de opciones de tabla y apagar "Allow spacing between cells"
+' Selecciona toda la tabla para que el diÃ¡logo se aplique a ella
 tbl.Select
 
-' Abrir el diálogo de opciones de tabla y apagar "Allow spacing between cells"
+' Abrir el diÃ¡logo de opciones de tabla y apagar "Allow spacing between cells"
 With Dialogs(wdDialogTableTableOptions)
     .AllowSpacing = False
     .Execute
@@ -419,13 +419,13 @@ End With
     Dim feedbackMsg As String
     feedbackMsg = "Formato de tabla de vulnerabilidades aplicado."
     If severityColIndex = 0 Then
-        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontró la columna 'Severidad'."
+        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontrÃ³ la columna 'Severidad'."
     End If
     If vulnerabilityNameColIndex = 0 Then
-        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontró la columna 'Nombre de vulnerabilidad'."
+        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontrÃ³ la columna 'Nombre de vulnerabilidad'."
     End If
     If estadoColIndex = 0 Then
-        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontró la columna 'Estado'."
+        feedbackMsg = feedbackMsg & vbCrLf & "ADVERTENCIA: No se encontrÃ³ la columna 'Estado'."
     End If
     
     MsgBox feedbackMsg, vbInformation, "Macro Finalizada"
@@ -446,46 +446,46 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     Dim rangoAProcesar As Range
     Dim findObj As Find
 
-    ' Definición de palabras clave en fragmentos
+    ' DefiniciÃ³n de palabras clave en fragmentos
     palabrasClaveParte1 = Array( _
         "XSS", "Stored XSS", "DOM-based XSS", "versiones obsoletas", _
         "Session Hijacking", "Phishing", "CSP", _
-        "Validación de entradas", "Sanitización", "Interceptación", "interceptar", _
-        "TLS 1.0", "Protocolo débil", "Man-in-the-Middle" _
+        "ValidaciÃ³n de entradas", "SanitizaciÃ³n", "InterceptaciÃ³n", "interceptar", _
+        "TLS 1.0", "Protocolo dÃ©bil", "Man-in-the-Middle" _
     )
 
     palabrasClaveParte2 = Array( _
-        "facilita ataques", "Explotación", "TLS 1.1", "controles de restricción adecuados", _
-        "Downgrade Attack", "Tráfico TLS", "Sweet32", _
+        "facilita ataques", "ExplotaciÃ³n", "TLS 1.1", "controles de restricciÃ³n adecuados", _
+        "Downgrade Attack", "TrÃ¡fico TLS", "Sweet32", _
         "Wireshark", "Tshark", "tcpdump", _
-        "Gestión de vulnerabilidades", "Seguridad de aplicaciones web", "Divulgación de información" _
+        "GestiÃ³n de vulnerabilidades", "Seguridad de aplicaciones web", "DivulgaciÃ³n de informaciÃ³n" _
     )
 
     palabrasClaveParte3 = Array( _
-        "Fuga de información", "Hardening", "HTTP Headers", _
+        "Fuga de informaciÃ³n", "Hardening", "HTTP Headers", _
         "Autodiscover", "X-Frame-Options", "HttpOnly", _
         "SSL Stripping", "Componentes vulnerables", _
         "OWASP DependencyCheck", "Subresource Integrity", "Clickjacking", _
         "Cookies HttpOnly", "Cookies Secure", "Fingerprinting", _
         "CVE", _
-        "Metodología de pentesting", "Seguridad en la nube", "Acceso no autorizado", _
-        "Credenciales", "Confidencialidad", "Remediación" _
+        "MetodologÃ­a de pentesting", "Seguridad en la nube", "Acceso no autorizado", _
+        "Credenciales", "Confidencialidad", "RemediaciÃ³n" _
     )
     
     Dim palabrasClaveReporteSMB As Variant
 
     palabrasClaveReporteSMB = Array( _
-        "firma SMB", "validación criptográfica", "interceptado", "alterado", _
+        "firma SMB", "validaciÃ³n criptogrÃ¡fica", "interceptado", "alterado", _
         "vulnerabilidad", "MITM", "ataque Man-in-the-Middle", "manipular", _
         "red interna", "remediar", "habilitada", "autenticidad", "integridad", _
-        "políticas de grupo", "GPO", "actualizar sistemas operativos", "parches de seguridad", _
+        "polÃ­ticas de grupo", "GPO", "actualizar sistemas operativos", "parches de seguridad", _
         "versiones obsoletas de SMB", "SMBv1", "SMBv2", "SMBv3" _
     )
 
     ' Crear ArrayList para juntar todas las palabras
     Set todasLasPalabrasClaveList = CreateObject("System.Collections.ArrayList")
 
-    ' Añadir palabras de cada array a la lista
+    ' AÃ±adir palabras de cada array a la lista
     For Each palabra In palabrasClaveParte1
         If Len(Trim(palabra)) > 0 Then todasLasPalabrasClaveList.Add Trim(palabra)
     Next
@@ -546,7 +546,7 @@ Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
     Set findObj = rangoAProcesar.Duplicate.Find
     With findObj
         .ClearFormatting
-        .Text = "CVE-[0-9]{4}-[0-9]{4,7}" ' patrón de CVE
+        .Text = "CVE-[0-9]{4}-[0-9]{4,7}" ' patrÃ³n de CVE
         .Replacement.ClearFormatting
         .Replacement.Text = "^&"
         .Replacement.Font.Bold = True
@@ -567,7 +567,7 @@ End Sub
 
 
 Sub AjustarFormatoColumnasTablaVulnes()
-    ' --- DECLARACIÓN DE VARIABLES PRINCIPALES ---
+    ' --- DECLARACIÃ“N DE VARIABLES PRINCIPALES ---
     Dim tbl As word.table
     Dim col As word.Column
     Dim headerText As String
@@ -579,11 +579,11 @@ Sub AjustarFormatoColumnasTablaVulnes()
     Const COLOR_FILA_PAR As Long = wdColorGray10
 
     ' --- INICIO DE LA MACRO ---
-    ' 1. VERIFICAR QUE EL CURSOR ESTÉ EN UNA TABLA
+    ' 1. VERIFICAR QUE EL CURSOR ESTÃ‰ EN UNA TABLA
     If Selection.Information(wdWithInTable) Then
         Set tbl = Selection.Tables(1)
 
-        ' --- 2. CONFIGURACIÓN GENERAL DE LA TABLA ---
+        ' --- 2. CONFIGURACIÃ“N GENERAL DE LA TABLA ---
         tbl.AllowAutoFit = False
         tbl.AutoFitBehavior wdAutoFitFixed
         tbl.Rows.AllowBreakAcrossPages = True
@@ -605,7 +605,7 @@ Sub AjustarFormatoColumnasTablaVulnes()
             Next r
         End If
 
-        ' --- 4. AJUSTE DINÁMICO DE ANCHO DE COLUMNAS ---
+        ' --- 4. AJUSTE DINÃMICO DE ANCHO DE COLUMNAS ---
         severidadColIndex = 0
         For Each col In tbl.Columns
             headerText = Trim(Replace(col.Cells(1).Range.Text, Chr(13) & Chr(7), ""))
@@ -635,7 +635,7 @@ Sub AjustarFormatoColumnasTablaVulnes()
         tbl.PreferredWidthType = wdPreferredWidthPoints
         tbl.PreferredWidth = anchoTotal
         
-        ' --- 5. APLICACIÓN DE COLORES Y FORMATO CELDA POR CELDA ---
+        ' --- 5. APLICACIÃ“N DE COLORES Y FORMATO CELDA POR CELDA ---
         For r = 2 To tbl.Rows.count
             For c = 1 To tbl.Columns.count
                 Dim currentCell As cell
@@ -672,7 +672,7 @@ Sub AjustarFormatoColumnasTablaVulnes()
                     Else
                         ' --- SINTAXIS DE BLOQUE CORREGIDA ---
                         Select Case UCase(cellText)
-                            Case "CRÍTICA", "CRITICAL"
+                            Case "CRÃTICA", "CRITICAL"
                                 bgColor = RGB(&H70, &H30, &HA0)
                                 fontColor = wdColorWhite
                                 colorAplicar = True
@@ -742,7 +742,7 @@ Sub NegritaPalabrasClave()
     Dim rango As Range
     
 
-palabrasTexto = "Cross-Site Scripting (XSS), XSS Reflected, Reflected XSS, XSS Persistent, Stored XSS, DOM-based XSS, Inyección, Scripts maliciosos, Malicious Scripts, Ejecución de acciones en nombre del usuario, Robo de cookies de sesión, Session Hijacking, Redirección a sitios fraudulentos, Phishing, Content Security Policy (CSP), Validación, Sanitización, Manipulación de sesiones de usuario, Formulario malicioso, TLS 1.0, Protocolo débil, Algoritmos de cifrado, Interceptación, Hombre en el medio, Escucha pasiva, Malware, Explotación,TLS 1.1, downgrade, Interceptar tráfico cifrado, Atacante, Wireshark, Tshark, tcpdump, Tráfico TLS, Sweet32, Colisiones, CBC, (Cipher Block Chaining)"
+palabrasTexto = "Cross-Site Scripting (XSS), XSS Reflected, Reflected XSS, XSS Persistent, Stored XSS, DOM-based XSS, InyecciÃ³n, Scripts maliciosos, Malicious Scripts, EjecuciÃ³n de acciones en nombre del usuario, Robo de cookies de sesiÃ³n, Session Hijacking, RedirecciÃ³n a sitios fraudulentos, Phishing, Content Security Policy (CSP), ValidaciÃ³n, SanitizaciÃ³n, ManipulaciÃ³n de sesiones de usuario, Formulario malicioso, TLS 1.0, Protocolo dÃ©bil, Algoritmos de cifrado, InterceptaciÃ³n, Hombre en el medio, Escucha pasiva, Malware, ExplotaciÃ³n,TLS 1.1, downgrade, Interceptar trÃ¡fico cifrado, Atacante, Wireshark, Tshark, tcpdump, TrÃ¡fico TLS, Sweet32, Colisiones, CBC, (Cipher Block Chaining)"
 
 
     palabrasClave = Split(palabrasTexto, ",")
@@ -771,7 +771,7 @@ End Sub
 
 Sub InsertarBloqueCodigoFormateado()
     If Selection.Type = wdSelectionIP Then
-        MsgBox "Por favor, seleccione el código que desea convertir en bloque de código.", vbInformation
+        MsgBox "Por favor, seleccione el cÃ³digo que desea convertir en bloque de cÃ³digo.", vbInformation
         Exit Sub
     End If
 
@@ -798,7 +798,7 @@ Sub InsertarBloqueCodigoFormateado()
     Dim celda As Range
     Set celda = tabla.cell(1, 1).Range
     celda.Text = textoCodigo
-    celda.End = celda.End - 1 ' Quitar el carácter de fin de celda
+    celda.End = celda.End - 1 ' Quitar el carÃ¡cter de fin de celda
 
     ' Aplicar formato base
     With celda.Font
@@ -818,39 +818,39 @@ End Sub
 Option Explicit
 
 Sub ColorearCeldaSeveridad()
-    ' DECLARACIÓN DE VARIABLES
+    ' DECLARACIÃ“N DE VARIABLES
     Dim textoCelda As String
     Dim score As Double
     Dim bgColor As Long
-    Dim fontColor As WdColor ' Usamos el tipo de dato específico para colores de Word
+    Dim fontColor As WdColor ' Usamos el tipo de dato especÃ­fico para colores de Word
     Dim colorAplicar As Boolean
     Dim rng As Range
 
-    ' 1. VERIFICAR QUE EL CURSOR ESTÁ EN UNA TABLA
+    ' 1. VERIFICAR QUE EL CURSOR ESTÃ EN UNA TABLA
     If Selection.Information(wdWithInTable) = False Then
-        MsgBox "Por favor, coloque el cursor dentro de una celda de tabla.", vbInformation, "Operación Cancelada"
+        MsgBox "Por favor, coloque el cursor dentro de una celda de tabla.", vbInformation, "OperaciÃ³n Cancelada"
         Exit Sub
     End If
 
     ' 2. OBTENER Y LIMPIAR EL TEXTO DE LA CELDA
-    ' Usamos el rango de la primera celda de la selección para ser más precisos
+    ' Usamos el rango de la primera celda de la selecciÃ³n para ser mÃ¡s precisos
     Set rng = Selection.Cells(1).Range
-    ' Excluimos el carácter de fin de celda invisible (muy importante)
+    ' Excluimos el carÃ¡cter de fin de celda invisible (muy importante)
     rng.End = rng.End - 1
-    ' Limpiamos y convertimos a mayúsculas para que la comparación no falle
+    ' Limpiamos y convertimos a mayÃºsculas para que la comparaciÃ³n no falle
     textoCelda = UCase(Trim(rng.Text))
     
     ' Inicializamos la bandera
     colorAplicar = False
 
-    ' 3. LÓGICA PARA DECIDIR EL COLOR BASADO EN EL CONTENIDO
+    ' 3. LÃ“GICA PARA DECIDIR EL COLOR BASADO EN EL CONTENIDO
     
-    ' Primero, intentamos ver si el contenido es un número
+    ' Primero, intentamos ver si el contenido es un nÃºmero
     If IsNumeric(textoCelda) Then
-        score = CDbl(textoCelda) ' Convertimos el texto a número
+        score = CDbl(textoCelda) ' Convertimos el texto a nÃºmero
         
         If score >= 9# And score <= 10# Then
-            bgColor = RGB(&H70, &H30, &HA0) ' Crítica (Púrpura)
+            bgColor = RGB(&H70, &H30, &HA0) ' CrÃ­tica (PÃºrpura)
             fontColor = wdColorWhite
             colorAplicar = True
         ElseIf score >= 7# And score < 9# Then
@@ -867,9 +867,9 @@ Sub ColorearCeldaSeveridad()
             colorAplicar = True
         End If
     Else
-        ' Si no es un número, lo tratamos como texto
+        ' Si no es un nÃºmero, lo tratamos como texto
         Select Case textoCelda
-            Case "CRÍTICA", "CRITICAL"
+            Case "CRÃTICA", "CRITICAL"
                 bgColor = RGB(&H70, &H30, &HA0) ' #7030A0
                 fontColor = wdColorWhite
                 colorAplicar = True
@@ -888,13 +888,13 @@ Sub ColorearCeldaSeveridad()
         End Select
     End If
 
-    ' 4. APLICAR EL FORMATO DIRECTAMENTE A LA SELECCIÓN
+    ' 4. APLICAR EL FORMATO DIRECTAMENTE A LA SELECCIÃ“N
     If colorAplicar Then
         ' Seleccionamos toda la celda para asegurar que el formato se aplique correctamente
         Selection.Cells(1).Select
         
-        ' Aplicamos el formato de fondo usando tu método, que es el correcto.
-        ' Esto asegura un color sólido y limpio.
+        ' Aplicamos el formato de fondo usando tu mÃ©todo, que es el correcto.
+        ' Esto asegura un color sÃ³lido y limpio.
         With Selection.Shading
             .Texture = wdTextureNone
             .ForegroundPatternColor = wdColorAutomatic
@@ -1041,7 +1041,7 @@ End Sub
 
 Sub FormatearCodigoHTMLSeleccionado()
     Const colorHTML As Long = &H66CC       ' Azul suave para HTML (ej. etiquetas)
-    Const colorCSS As Long = &H228B22      ' Verde más claro para CSS (ej. propiedades)
+    Const colorCSS As Long = &H228B22      ' Verde mÃ¡s claro para CSS (ej. propiedades)
     Const colorJS As Long = &HFF6347       ' Tomate suave para JS (ej. palabras reservadas)
     Const colorValores As Long = &HFF8C00   ' Naranja suave para valores (ej. "auto", "#fff", "true")
     Const colorComentarios As Long = &H808080 ' Gris para comentarios (Simplificado)
@@ -1060,32 +1060,32 @@ Sub FormatearCodigoHTMLSeleccionado()
     htmlKeywords = Array("html", "body", "head", "title", "meta", "link", "style", "script", "div", "span", "p", "a", "img", "ul", "ol", "li", "table", "tr", "td", "th", "form", "input", "button", "select", "option", "textarea", "label", "h1", "h2", "h3", "h4", "h5", "h6", "header", "footer", "nav", "article", "section", "aside", "main", "figure", "figcaption", "br", "hr", "DOCTYPE")
     cssKeywords = Array("color", "background-color", "background", "font-size", "font-family", "font-weight", "font-style", "text-align", "text-decoration", "padding", "margin", "border", "width", "height", "display", "position", "top", "right", "bottom", "left", "float", "clear", "overflow", "z-index", "opacity", "border-radius", "box-shadow", "transition", "transform", "@media", "@keyframes", "import", "selector", "content", "cursor", "visibility", "list-style")
     jsKeywords = Array("function", "var", "let", "const", "if", "else", "for", "while", "do", "switch", "case", "break", "continue", "return", "try", "catch", "finally", "throw", "new", "this", "class", "extends", "super", "import", "export", "async", "await", "yield", "document", "window", "alert", "console", "log", "error", "warn", "info", "getElementById", "getElementsByTagName", "getElementsByClassName", "querySelector", "querySelectorAll", "addEventListener", "removeEventListener", "setTimeout", "setInterval", "clearTimeout", "clearInterval", "JSON", "parse", "stringify", "Math", "Date", "Array", "Object", "String", "Number", "Boolean")
-    valueKeywords = Array("true", "false", "null", "undefined", "auto", "inherit", "initial", "unset", "none", "block", "inline", "inline-block", "flex", "grid", "absolute", "relative", "fixed", "static", "solid", "dotted", "dashed", "double", "hidden", "visible", "bold", "italic", "normal") ' Añadidos valores comunes
+    valueKeywords = Array("true", "false", "null", "undefined", "auto", "inherit", "initial", "unset", "none", "block", "inline", "inline-block", "flex", "grid", "absolute", "relative", "fixed", "static", "solid", "dotted", "dashed", "double", "hidden", "visible", "bold", "italic", "normal") ' AÃ±adidos valores comunes
 
-    ' ----- Lógica Principal -----
+    ' ----- LÃ³gica Principal -----
     ' 1. Verificar si hay texto seleccionado
     If Selection.Type = wdSelectionIP Or Selection.Type = wdSelectionNone Then
-        MsgBox "Por favor, primero seleccione el bloque de código HTML/CSS/JS que desea formatear.", vbInformation, "Selección Requerida"
+        MsgBox "Por favor, primero seleccione el bloque de cÃ³digo HTML/CSS/JS que desea formatear.", vbInformation, "SelecciÃ³n Requerida"
         Exit Sub
     End If
 
     Set selRange = Selection.Range
 
-    ' 2. Restablecer el color de toda la selección a negro (o el color por defecto)
+    ' 2. Restablecer el color de toda la selecciÃ³n a negro (o el color por defecto)
     ' Esto asegura que solo las palabras clave identificadas cambien de color.
     selRange.Font.color = colorPorDefecto
 
-    ' 3. Iterar sobre cada "palabra" en la selección
+    ' 3. Iterar sobre cada "palabra" en la selecciÃ³n
     ' Usamos Trim() para quitar espacios al inicio/final que a veces incluye .Words
-    ' Usamos LCase() para hacer la comparación insensible a mayúsculas/minúsculas
+    ' Usamos LCase() para hacer la comparaciÃ³n insensible a mayÃºsculas/minÃºsculas
     For Each word In selRange.Words
         Dim wordText As String
         wordText = LCase(Trim(word.Text))
         
-        ' Optimización: Si la palabra está vacía después de Trim, saltarla.
+        ' OptimizaciÃ³n: Si la palabra estÃ¡ vacÃ­a despuÃ©s de Trim, saltarla.
         If Len(wordText) = 0 Then GoTo NextWord
 
-        ' Bandera para saber si ya se coloreó la palabra
+        ' Bandera para saber si ya se coloreÃ³ la palabra
         Dim colored As Boolean
         colored = False
 
@@ -1097,7 +1097,7 @@ Sub FormatearCodigoHTMLSeleccionado()
                 Exit For ' Salir del bucle de HTML si se encuentra coincidencia
             End If
         Next keyword
-        If colored Then GoTo NextWord ' Ir a la siguiente palabra si ya se coloreó
+        If colored Then GoTo NextWord ' Ir a la siguiente palabra si ya se coloreÃ³
 
         ' Comprobar CSS (solo si no es HTML)
         For Each keyword In cssKeywords
@@ -1127,18 +1127,18 @@ Sub FormatearCodigoHTMLSeleccionado()
                 Exit For
             End If
         Next keyword
-        ' No necesita GoTo aquí ya que es la última comprobación de palabras clave
+        ' No necesita GoTo aquÃ­ ya que es la Ãºltima comprobaciÃ³n de palabras clave
 
-' Etiqueta para saltar a la siguiente iteración del bucle principal
+' Etiqueta para saltar a la siguiente iteraciÃ³n del bucle principal
 NextWord:
     Next word
 
-    ' ----- Limpieza (Buenas prácticas) -----
+    ' ----- Limpieza (Buenas prÃ¡cticas) -----
     Set word = Nothing
     Set selRange = Nothing
 
-    ' Mensaje Opcional de finalización
-    ' MsgBox "Formato de sintaxis aplicado a la selección.", vbInformation
+    ' Mensaje Opcional de finalizaciÃ³n
+    ' MsgBox "Formato de sintaxis aplicado a la selecciÃ³n.", vbInformation
 
 End Sub
 
@@ -1147,18 +1147,18 @@ End Sub
 Sub PalabrasClaveVerde_Corregida()
 
     Dim doc As Document
-    Dim rng As Range          ' Rango de la selección original
-    Dim searchRng As Range    ' Rango donde buscar (basado en la selección)
-    Dim foundRng As Range     ' Rango específico de una coincidencia encontrada
+    Dim rng As Range          ' Rango de la selecciÃ³n original
+    Dim searchRng As Range    ' Rango donde buscar (basado en la selecciÃ³n)
+    Dim foundRng As Range     ' Rango especÃ­fico de una coincidencia encontrada
     Dim regex As Object       ' Objeto para expresiones regulares
-    Dim matches As Object     ' Colección de coincidencias
+    Dim matches As Object     ' ColecciÃ³n de coincidencias
     Dim match As Object       ' Coincidencia individual
-    Dim startPos As Long      ' Posición inicial de la coincidencia en el documento
-    Dim endPos As Long        ' Posición final de la coincidencia en el documento
+    Dim startPos As Long      ' PosiciÃ³n inicial de la coincidencia en el documento
+    Dim endPos As Long        ' PosiciÃ³n final de la coincidencia en el documento
     Dim i As Long             ' Contador para el bucle de patrones
-    Dim k As Long             ' Contador para el bucle de coincidencias (iteración inversa)
+    Dim k As Long             ' Contador para el bucle de coincidencias (iteraciÃ³n inversa)
 
-    ' --- CONFIGURACIÓN: PATRONES Y COLOR ---
+    ' --- CONFIGURACIÃ“N: PATRONES Y COLOR ---
     Const ignoreWord As String = "imgventk" ' Palabra a ignorar (no resaltar)
 
     ' --- Patrones (Expresiones Regulares) ---
@@ -1182,16 +1182,16 @@ Sub PalabrasClaveVerde_Corregida()
 
     Set doc = ActiveDocument
     Set rng = Selection.Range ' Rango original seleccionado
-    ' Creamos un duplicado del rango de selección para realizar la búsqueda sin alterar el original
+    ' Creamos un duplicado del rango de selecciÃ³n para realizar la bÃºsqueda sin alterar el original
     Set searchRng = rng.Duplicate
 
-    ' Crear y configurar el objeto de expresión regular
+    ' Crear y configurar el objeto de expresiÃ³n regular
     On Error Resume Next ' Temporalmente ignorar errores si el objeto no se puede crear
     Set regex = CreateObject("VBScript.RegExp")
     If Err.Number <> 0 Then
         On Error GoTo 0 ' Restaurar manejo de errores normal
-        MsgBox "Error al crear el objeto de Expresión Regular." & vbCrLf & _
-               "Asegúrate de que 'VBScript Regular Expressions 5.5' esté disponible en el sistema.", vbCritical
+        MsgBox "Error al crear el objeto de ExpresiÃ³n Regular." & vbCrLf & _
+               "AsegÃºrate de que 'VBScript Regular Expressions 5.5' estÃ© disponible en el sistema.", vbCritical
         ' Liberar objetos antes de salir
         Set doc = Nothing: Set rng = Nothing: Set searchRng = Nothing
         Exit Sub
@@ -1200,8 +1200,8 @@ Sub PalabrasClaveVerde_Corregida()
 
     With regex
         .Global = True      ' Buscar todas las ocurrencias, no solo la primera
-        .IgnoreCase = True  ' Ignorar mayúsculas/minúsculas
-        .MultiLine = True   ' Tratar ^ y $ como inicio/fin de línea (aunque no es crucial para estos patrones)
+        .IgnoreCase = True  ' Ignorar mayÃºsculas/minÃºsculas
+        .MultiLine = True   ' Tratar ^ y $ como inicio/fin de lÃ­nea (aunque no es crucial para estos patrones)
     End With
 
     ' --- Agrupar los patrones en un array para iterar ---
@@ -1214,45 +1214,45 @@ Sub PalabrasClaveVerde_Corregida()
     patterns(5) = pattern5_SpanishEncode
     patterns(6) = pattern6_SpecificVars
 
-    ' --- Procesar cada patrón ---
+    ' --- Procesar cada patrÃ³n ---
     For i = LBound(patterns) To UBound(patterns)
-        regex.pattern = patterns(i) ' Establecer el patrón actual
+        regex.pattern = patterns(i) ' Establecer el patrÃ³n actual
 
-        ' Ejecutar la búsqueda en el texto del rango seleccionado
-        If regex.Test(searchRng.Text) Then ' Optimización: Ejecutar solo si hay al menos una coincidencia
+        ' Ejecutar la bÃºsqueda en el texto del rango seleccionado
+        If regex.Test(searchRng.Text) Then ' OptimizaciÃ³n: Ejecutar solo si hay al menos una coincidencia
             Set matches = regex.Execute(searchRng.Text)
 
             ' Iterar sobre las coincidencias EN ORDEN INVERSO
             ' Esto es importante porque al aplicar formato (resaltado), las posiciones
-            ' de las coincidencias posteriores podrían cambiar si iteramos hacia adelante.
+            ' de las coincidencias posteriores podrÃ­an cambiar si iteramos hacia adelante.
             For k = matches.count - 1 To 0 Step -1
                 Set match = matches(k)
 
-                ' Comprobar si la coincidencia es la palabra a ignorar (comparando en minúsculas)
+                ' Comprobar si la coincidencia es la palabra a ignorar (comparando en minÃºsculas)
                 If LCase(match.Value) <> LCase(ignoreWord) Then
                     ' Calcular las posiciones de inicio y fin de la coincidencia
-                    ' DENTRO DEL DOCUMENTO COMPLETO, usando el inicio del rango de búsqueda como base.
+                    ' DENTRO DEL DOCUMENTO COMPLETO, usando el inicio del rango de bÃºsqueda como base.
                     startPos = searchRng.Start + match.FirstIndex
                     endPos = startPos + match.Length
 
-                    ' Crear un rango específico para esta coincidencia dentro del documento
+                    ' Crear un rango especÃ­fico para esta coincidencia dentro del documento
                     Set foundRng = doc.Range(startPos, endPos)
 
                     ' Aplicar el color de resaltado
-                    ' Solo aplicar si aún no tiene ESE MISMO color (evita trabajo innecesario, aunque no es estrictamente necesario)
+                    ' Solo aplicar si aÃºn no tiene ESE MISMO color (evita trabajo innecesario, aunque no es estrictamente necesario)
                     If foundRng.HighlightColorIndex <> colorHighlight Then
                          foundRng.HighlightColorIndex = colorHighlight
                     End If
 
-                    ' Liberar el rango de la coincidencia encontrada para la siguiente iteración
+                    ' Liberar el rango de la coincidencia encontrada para la siguiente iteraciÃ³n
                     Set foundRng = Nothing
                 End If
             Next k ' Siguiente coincidencia (en orden inverso)
 
-            ' Liberar la colección de coincidencias para el patrón actual
+            ' Liberar la colecciÃ³n de coincidencias para el patrÃ³n actual
             Set matches = Nothing
         End If ' Fin de If regex.Test
-    Next i ' Siguiente patrón
+    Next i ' Siguiente patrÃ³n
 
     ' --- Limpieza final de objetos ---
     Set regex = Nothing
@@ -1261,7 +1261,7 @@ Sub PalabrasClaveVerde_Corregida()
     Set searchRng = Nothing
     Set doc = Nothing
 
-    ' Opcional: Mensaje de finalización
+    ' Opcional: Mensaje de finalizaciÃ³n
     ' MsgBox "Resaltado completado.", vbInformation
 
 End Sub
@@ -1271,12 +1271,12 @@ Sub CensurarIPs_X_Dinamica_Segura()
     Dim strX3 As String, strX4 As String
     Dim rng As Range
     
-    ' Desactivamos la actualización de pantalla para que sea rápido
+    ' Desactivamos la actualizaciÃ³n de pantalla para que sea rÃ¡pido
     Application.ScreenUpdating = False
     
-    ' Bucle para la longitud del 3er octeto (de 3 a 1 dígitos)
+    ' Bucle para la longitud del 3er octeto (de 3 a 1 dÃ­gitos)
     For i = 3 To 1 Step -1
-        ' Bucle para la longitud del 4to octeto (de 3 a 1 dígitos)
+        ' Bucle para la longitud del 4to octeto (de 3 a 1 dÃ­gitos)
         For j = 3 To 1 Step -1
             
             ' Generamos la cadena de X correspondiente a la longitud (ej. XXX o XX)
@@ -1290,7 +1290,7 @@ Sub CensurarIPs_X_Dinamica_Segura()
                 .Replacement.ClearFormatting
                 .MatchWildcards = True
                 
-                ' Construimos el patrón exacto para esta combinación de longitudes
+                ' Construimos el patrÃ³n exacto para esta combinaciÃ³n de longitudes
                 ' <([0-9]{1,3})\.([0-9]{1,3})\.  -> Busca los dos primeros octetos (Grupo 1 y 2)
                 ' ([0-9]{i})\.                   -> Busca el 3er octeto con longitud exacta 'i'
                 ' ([0-9]{j})>                    -> Busca el 4to octeto con longitud exacta 'j'
@@ -1309,6 +1309,6 @@ Sub CensurarIPs_X_Dinamica_Segura()
     
     ' Restauramos la pantalla
     Application.ScreenUpdating = True
-    MsgBox "IPs censuradas respetando la cantidad de dígitos.", vbInformation
+    MsgBox "IPs censuradas respetando la cantidad de dÃ­gitos.", vbInformation
 
 End Sub

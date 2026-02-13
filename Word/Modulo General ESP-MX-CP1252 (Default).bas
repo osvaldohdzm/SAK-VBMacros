@@ -1,5 +1,5 @@
 Attribute VB_Name = "Módulo11"
-Sub MarkTables()
+Sub GEN_001_MarkTables()
     Dim doc As Document
     Dim table As table
     Dim count As Integer
@@ -16,7 +16,7 @@ Sub MarkTables()
 End Sub
 
 
-Sub MarkInlineCharts()
+Sub GEN_002_MarkInlineCharts()
     Dim doc As Document
     Dim inlineShape As inlineShape
     Dim count As Integer
@@ -32,7 +32,7 @@ Sub MarkInlineCharts()
     Next inlineShape
 End Sub
 
-Sub FormatearTabla()
+Sub GEN_003_FormatearTabla()
     Dim tbl As table
     Dim row As row
     Dim isFirstRow As Boolean
@@ -98,7 +98,7 @@ Sub FormatearTabla()
 End Sub
 
 
-Sub ActualizarCamposSEQ()
+Sub GEN_004_ActualizarCamposSEQ()
     Dim doc As Document
     Set doc = ActiveDocument
     
@@ -112,7 +112,7 @@ Sub ActualizarCamposSEQ()
     Next campo
 End Sub
 
-Sub CambiarMontserrat10a11()
+Sub GEN_005_CambiarMontserrat10a11()
     Dim rng As Range
     Dim doc As Document
     Dim i As Integer
@@ -138,7 +138,7 @@ Sub CambiarMontserrat10a11()
     MsgBox "Cambio completado de Montserrat 10 a 11", vbInformation
 End Sub
 
-Sub GEN006_FormatoNegritaViñetas()
+Sub GEN_006_FormatoNegritaViñetas()
     Dim p As Paragraph
     Dim strTexto As String
     Dim posDosPuntos As Integer
@@ -170,7 +170,7 @@ Sub GEN006_FormatoNegritaViñetas()
 End Sub
 
 
-Sub GEN007_FormatoNegritaViñetasGuion()
+Sub GEN_007_FormatoNegritaViñetasGuion()
     Dim p As Paragraph
     Dim strTexto As String
     Dim posDosPuntos As Integer
@@ -206,7 +206,7 @@ End Sub
 
 
 
-Sub BuscarPalabrasYGenerarCSV()
+Sub GEN_008_BuscarPalabrasYGenerarCSV()
     Dim dlgOpen As FileDialog
     Dim archivoTXT As String
     Dim archivoCSV As String
@@ -263,7 +263,7 @@ Sub BuscarPalabrasYGenerarCSV()
     MsgBox "Proceso completado. Archivo CSV generado: " & archivoCSV, vbInformation
 End Sub
 
-Sub ForzarRenumerarCaptionImagenes()
+Sub GEN_009_ForzarRenumerarCaptionImagenes()
 
     ' Definir variables
     Dim rng As Range
@@ -298,7 +298,7 @@ Sub ForzarRenumerarCaptionImagenes()
 
 End Sub
 
-Sub GEN_005_ReplacePicoParentesis()
+Sub GEN_010_ReplacePicoParentesis()
     Dim doc As Document
     Dim rng As Range
     Dim foundText As String
@@ -352,19 +352,19 @@ Sub GEN_005_ReplacePicoParentesis()
     ' Recorre los encabezados y pies de página
     For Each headerFooter In doc.Sections(1).Headers
         Set rng = headerFooter.Range
-        Call ReplaceInRange(rng, inputDict)
+        Call GEN_011_ReplaceInRange(rng, inputDict)
     Next headerFooter
     
     For Each headerFooter In doc.Sections(1).Footers
         Set rng = headerFooter.Range
-        Call ReplaceInRange(rng, inputDict)
+        Call GEN_011_ReplaceInRange(rng, inputDict)
     Next headerFooter
     
     ' Recorre las autormas en el documento (Shapes tipo msoTextBox)
     For Each shape In doc.Shapes
         If shape.Type = msoTextBox Then
             ' Llama a la función ReplaceInRange para reemplazar texto dentro de la autorma
-            Call ReplaceInRange(shape.TextFrame.TextRange, inputDict)
+            Call GEN_011_ReplaceInRange(shape.TextFrame.TextRange, inputDict)
         End If
     Next shape
 
@@ -373,7 +373,7 @@ Sub GEN_005_ReplacePicoParentesis()
     Set inputDict = Nothing
 End Sub
 
-Sub ReplaceInRange(rng As Range, inputDict As Object)
+Sub GEN_011_ReplaceInRange(rng As Range, inputDict As Object)
     Dim foundText As String
     Dim newValue As String
     
@@ -409,5 +409,35 @@ Sub ReplaceInRange(rng As Range, inputDict As Object)
             rng.Collapse wdCollapseEnd
         Loop
     End With
+End Sub
+
+Sub GEN_012_ModificarEstiloTitulo3()
+    Dim est As Style
+    
+    ' Acceder al estilo Título 3 del documento activo
+    Set est = ActiveDocument.Styles(wdStyleHeading3)
+    
+    With est
+        ' 1. Configurar la Fuente
+        .Font.Name = "Roboto Slap" ' Puedes cambiar la tipografía aquí
+        .Font.Size = 12        ' Tamaño de letra
+        .Font.Bold = True      ' Negrita
+        .Font.ColorIndex = wdWhite ' Letra Blanca
+        
+        ' 2. Configurar el Párrafo y el Fondo (Sombreado)
+        With .ParagraphFormat
+            .Alignment = wdAlignParagraphLeft ' Alineación a la izquierda
+            .SpaceBefore = 12  ' Espacio antes del título
+            .SpaceAfter = 6    ' Espacio después del título
+            
+            ' Aplicar el fondo azul sólido
+            .Shading.BackgroundPatternColor = wdColorBlue
+        End With
+        
+        ' 3. Asegurar que no tenga subrayado de línea
+        .Font.Underline = wdUnderlineNone
+    End With
+
+    MsgBox "El estilo 'Título 3' ha sido actualizado con éxito."
 End Sub
 
