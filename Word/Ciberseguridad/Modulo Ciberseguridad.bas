@@ -1312,3 +1312,59 @@ Sub CensurarIPs_X_Dinamica_Segura()
     MsgBox "IPs censuradas respetando la cantidad de dígitos.", vbInformation
 
 End Sub
+
+
+Sub AgregarColumnaEstadoConFormato()
+    Dim tbl As table
+    Dim colNueva As Column
+    Dim i As Integer
+    Dim celdaOrigen As cell
+    Dim celdaDestino As cell
+
+    ' Verificar si hay una tabla seleccionada
+    If Selection.Information(wdWithInTable) Then
+        Set tbl = Selection.Tables(1)
+        
+        ' 1. Agregar la nueva columna a la derecha
+        tbl.Columns.Add
+        
+        Dim totalCols As Integer
+        totalCols = tbl.Columns.count
+        
+        ' 2. Recorrer cada fila para copiar el formato de la penúltima a la última
+        For i = 1 To tbl.Rows.count
+            ' Definir la celda de origen (penúltima) y destino (última)
+            ' Usamos manejo de errores por si hay celdas combinadas
+            On Error Resume Next
+            Set celdaOrigen = tbl.cell(i, totalCols - 1)
+            Set celdaDestino = tbl.cell(i, totalCols)
+            
+            If Not celdaOrigen Is Nothing Then
+                ' Copiar color de fondo (Sombreado)
+                celdaDestino.Shading.BackgroundPatternColor = celdaOrigen.Shading.BackgroundPatternColor
+                
+                ' Copiar formato de fuente (Color, Negrita, Tamaño, Nombre)
+                celdaDestino.Range.Font.Name = celdaOrigen.Range.Font.Name
+                celdaDestino.Range.Font.Size = celdaOrigen.Range.Font.Size
+                celdaDestino.Range.Font.Bold = celdaOrigen.Range.Font.Bold
+                celdaDestino.Range.Font.TextColor = celdaOrigen.Range.Font.TextColor
+                
+                ' Copiar alineación vertical y horizontal
+                celdaDestino.VerticalAlignment = celdaOrigen.VerticalAlignment
+                celdaDestino.Range.ParagraphFormat.Alignment = celdaOrigen.Range.ParagraphFormat.Alignment
+                
+                ' Escribir encabezado si es la primera fila
+                If i = 1 Then
+                    celdaDestino.Range.Text = "Estado"
+                    ' Asegurar que el texto no tenga negrita extra si no se desea,
+                    ' o mantener el estilo del encabezado original.
+                End If
+            End If
+            On Error GoTo 0
+        Next i
+        
+        MsgBox "Columna 'Estado' agregada con éxito.", vbInformation, "Operación Completada"
+    Else
+        MsgBox "Por favor, haz clic dentro de la tabla que deseas modificar.", vbExclamation, "No hay tabla seleccionada"
+    End If
+End Sub

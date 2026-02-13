@@ -186,7 +186,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                 With selectedRange
                     
                     .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -196,7 +196,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -206,7 +206,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(0, 0, 0)
                     End With
@@ -216,7 +216,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -226,7 +226,7 @@ Sub CYB020_ExportarHojaConFormatoINAI()
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(0, 0, 0)
                     End With
@@ -293,7 +293,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                 With selectedRange
                     
                     .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -303,7 +303,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -313,7 +313,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(0, 0, 0)
                     End With
@@ -323,7 +323,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(255, 255, 255)
                     End With
@@ -333,7 +333,7 @@ Function FunExportarHojaActivaAExcelINAI(carpetaSalida As String, folderName As 
                     
                     
                     .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
-                    .FormatConditions(.FormatConditions.Count).SetFirstPriority
+                    .FormatConditions(.FormatConditions.count).SetFirstPriority
                     With .FormatConditions(1).Font
                         .Color = RGB(0, 0, 0)
                     End With
@@ -447,7 +447,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
             Next i
             
             
-            n = uniqueUrls.Count - 1
+            n = uniqueUrls.count - 1
             ReDim uniqueArray(n)
             i = 0
             For Each key In uniqueUrls.Keys
@@ -529,7 +529,7 @@ Sub CYB037_AplicarFormatoCondicional()
     
     With selectedRange
         .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -538,7 +538,7 @@ Sub CYB037_AplicarFormatoCondicional()
         End With
         
         .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -547,7 +547,7 @@ Sub CYB037_AplicarFormatoCondicional()
         End With
         
         .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(0, 0, 0)
         End With
@@ -556,7 +556,7 @@ Sub CYB037_AplicarFormatoCondicional()
         End With
         
         .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -565,7 +565,7 @@ Sub CYB037_AplicarFormatoCondicional()
         End With
         
         .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(0, 0, 0)
         End With
@@ -1234,10 +1234,10 @@ Function ReemplazarEntidadesHtml(ByVal text As String) As String
     text = Replace(text, "&gt;", ">")
     text = Replace(text, "&amp;", "&")
     text = Replace(text, "&quot;", """")
-    text = Replace(text, "&apos;", "
-    text = Replace(text, "&#x27;", "
-    text = Replace(text, "&#34;", """")
-    text = Replace(text, "&#39;", "
+    text = Replace(text, "&apos;", """")
+    text = Replace(text, "&#x27;", "")
+    text = Replace(text, "&#34;", "")
+    text = Replace(text, "&#39;", "")
     text = Replace(text, "&#160;", Chr(160))
     
     ReemplazarEntidadesHtml = text
@@ -1315,7 +1315,7 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
         
         
         Set firstTable = WordDoc.Tables(1)
-        numRows = firstTable.Rows.Count
+        numRows = firstTable.Rows.count
         
         
         If Len(Trim(salidaPruebaSeguridadValue)) = 0 And Len(Trim(metodoDeteccionValue)) = 0 Then
@@ -1328,7 +1328,7 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
                     firstTable.Rows(numRows - 1).Delete
                 End If
             End If
-      ElseIf Len(Trim(salidaPruebaSeguridadValue)) = 0 And firstTable.Tables.Count > 0 Then
+      ElseIf Len(Trim(salidaPruebaSeguridadValue)) = 0 And firstTable.Tables.count > 0 Then
             If numRows > 0 Then
                 firstTable.Tables(1).Delete
             End If
@@ -1457,7 +1457,7 @@ Sub CYB038_ExportarTablaContenidoADocumentoWord()
                 
                 Set captionRange = rng.Duplicate
                 captionRange.Select
-                appWord.Selection.MoveLeft Unit:=1, Count:=1, Extend:=0
+                appWord.Selection.MoveLeft Unit:=1, count:=1, Extend:=0
                 appWord.CaptionLabels.Add Name:="Imagen"
                 appWord.Selection.InsertCaption Label:="Imagen", TitleAutoText:="InsertarTítulo1", _
                                                 Title:="", Position:=1
@@ -1539,7 +1539,7 @@ Sub CYB017_LimpiarColumnaReferencias()
             Next i
             
             
-            n = uniqueUrls.Count - 1
+            n = uniqueUrls.count - 1
             ReDim uniqueArray(n)
             i = 0
             For Each key In uniqueUrls.Keys
@@ -1649,7 +1649,7 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
     On Error GoTo ErrorHandler
     
     
-    If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.Count Then
+    If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.count Then
         MsgBox "Índice de gr?fico fuera de rango."
         ActualizarGraficoSegunDicionario = False
         Exit Function
@@ -1670,7 +1670,7 @@ Function ActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As Ob
                     Set SourceSheet = ChartWorkbook.Sheets(1)
                     
                     
-                    lastRow = SourceSheet.Cells(SourceSheet.Rows.Count, 1).End(xlUp).row
+                    lastRow = SourceSheet.Cells(SourceSheet.Rows.count, 1).End(xlUp).row
                     If lastRow >= 2 Then
                         SourceSheet.Range("A2:B" & lastRow).ClearContents
                     End If
@@ -1848,14 +1848,14 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         MsgBox "Advertencia: No se encontró la columna, Se asumirá Texto Plano para todas las filas.", vbInformation
     End If
     
-    rowCount = tbl.ListRows.Count
+    rowCount = tbl.ListRows.count
     ReDim documentsList(0 To rowCount - 1)
     
     For i = 1 To rowCount
         
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
-        For colIndex = 1 To tbl.ListColumns.Count
+        For colIndex = 1 To tbl.ListColumns.count
             Dim colName As String
             Dim cellValue As String
             colName = tbl.HeaderRowRange.Cells(1, colIndex).value
@@ -1938,6 +1938,24 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
             'AplicarFormatoCeldaEnTablaWord WordDoc, 1, 8, 1, "Cuerpo de tabla"
             AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(8, 1)
         End If
+        
+        Dim n As Integer
+        Dim textoRef As String
+        
+        ' Revisamos las filas típicas (3 a 7) para encontrar la etiqueta
+        For n = 3 To 7
+            textoRef = Trim(Replace(WordDoc.Tables(1).cell(n, 1).Range.text, Chr(13) & Chr(7), ""))
+            
+            ' Comparamos en mayúsculas para evitar errores (REFERENCIAS o Referencias)
+            If UCase(textoRef) = "REFERENCIAS" Then
+                ' Forzamos a que la celda de la derecha (contenido) NO tenga negrita
+                WordDoc.Tables(1).cell(n, 2).Range.Font.Bold = False
+            
+                
+                ' Salimos del bucle una vez corregido
+                Exit For
+            End If
+        Next n
         
         finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
         WordDoc.SaveAs finalDocumentPath
@@ -2079,7 +2097,7 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
         MsgBox "Advertencia: No se encontró la columna 'Tipo de texto de explicación técnica'. Se asumirá Texto Plano.", vbInformation
     End If
     
-    rowCount = tbl.ListRows.Count
+    rowCount = tbl.ListRows.count
     ReDim documentsList(0 To rowCount - 1)
     
     ' Procesar filas
@@ -2087,7 +2105,7 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
         ' Cargar valores de la fila
-        For colIndex = 1 To tbl.ListColumns.Count
+        For colIndex = 1 To tbl.ListColumns.count
             Dim colName As String
             Dim cellValue As String
             colName = tbl.HeaderRowRange.Cells(1, colIndex).value
@@ -2113,11 +2131,18 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
         Dim nombreActivoActual As String
         nombreActivoActual = Trim(replaceDic("«Nombre de activo tecnológico»"))
         
-        If nombreActivoActual <> "" And nombreActivoActual <> ultimoActivo Then
-            WordDoc.Paragraphs(1).Range.InsertBefore nombreActivoActual & vbCrLf
-            WordDoc.Paragraphs(1).Range.Style = "Título 1"
-            ultimoActivo = nombreActivoActual
-        End If
+       Const wdStyleHeading1 As Long = -2
+
+If nombreActivoActual <> "" And nombreActivoActual <> ultimoActivo Then
+    WordDoc.Paragraphs(1).Range.InsertBefore nombreActivoActual & vbCrLf
+    
+    ' En lugar de "Título 1", usamos la constante interna
+    ' Esto funcionará en Word en Inglés, Español, Chino, etc.
+    WordDoc.Paragraphs(1).Range.Style = WordDoc.Styles(wdStyleHeading1)
+    
+    ' Resto de tu código...
+    ultimoActivo = nombreActivoActual
+End If
         ' --- FIN NUEVO ---
         
         ' Reemplazo de placeholders
@@ -2168,6 +2193,13 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
             AjustarMarcadorCeldaEnTablaWord WordApp, WordDoc, 1, 8, 1
             EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
             AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(8, 1)
+        End If
+        
+        textoCelda = Trim(Replace(WordDoc.Tables(1).cell(5, 1).Range.text, Chr(13) & Chr(7), ""))
+        If textoCelda = "REFERENCIAS" Then
+               With WordDoc.Tables(1).cell(5, 2).Range
+        .Font.Bold = False
+    End With
         End If
         
         finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
@@ -2395,7 +2427,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     
     
     severidadColumna = -1
-    For i = 1 To rng.Columns.Count
+    For i = 1 To rng.Columns.count
         If rng.Cells(1, i).value = "Severidad" Then
             severidadColumna = i
             Exit For
@@ -2408,7 +2440,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     End If
     
     
-    For i = 2 To rng.Rows.Count
+    For i = 2 To rng.Rows.count
         severity = rng.Cells(i, severidadColumna).value
         If severity <> "" Then
             If severityCounts.exists(severity) Then
@@ -2424,7 +2456,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     
     
     tiposvulnerabilidadColumna = -1
-    For i = 1 To rng.Columns.Count
+    For i = 1 To rng.Columns.count
         If rng.Cells(1, i).value = "Tipo de vulnerabilidad" Then
             tiposvulnerabilidadColumna = i
             Exit For
@@ -2437,7 +2469,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     End If
     
     
-    For i = 2 To rng.Rows.Count
+    For i = 2 To rng.Rows.count
         vulntypes = rng.Cells(i, tiposvulnerabilidadColumna).value
         If vulntypes <> "" Then
             If vulntypesCounts.exists(vulntypes) Then
@@ -2462,7 +2494,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     fileSystem.CopyFile plantillaVulnerabilidadesPath, tempDocVulnerabilidadesPath
     
     
-    rowCount = rng.Rows.Count
+    rowCount = rng.Rows.count
     For i = 2 To rowCount
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
@@ -2689,7 +2721,7 @@ Sub CYB003_GenerarReportesVulns()
     End If
     
     
-    For i = 1 To selectedRange.Columns.Count
+    For i = 1 To selectedRange.Columns.count
         key = "«" & headerRow.Cells(1, i).value & "»"
         
         
@@ -2920,7 +2952,7 @@ Sub ActualizarGraficos(ByRef WordDoc As Object)
     Dim ChartData   As Object
     Dim ChartWorkbook As Object
     
-    For i = 1 To WordDoc.InlineShapes.Count
+    For i = 1 To WordDoc.InlineShapes.count
         With WordDoc.InlineShapes(i)
             
             If .Type = 12 And .HasChart Then
@@ -3009,7 +3041,7 @@ Function GenerarDocumentosVulnerabilidiadesWord(fileName As String)
     Set replaceDic = CreateObject("Scripting.Dictionary")
     
     
-    rowCount = rng.Rows.Count
+    rowCount = rng.Rows.count
     For Each cell In selectedRange.Rows(1).Cells
         replaceDic("«" & cell.value & "»") = ""
     Next cell
@@ -3307,7 +3339,7 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
     On Error GoTo ErrorHandler
     
     
-    If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.Count Then
+    If graficoIndex < 1 Or graficoIndex > WordDoc.InlineShapes.count Then
         MsgBox "Índice de gr?fico fuera de rango."
         FunActualizarGraficoSegunDicionario = False
         Exit Function
@@ -3328,7 +3360,7 @@ Function FunActualizarGraficoSegunDicionario(ByRef WordDoc As Object, conteos As
                     Set SourceSheet = ChartWorkbook.Sheets(1)
                     
                     
-                    lastRow = SourceSheet.Cells(SourceSheet.Rows.Count, 1).End(xlUp).row
+                    lastRow = SourceSheet.Cells(SourceSheet.Rows.count, 1).End(xlUp).row
                     If lastRow >= 2 Then
                         SourceSheet.Range("A2:B" & lastRow).ClearContents
                     End If
@@ -3478,97 +3510,210 @@ End Sub
 
 
 
-Sub CYB034_CargarResultados_DatosDesdeCSVNessus()
-    Dim wb As Workbook
-    Dim ws As Worksheet
-    Dim tbl As ListObject
-    Dim archivos As Variant
-    Dim i As Integer
-    Dim wbCSV As Workbook
-    Dim wsCSV As Worksheet
-    Dim encabezados As Variant
-    Dim csvData As Variant
-    Dim fila As ListRow
-    Dim colCSVIndex As Integer
-    Dim columnaDestino As Integer
-    Dim columnaCorrespondiente As String
+Option Explicit
+
+Sub CYB034_CargarNessus_FormulasCorregidas()
+    ' --- VARIABLES DE SISTEMA ---
+    Dim wb As Workbook, ws As Worksheet, tbl As ListObject
+    Dim wbCSV As Workbook, wsCSV As Worksheet
+    Dim rngDestino As Range
     
+    ' --- VARIABLES DE DATOS ---
+    Dim archivos As Variant
+    Dim csvData As Variant
+    Dim arrSalida() As Variant
+    Dim encabezados As Variant
+    
+    ' --- VARIABLES CONTROL ---
+    Dim i As Long, r As Long, c As Long
+    Dim filaOutput As Long, filasIgnoradas As Long
+    Dim numFilasCSV As Long, numColsCSV As Long
+    Dim totalColsTabla As Long
+    Dim filasIniciales As Long
+    
+    ' --- VARIABLES LÓGICA ---
+    Dim colMap() As Long
+    Dim colRisk As Long, colRiskFactor As Long, colFiltroFinal As Long
+    Dim nombreColCSV As String, valRiesgo As String
+    
+    ' --- FÓRMULAS ---
+    Dim tieneFormula() As Boolean
+    Dim formulaR1C1Template() As String
+    
+    ' 1. PREPARACIÓN RÁPIDA
+    On Error GoTo ManejadorErrores
+    With Application
+        .ScreenUpdating = False
+        .Calculation = xlCalculationManual
+        .EnableEvents = False
+        .DisplayAlerts = False
+    End With
     
     Set wb = ThisWorkbook
     Set ws = wb.ActiveSheet
     
-    
+    ' 2. VALIDAR TABLA
     Dim celdaEnTabla As Boolean
     celdaEnTabla = False
-    For Each tbl In ws.ListObjects
-        If Not tbl.DataBodyRange Is Nothing Then
-            If Not Intersect(ActiveCell, tbl.DataBodyRange) Is Nothing Or Not Intersect(ActiveCell, tbl.Range) Is Nothing Then
-                celdaEnTabla = True
-                Exit For
-            End If
-        End If
-    Next tbl
-    
-    
-    If Not celdaEnTabla Then
-        MsgBox "La celda seleccionada no est? dentro de una tabla.", vbExclamation
-        Exit Sub
+    If ws.ListObjects.count > 0 Then
+        For Each tbl In ws.ListObjects
+            If Not Intersect(ActiveCell, tbl.Range) Is Nothing Then celdaEnTabla = True: Exit For
+        Next tbl
     End If
     
+    If Not celdaEnTabla Then
+        MsgBox "Selecciona una celda DENTRO de la tabla destino.", vbExclamation
+        GoTo Limpieza
+    End If
     
-    archivos = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", MultiSelect:=True, Title:="Seleccionar archivos CSV")
-    If IsArray(archivos) = False Then Exit Sub
+    If tbl.ShowAutoFilter Then If tbl.AutoFilter.FilterMode Then tbl.AutoFilter.ShowAllData
     
+    totalColsTabla = tbl.ListColumns.count
     
+    ' 3. MEMORIZAR FÓRMULAS
+    ReDim tieneFormula(1 To totalColsTabla)
+    ReDim formulaR1C1Template(1 To totalColsTabla)
+    
+    Dim rangoModelo As Range
+    If tbl.ListRows.count > 0 Then
+        Set rangoModelo = tbl.ListRows(1).Range
+    Else
+        Set rangoModelo = tbl.HeaderRowRange.Offset(1, 0)
+    End If
+    
+    For c = 1 To totalColsTabla
+        On Error Resume Next
+        If rangoModelo.Cells(1, c).HasFormula Then
+            tieneFormula(c) = True
+            formulaR1C1Template(c) = rangoModelo.Cells(1, c).FormulaR1C1
+        End If
+        On Error GoTo ManejadorErrores
+    Next c
+    
+    ' 4. SELECCIONAR ARCHIVOS
+    archivos = Application.GetOpenFilename("Archivos CSV (*.csv), *.csv", MultiSelect:=True, Title:="Seleccionar CSV Nessus")
+    If Not IsArray(archivos) Then GoTo Limpieza
+    
+    ' 5. PROCESAR
     For i = LBound(archivos) To UBound(archivos)
-        
-        Set wbCSV = Workbooks.Open(fileName:=archivos(i), Local:=True)
+        Application.StatusBar = "Procesando: " & Dir(archivos(i))
+        Set wbCSV = Workbooks.Open(fileName:=archivos(i), Local:=True, ReadOnly:=True)
         Set wsCSV = wbCSV.Sheets(1)
         
+        If wsCSV.UsedRange.Rows.count < 2 Then
+            wbCSV.Close False
+            GoTo SiguienteArchivo
+        End If
         
-        encabezados = wsCSV.UsedRange.Rows(1).value
-        csvData = wsCSV.UsedRange.Offset(1, 0).value
-        
-        
+        csvData = wsCSV.UsedRange.value
         wbCSV.Close False
         
+        numFilasCSV = UBound(csvData, 1)
+        numColsCSV = UBound(csvData, 2)
         
-        Dim j As Integer
-        For j = 1 To UBound(csvData, 1)
-            Set fila = tbl.ListRows.Add
+        ReDim arrSalida(1 To numFilasCSV, 1 To totalColsTabla)
+        ReDim colMap(1 To numColsCSV)
+        
+        encabezados = Application.Index(csvData, 1, 0)
+        colRisk = 0: colRiskFactor = 0
+        
+        For c = 1 To numColsCSV
+            nombreColCSV = Trim(encabezados(c))
+            If LCase(nombreColCSV) = "risk" Then colRisk = c
+            If LCase(nombreColCSV) = "risk factor" Then colRiskFactor = c
             
-            For colCSVIndex = 1 To UBound(encabezados, 2)
-                
-                Select Case encabezados(1, colCSVIndex)
-                    Case "Host": columnaCorrespondiente = "Identificador de detección usado"
-                    Case "CVE": columnaCorrespondiente = "CVE"
-                    Case "CVSS v3.0 Base Score": columnaCorrespondiente = "CVSSScore"
-                    Case "Metasploit": columnaCorrespondiente = "Exploits públicos"
-                    Case "Plugin ID": columnaCorrespondiente = "Identificador original de la vulnerabilidad"
-                    Case "Name": columnaCorrespondiente = "Nombre original de la vulnerabilidad"
-                    Case "Protocol": columnaCorrespondiente = "Protocolo de transporte"
-                    Case "Port": columnaCorrespondiente = "Puerto"
-                    Case "See Also": columnaCorrespondiente = "Referencias"
-                    Case "Plugin Output": columnaCorrespondiente = "Salidas de herramienta"
-                    Case Else: columnaCorrespondiente = ""
-                End Select
-                
-                
-                If columnaCorrespondiente <> "" Then
-                    columnaDestino = tbl.ListColumns(columnaCorrespondiente).Index
-                    fila.Range(1, columnaDestino).value = csvData(j, colCSVIndex)
+            Dim destino As String
+            destino = ""
+            Select Case LCase(nombreColCSV)
+                Case "host":                    destino = "Identificador de detección usado"
+                Case "cve":                     destino = "CVE"
+                Case "cvss v3.0 base score":    destino = "CVSSScore"
+                Case "metasploit":              destino = "Exploits públicos"
+                Case "plugin id":               destino = "Identificador original de la vulnerabilidad"
+                Case "name":                    destino = "Nombre original de la vulnerabilidad"
+                Case "protocol":                destino = "Protocolo de transporte"
+                Case "port":                    destino = "Puerto"
+                Case "see also":                destino = "Referencias"
+                Case "plugin output":           destino = "Salidas de herramienta"
+            End Select
+            
+            If destino <> "" Then
+                On Error Resume Next
+                Dim idx As Long
+                idx = tbl.ListColumns(destino).Index
+                If idx > 0 And Not tieneFormula(idx) Then colMap(c) = idx
+                On Error GoTo ManejadorErrores
+            End If
+        Next c
+        
+        If colRisk > 0 Then colFiltroFinal = colRisk Else colFiltroFinal = colRiskFactor
+        
+        Dim colTipoOrigen As Long: colTipoOrigen = 0
+        On Error Resume Next
+        colTipoOrigen = tbl.ListColumns("Tipo de origen").Index
+        On Error GoTo ManejadorErrores
+        
+        filaOutput = 0
+        filasIgnoradas = 0
+        
+        For r = 2 To numFilasCSV
+            Dim incluir As Boolean: incluir = True
+            
+            If colFiltroFinal > 0 Then
+                valRiesgo = Trim(CStr(csvData(r, colFiltroFinal)))
+                If StrComp(valRiesgo, "None", vbTextCompare) = 0 Then incluir = False
+            End If
+            
+            If incluir Then
+                filaOutput = filaOutput + 1
+                For c = 1 To numColsCSV
+                    If colMap(c) > 0 Then arrSalida(filaOutput, colMap(c)) = csvData(r, c)
+                Next c
+                If colTipoOrigen > 0 And Not tieneFormula(colTipoOrigen) Then
+                    arrSalida(filaOutput, colTipoOrigen) = "Nessus"
                 End If
-            Next colCSVIndex
+            Else
+                filasIgnoradas = filasIgnoradas + 1
+            End If
+        Next r
+        
+        If filaOutput > 0 Then
+            If tbl.DataBodyRange Is Nothing Then
+                tbl.ListRows.Add: tbl.DataBodyRange.Delete: filasIniciales = 0
+            Else
+                filasIniciales = tbl.ListRows.count
+            End If
             
+            tbl.Resize tbl.Range.Resize(tbl.Range.Rows.count + filaOutput, totalColsTabla)
+            Set rngDestino = tbl.DataBodyRange.Offset(filasIniciales).Resize(filaOutput, totalColsTabla)
+            rngDestino.value = arrSalida
             
-            columnaDestino = tbl.ListColumns("Tipo de origen").Index
-            fila.Range(1, columnaDestino).value = "Nessus"
-        Next j
+            ' --- CORRECCIÓN AQUÍ: FORMATEAR Y APLICAR FÓRMULAS ---
+            For c = 1 To totalColsTabla
+                If tieneFormula(c) Then
+                    ' 1. Forzar formato General para que no lo tome como texto literal
+                    rngDestino.Columns(c).NumberFormat = "General"
+                    ' 2. Inyectar la fórmula
+                    rngDestino.Columns(c).FormulaR1C1 = formulaR1C1Template(c)
+                End If
+            Next c
+        End If
+SiguienteArchivo:
     Next i
     
-    MsgBox "Datos cargados con ?xito en la tabla.", vbInformation
-End Sub
+    MsgBox "Carga completada." & vbCrLf & "Filas nuevas: " & filaOutput & vbCrLf & "Ignoradas (None): " & filasIgnoradas, vbInformation
 
+Limpieza:
+    Application.StatusBar = False
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.EnableEvents = True
+    Exit Sub
+
+ManejadorErrores:
+    MsgBox "Error: " & Err.Description, vbCritical
+    Resume Limpieza
+End Sub
 
 Sub CYB035_CargarResultados_DatosDesdeCSVNexPose()
     Dim wb As Workbook
@@ -3645,13 +3790,13 @@ Sub CYB035_CargarResultados_DatosDesdeCSVNexPose()
             For colCSVIndex = 1 To UBound(encabezados, 2)
                 Select Case encabezados(1, colCSVIndex)
                     Case "Asset IP Address"
-                        tbl.ListColumns("IPv4 Interna").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
-                        tbl.ListColumns("Identificador de detecci?n usado").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
+                        tbl.ListColumns("IPv4 Interna").DataBodyRange.Cells(tbl.ListRows.count, 1).value = csvData(i, colCSVIndex)
+                        tbl.ListColumns("Identificador de detecci?n usado").DataBodyRange.Cells(tbl.ListRows.count, 1).value = csvData(i, colCSVIndex)
                     Case "Service Port"
                         columnaCorrespondiente = "Puerto"
                     Case "Vulnerability Title"
                         columnaCorrespondiente = "Nombre de vulnerabilidad"
-                        tbl.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange.Cells(tbl.ListRows.Count, 1).value = csvData(i, colCSVIndex)
+                        tbl.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange.Cells(tbl.ListRows.count, 1).value = csvData(i, colCSVIndex)
                     Case "Vulnerability Severity Level"
                         columnaCorrespondiente = "Severidad"
                     Case Else
@@ -3936,15 +4081,15 @@ If respuesta = vbNo Then Exit Sub
         
         If wsCSV.FilterMode Then wsCSV.ShowAllData
         If Not wsCSV.UsedRange Is Nothing Then
-             If wsCSV.UsedRange.Rows.Count > 0 Then
+             If wsCSV.UsedRange.Rows.count > 0 Then
                  encabezados = wsCSV.UsedRange.Rows(1).value
              Else
                  MsgBox "El archivo CSV "
                  GoTo CerrarYSaltar
              End If
-             If wsCSV.UsedRange.Rows.Count > 1 Then
+             If wsCSV.UsedRange.Rows.count > 1 Then
                   
-                  csvData = wsCSV.UsedRange.Offset(1, 0).Resize(wsCSV.UsedRange.Rows.Count - 1, wsCSV.UsedRange.Columns.Count).value
+                  csvData = wsCSV.UsedRange.Offset(1, 0).Resize(wsCSV.UsedRange.Rows.count - 1, wsCSV.UsedRange.Columns.count).value
              Else
                   csvData = Null
              End If
@@ -4021,7 +4166,7 @@ If respuesta = vbNo Then Exit Sub
             
             registroEncontrado = False
             Set filaExistente = Nothing
-            If tbl.ListRows.Count > 0 Then
+            If tbl.ListRows.count > 0 Then
                 For Each lrExisting In tbl.ListRows
                     match1 = False: match2 = False: match3 = False: match4 = False
                     On Error Resume Next
@@ -4345,7 +4490,7 @@ Sub CYB036_CargarResultados_DatosDesdeXMLAcunetix_v5()
     ' --- Check if active cell is within a table ---
     Dim celdaEnTabla As Boolean, t As ListObject
     celdaEnTabla = False
-    If ws.ListObjects.Count = 0 Then
+    If ws.ListObjects.count = 0 Then
         MsgBox "No hay tablas en la hoja activa.", vbExclamation
         Exit Sub
     End If
@@ -4410,7 +4555,7 @@ Sub CYB036_CargarResultados_DatosDesdeXMLAcunetix_v5()
         End If
     Next header
     On Error GoTo 0
-    If dict.Count = 0 Then
+    If dict.count = 0 Then
         MsgBox "La tabla seleccionada no tiene cabeceras válidas.", vbExclamation
         Exit Sub
     End If
@@ -4487,13 +4632,13 @@ Sub CYB036_CargarResultados_DatosDesdeXMLAcunetix_v5()
             detailsRawText = Trim(detailsNode.text)
             If Len(detailsRawText) > 0 Then
                 Set liMatches = regexLi.Execute(detailsRawText) ' Execute on raw text to find <li>
-                If liMatches.Count > 0 Then
+                If liMatches.count > 0 Then
                     For Each liMatch In liMatches
                         Dim liContent As String
                         liContent = Trim(liMatch.SubMatches(0)) ' Content of <li>
                         
                         Set urlMatch = regexUrl.Execute(liContent) ' Find URL within this <li>
-                        If urlMatch.Count > 0 Then
+                        If urlMatch.count > 0 Then
                             firstUrlFound = Trim(urlMatch(0).value)
                             Exit For
                         End If
@@ -4592,7 +4737,7 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades")
     
     
-    If wsOrigen.ListObjects.Count = 0 Then
+    If wsOrigen.ListObjects.count = 0 Then
         MsgBox "No se encontró una tabla en la hoja actual.", vbExclamation, "Error"
         Exit Sub
     End If
@@ -4679,30 +4824,62 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
     End If
 End Sub
 
-Sub CYB042_MarcarMultiplesEnCatalogoVulnerabilidad()
+Sub CYB042_MarcarYFiltrarEnCatalogo()
+    ' ==========================================================================================
+    ' MACRO: Marcar, Ir y Filtrar en Catálogo
+    ' Funcionalidad: Busca vulnerabilidades, las marca en amarillo, viaja al catálogo
+    ' y filtra la vista para mostrar solo lo marcado.
+    ' ==========================================================================================
 
     Dim wsOrigen As Worksheet, wsCatalogo As Worksheet
     Dim tblOrigen As ListObject, tblCatalogo As ListObject
-    Dim rngCeldaActual As Range, rngSeleccion As Range
+    Dim rngSeleccion As Range, filaRango As Range
     Dim idVulnerabilidad As Variant, tipoOrigen As String
     Dim colBusqueda As String, rngBusqueda As Range, celdaEncontrada As Range
-    Dim dictColumnas As Object
+    Dim dictColumnas As Object, dictFilasProcesadas As Object
     Dim respuesta As VbMsgBoxResult
-    Dim colSourceDetection As Long, colLastEditedBy As Long, colLastUpdateDate As Long
-    Dim fechaActual As String
-    Dim fila As Range
-
-    Set wsOrigen = ActiveSheet
-    Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades")
+    Dim contExito As Long, contNoEncontrado As Long, contError As Long
+    Dim logNoEncontrados As String
     
-    ' Verificar que haya una tabla en la hoja activa
-    If wsOrigen.ListObjects.Count = 0 Then
-        MsgBox "No se encontró una tabla en la hoja actual.", vbExclamation, "Error"
+    ' Configuración inicial
+    Set wsOrigen = ActiveSheet
+    contExito = 0
+    contNoEncontrado = 0
+    contError = 0
+    logNoEncontrados = ""
+    
+    ' 1. VALIDACIONES
+    ' ------------------------------------------------------------------------------------------
+    If wsOrigen.ListObjects.count = 0 Then
+        MsgBox "?? No hay tabla en la hoja actual.", vbCritical
         Exit Sub
     End If
     Set tblOrigen = wsOrigen.ListObjects(1)
     
-    ' Configurar el diccionario para mapear los tipos de origen a las columnas
+    On Error Resume Next
+    Set wsCatalogo = ThisWorkbook.Sheets("Catalogo vulnerabilidades")
+    Set tblCatalogo = wsCatalogo.ListObjects("Tbl_Catalogo_vulnerabilidades")
+    On Error GoTo 0
+    
+    If wsCatalogo Is Nothing Or tblCatalogo Is Nothing Then
+        MsgBox "?? No se encuentra la hoja o la tabla del Catálogo.", vbCritical
+        Exit Sub
+    End If
+
+    Set rngSeleccion = Selection
+    If Intersect(rngSeleccion, tblOrigen.DataBodyRange) Is Nothing Then
+        MsgBox "?? Por favor, selecciona las filas de las vulnerabilidades dentro de la tabla y vuelve a ejecutar.", vbInformation
+        Exit Sub
+    End If
+    
+    ' Preguntar confirmación
+    respuesta = MsgBox("Voy a buscar las vulnerabilidades seleccionadas en el Catálogo." & vbCrLf & vbCrLf & _
+                       "Al finalizar, te llevaré a la hoja del Catálogo y filtraré solo las encontradas." & vbCrLf & vbCrLf & _
+                       "¿Proceder?", vbYesNo + vbQuestion, "Confirmar")
+    If respuesta = vbNo Then Exit Sub
+
+    ' 2. MAPEO DE COLUMNAS
+    ' ------------------------------------------------------------------------------------------
     Set dictColumnas = CreateObject("Scripting.Dictionary")
     dictColumnas.Add "Nessus", "NessusPluginId"
     dictColumnas.Add "Invicti", "InvictiName"
@@ -4718,55 +4895,81 @@ Sub CYB042_MarcarMultiplesEnCatalogoVulnerabilidad()
     dictColumnas.Add "Nmap", "NmapScriptName"
     dictColumnas.Add "Fortify", "FortifyName"
     dictColumnas.Add "Manual", "StandardVulnerabilityName"
-    
-    ' Comprobar que la celda seleccionada está dentro de la tabla
-    Set rngSeleccion = Selection
-    If Intersect(rngSeleccion, tblOrigen.DataBodyRange) Is Nothing Then
-        MsgBox "Selecciona celdas dentro de la tabla de vulnerabilidades.", vbExclamation, "Error"
-        Exit Sub
-    End If
 
-    ' Iterar sobre todas las celdas seleccionadas
-    For Each rngCeldaActual In rngSeleccion
-        If Not Intersect(rngCeldaActual, tblOrigen.DataBodyRange) Is Nothing Then
-            tipoOrigen = tblOrigen.ListColumns("Tipo de origen").DataBodyRange.Cells(rngCeldaActual.row - tblOrigen.DataBodyRange.row + 1, 1).value
-            idVulnerabilidad = tblOrigen.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange.Cells(rngCeldaActual.row - tblOrigen.DataBodyRange.row + 1, 1).value
+    Set dictFilasProcesadas = CreateObject("Scripting.Dictionary")
+
+    ' 3. PROCESAMIENTO
+    ' ------------------------------------------------------------------------------------------
+    Application.ScreenUpdating = False
+    
+    ' Limpiamos color amarillo previo en la columna 1 del catálogo para no mezclar resultados viejos
+    ' (Opcional: Si prefieres acumular marcas, comenta la siguiente línea)
+    tblCatalogo.ListColumns(1).DataBodyRange.Interior.ColorIndex = xlNone
+
+    For Each filaRango In Intersect(rngSeleccion, tblOrigen.DataBodyRange).Rows
+        If Not dictFilasProcesadas.exists(filaRango.row) Then
+            dictFilasProcesadas.Add filaRango.row, True
             
-            If tipoOrigen = "" Or IsEmpty(idVulnerabilidad) Then
-                MsgBox "Falta el Tipo de Origen o Identificador en la fila seleccionada.", vbExclamation, "Error"
-                Exit Sub
-            End If
-            
-            If Not dictColumnas.exists(tipoOrigen) Then
-                MsgBox "El tipo de origen no es válido.", vbExclamation, "Error"
-                Exit Sub
-            End If
-            
-            colBusqueda = dictColumnas(tipoOrigen)
-            
-            ' Buscar el identificador de vulnerabilidad en el catálogo
             On Error Resume Next
-            Set tblCatalogo = wsCatalogo.ListObjects("Tbl_Catalogo_vulnerabilidades")
+            tipoOrigen = Intersect(tblOrigen.ListColumns("Tipo de origen").DataBodyRange, filaRango.EntireRow).value
+            idVulnerabilidad = Intersect(tblOrigen.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange, filaRango.EntireRow).value
             On Error GoTo 0
             
-            If tblCatalogo Is Nothing Then
-                MsgBox "No se encontró la tabla en el catálogo.", vbExclamation, "Error"
-                Exit Sub
-            End If
-            
-            Set rngBusqueda = tblCatalogo.ListColumns(colBusqueda).DataBodyRange
-            Set celdaEncontrada = rngBusqueda.Find(What:=idVulnerabilidad, LookAt:=xlWhole)
-            
-            ' Si se encuentra la vulnerabilidad en el catálogo, marcar la celda correspondiente
-            If Not celdaEncontrada Is Nothing Then
-                celdaEncontrada.EntireRow.Cells(1).Interior.Color = RGB(255, 255, 0) ' Color amarillo
+            If tipoOrigen <> "" And Not IsEmpty(idVulnerabilidad) And dictColumnas.exists(tipoOrigen) Then
+                colBusqueda = dictColumnas(tipoOrigen)
+                
+                On Error Resume Next
+                Set rngBusqueda = tblCatalogo.ListColumns(colBusqueda).DataBodyRange
+                On Error GoTo 0
+                
+                If Not rngBusqueda Is Nothing Then
+                    Set celdaEncontrada = rngBusqueda.Find(What:=idVulnerabilidad, LookAt:=xlWhole)
+                    If Not celdaEncontrada Is Nothing Then
+                        ' IMPORTANTE: Marcamos la PRIMERA columna de la TABLA para poder filtrar luego
+                        Intersect(celdaEncontrada.EntireRow, tblCatalogo.ListColumns(1).DataBodyRange).Interior.Color = RGB(255, 255, 0)
+                        contExito = contExito + 1
+                    Else
+                        contNoEncontrado = contNoEncontrado + 1
+                        If contNoEncontrado <= 5 Then logNoEncontrados = logNoEncontrados & vbCrLf & "- " & idVulnerabilidad
+                    End If
+                Else
+                    contError = contError + 1
+                End If
+            Else
+                contError = contError + 1
             End If
         End If
-    Next rngCeldaActual
+    Next filaRango
+    
+    Application.ScreenUpdating = True
 
-    MsgBox "Se han marcado las celdas correspondientes en el catálogo.", vbInformation, "Éxito"
+    ' 4. RESULTADOS Y NAVEGACIÓN
+    ' ------------------------------------------------------------------------------------------
+    Dim mensaje As String
+    mensaje = "Proceso terminado." & vbCrLf & _
+              "? Encontrados: " & contExito & vbCrLf & _
+              "? No encontrados: " & contNoEncontrado
+              
+    If contExito > 0 Then
+        ' Activar la hoja del catálogo
+        wsCatalogo.Activate
+        
+        ' Limpiar filtros anteriores si existen
+        If tblCatalogo.ShowAutoFilter Then
+            tblCatalogo.AutoFilter.ShowAllData
+        End If
+        
+        ' APLICAR FILTRO POR COLOR en la Columna 1 de la tabla
+        tblCatalogo.Range.AutoFilter field:=1, _
+                                     Criteria1:=RGB(255, 255, 0), _
+                                     Operator:=xlFilterCellColor
+                                     
+        MsgBox mensaje & vbCrLf & vbCrLf & "He filtrado el catálogo para mostrarte las coincidencias.", vbInformation, "Éxito"
+    Else
+        MsgBox mensaje & vbCrLf & vbCrLf & "No se encontraron coincidencias para marcar.", vbExclamation, "Resultado"
+    End If
+
 End Sub
-
 
 
 Sub CYB042_Estandarizar()
@@ -4784,8 +4987,8 @@ Sub CYB042_Estandarizar()
     Set colIndex = CreateObject("Scripting.Dictionary")
     
     
-    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).row
-    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    lastRow = ws.Cells(ws.Rows.count, 1).End(xlUp).row
+    lastCol = ws.Cells(1, ws.Columns.count).End(xlToLeft).Column
     
     
     Dim stdCol As Integer
@@ -4861,7 +5064,7 @@ Sub CYB043_AplicarFormatoCondicional()
     
     With selectedRange
         .FormatConditions.Add Type:=xlTextString, String:="CRÍTICA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -4870,7 +5073,7 @@ Sub CYB043_AplicarFormatoCondicional()
         End With
 
         .FormatConditions.Add Type:=xlTextString, String:="ALTA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -4879,7 +5082,7 @@ Sub CYB043_AplicarFormatoCondicional()
         End With
 
         .FormatConditions.Add Type:=xlTextString, String:="MEDIA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(0, 0, 0)
         End With
@@ -4888,7 +5091,7 @@ Sub CYB043_AplicarFormatoCondicional()
         End With
 
         .FormatConditions.Add Type:=xlTextString, String:="BAJA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(255, 255, 255)
         End With
@@ -4897,7 +5100,7 @@ Sub CYB043_AplicarFormatoCondicional()
         End With
 
         .FormatConditions.Add Type:=xlTextString, String:="INFORMATIVA", TextOperator:=xlContains
-        .FormatConditions(.FormatConditions.Count).SetFirstPriority
+        .FormatConditions(.FormatConditions.count).SetFirstPriority
         With .FormatConditions(1).Font
             .Color = RGB(0, 0, 0)
         End With
@@ -4916,7 +5119,7 @@ Sub CYB061_LLM_llama3_2_1b()
     Dim cell As Range
     
     
-    If Selection.Cells.Count = 0 Then
+    If Selection.Cells.count = 0 Then
         MsgBox "Seleccione al menos una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
         Exit Sub
     End If
@@ -4967,7 +5170,7 @@ Sub CYB060_LLLM_deepseek_r1_1_5b()
     Dim cell As Range
     
     
-    If Selection.Cells.Count = 0 Then
+    If Selection.Cells.count = 0 Then
         MsgBox "Seleccione al menos una celda con una vulnerabilidad antes de ejecutar la macro.", vbExclamation, "Error"
         Exit Sub
     End If
@@ -5168,9 +5371,9 @@ Private Sub ObtenerRespuestasGeminiCVSS4()
 
             
             If Not json Is Nothing Then
-                If json.exists("candidates") And json("candidates").Count > 0 Then
+                If json.exists("candidates") And json("candidates").count > 0 Then
                     If json("candidates")(0).exists("content") And json("candidates")(0)("content").exists("parts") Then
-                        If json("candidates")(0)("content")("parts").Count > 0 Then
+                        If json("candidates")(0)("content")("parts").count > 0 Then
                             answerID = json("candidates")(0)("content")("parts")(0)("text")
                         Else
                             answerID = "No CVSS data"
@@ -6305,7 +6508,7 @@ End If
 
                         If Not blockRange Is Nothing Then
                             
-                            If blockRange.Start < blockRange.End Or blockRange.Characters.Count > 1 Then
+                            If blockRange.Start < blockRange.End Or blockRange.Characters.count > 1 Then
                                 On Error Resume Next
                                 With blockRange.ParagraphFormat.Borders
                                      .Enable = True
@@ -7322,7 +7525,7 @@ Sub AjustarMarcadorCeldaEnTablaWord(ByRef WordApp As Object, ByRef WordDoc As Ob
     Set rng = cell.Range
 
     ' Contar los párrafos dentro de la celda
-    paraCount = rng.Paragraphs.Count
+    paraCount = rng.Paragraphs.count
 
     ' Si hay párrafos, mover el cursor al inicio del primer párrafo
     If paraCount > 0 Then

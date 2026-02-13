@@ -15,6 +15,30 @@ Sub MarkTables()
     Next table
 End Sub
 
+Sub BorrarContenidoCelda()
+    Dim celdaActual As cell
+    Dim rango As Range
+
+    ' 1. Verificar si el cursor está dentro de una tabla
+    If Selection.Information(wdWithInTable) = False Then
+        MsgBox "No estás dentro de una tabla. Por favor haz clic en una celda.", vbExclamation
+        Exit Sub
+    End If
+
+    ' 2. Capturar la celda actual (donde está el cursor)
+    Set celdaActual = Selection.Cells(1)
+
+    ' 3. Definir el rango del contenido
+    Set rango = celdaActual.Range
+
+    ' IMPORTANTE: Word incluye una "marca de fin de celda" invisible al final.
+    ' Si borras esa marca, la celda se rompe o se fusiona.
+    ' Retrocedemos 1 carácter para borrar solo el contenido.
+    rango.End = rango.End - 1
+
+    ' 4. Borrar todo (texto, imágenes y tablas anidadas dentro)
+    rango.Delete
+End Sub
 
 Sub MarkInlineCharts()
     Dim doc As Document
