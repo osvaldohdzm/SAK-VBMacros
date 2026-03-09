@@ -48,7 +48,19 @@ Set cellRange = cell.Range
     End With
 End Sub
 
+Sub CYB008_ReemplazarBRPorSaltoLinea()
 
+    Dim c As Range
+    
+    For Each c In Selection
+        If Not IsEmpty(c.value) Then
+            c.value = Replace(c.value, "[[BR]]", Chr(10))
+        End If
+    Next c
+    
+    Selection.WrapText = True
+
+End Sub
 
 
 Sub CYB008_LimpiarTextoYAgregarGuion()
@@ -1733,33 +1745,40 @@ ErrorHandler:
 End Function
 
 Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
-    Dim rng         As Range
-    Dim tbl         As ListObject
-    Dim WordApp     As Object
-    Dim WordDoc     As Object
-    Dim templatePath As String
-    Dim outputPath  As String
-    Dim replaceDic  As Object
-    Dim cell        As Range
-    Dim headerCell  As Range
-    Dim colIndex    As Integer
+    Dim rng             As Range
+    Dim tbl             As ListObject
+    Dim WordApp         As Object
+    Dim WordDoc         As Object
+    Dim templatePath    As String
+    Dim outputPath      As String
+    Dim replaceDic      As Object
+    Dim cell            As Range
+    Dim headerCell      As Range
+    Dim colIndex        As Integer
     Dim explicacionTecnicaCol As Long
     Dim tipoTextoExplicacionCol As Long
-    Dim rowCount    As Long
-    Dim i           As Long
-    Dim tempFolder  As String
-    Dim tempFolderPath As String
-    Dim saveFolder  As String
-    Dim selectedRange As Range
+    Dim rowCount        As Long
+    Dim i               As Long
+    Dim tempFolder      As String
+    Dim tempFolderPath  As String
+    Dim saveFolder      As String
+    Dim selectedRange   As Range
     Dim documentsList() As String
-    Dim fs          As Object
-    Dim key         As Variant
+    Dim fs              As Object
+    Dim key             As Variant
     Dim explicacionTecnicaValue As String
-    Dim tipoTextoValue As String
-    Dim excelBasePath As String
+    Dim tipoTextoValue  As String
+    Dim excelBasePath   As String
     Dim finalDocumentPath As String
-    Dim textoCelda  As String
-    Dim cellRange   As Object
+    Dim textoCelda      As String
+    Dim cellRange       As Object
+    
+    ' Variables para formato y justificación
+    Dim n As Integer
+    Dim textoRef As String
+    Dim r As Integer
+    Dim textoIzquierda As String
+    Const wdAlignParagraphJustify As Long = 3
     
     On Error Resume Next
     Set selectedRange = Application.InputBox("Seleccione TODO el rango de la tabla (incluyendo encabezados) que contiene los datos", Type:=8)
@@ -1818,7 +1837,6 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         excelBasePath = ThisWorkbook.path & "\"
     Else
         MsgBox "Guarde primero el libro de Excel para poder resolver rutas relativas de imágenes.", vbExclamation
-        
         WordApp.Quit
         Set WordApp = Nothing
         Set fs = Nothing
@@ -1837,7 +1855,7 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     Next headerCell
     
     If explicacionTecnicaCol = 0 Then
-        MsgBox "No se encontró la columna"
+        MsgBox "No se encontró la columna de Explicación técnica."
         WordApp.Quit
         Set WordApp = Nothing
         Set fs = Nothing
@@ -1845,14 +1863,13 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
     End If
     
     If tipoTextoExplicacionCol = 0 Then
-        MsgBox "Advertencia: No se encontró la columna, Se asumirá Texto Plano para todas las filas.", vbInformation
+        MsgBox "Advertencia: No se encontró la columna de Tipo de texto, se asumirá Texto Plano.", vbInformation
     End If
     
     rowCount = tbl.ListRows.count
     ReDim documentsList(0 To rowCount - 1)
     
     For i = 1 To rowCount
-        
         Set replaceDic = CreateObject("Scripting.Dictionary")
         
         For colIndex = 1 To tbl.ListColumns.count
@@ -1862,9 +1879,8 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
             cellValue = tbl.DataBodyRange.Cells(i, colIndex).value
             replaceDic("«" & colName & "»") = cellValue
             
-            If colIndex = explicacionTecnicaCol Then
-                explicacionTecnicaValue = cellValue
-            End If
+            If colIndex = explicacionTecnicaCol Then explicacionTecnicaValue = cellValue
+            
             If tipoTextoExplicacionCol > 0 And colIndex = tipoTextoExplicacionCol Then
                 tipoTextoValue = Trim(LCase(cellValue))
             ElseIf tipoTextoExplicacionCol = 0 Then
@@ -1886,25 +1902,17 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
             
             If placeholder = "«Explicación técnica»" Then
                 If tipoTextoValue = "markdown" Then
-                    RawPrint explicacionTecnicaValue
-                    'explicacionTecnicaValue = EliminarLineasVaciasdeString(explicacionTecnicaValue)
-                    RawPrint explicacionTecnicaValue
                     InsertarTextoMarkdownEnWordConFormato WordApp, WordDoc, placeholder, explicacionTecnicaValue, excelBasePath, False, "Cuerpo de tabla"
                     SustituirTextoMarkdownPorImagenes WordApp, WordDoc, excelBasePath
                 Else
                     WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
                 End If
-            ElseIf placeholder = "«Descripción»" Then
-                WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
-            ElseIf placeholder = "«Propuesta de remediación»" Then
-                WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
-            ElseIf placeholder = "«Referencias»" Then
-                WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
             Else
                 WordAppReemplazarParrafo WordApp, WordDoc, placeholder, replacementValue
             End If
         Next key
         
+        ' --- FORMATEO DE TABLAS ---
         FormatearCeldaNivelRiesgo WordDoc.Tables(1).cell(1, 2)
         
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(3, 1).Range.text, Chr(13) & Chr(7), ""))
@@ -1922,60 +1930,93 @@ Sub CYB001_GenerarDocumentosVulnerabilidadesWord()
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(5, 1).Range.text, Chr(13) & Chr(7), ""))
         If textoCelda = "AMENAZA" Or textoCelda = "PROPUESTA DE REMEDIACIÓN" Then
             FormatearParrafosGuionesCelda WordDoc.Tables(1).cell(5, 2)
-             AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(5, 2)
+            AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(5, 2)
         End If
         
         textoCelda = Trim(Replace(WordDoc.Tables(1).cell(7, 1).Range.text, Chr(13) & Chr(7), ""))
         If textoCelda = "DETALLE DE PRUEBAS DE SEGURIDAD" Then
-             With WordDoc.Tables(1).cell(8, 1).Range
+            With WordDoc.Tables(1).cell(8, 1).Range
                 .Font.Color = wdColorBlack
-               ' .ParagraphFormat.Alignment = wdAlignParagraphJustify
             End With
-             
-            'EliminarLineasVaciasEnCeldaTablaWord WordDoc, 1, 8, 1
             AjustarMarcadorCeldaEnTablaWord WordApp, WordDoc, 1, 8, 1
             EliminarUltimasFilasSiEsSalidaPruebaSeguridad WordDoc, replaceDic
-            'AplicarFormatoCeldaEnTablaWord WordDoc, 1, 8, 1, "Cuerpo de tabla"
             AplicarNegritaPalabrasClaveEnCeldaWord WordDoc.Tables(1).cell(8, 1)
         End If
         
-        Dim n As Integer
-        Dim textoRef As String
-        
-        ' Revisamos las filas típicas (3 a 7) para encontrar la etiqueta
         For n = 3 To 7
             textoRef = Trim(Replace(WordDoc.Tables(1).cell(n, 1).Range.text, Chr(13) & Chr(7), ""))
-            
-            ' Comparamos en mayúsculas para evitar errores (REFERENCIAS o Referencias)
             If UCase(textoRef) = "REFERENCIAS" Then
-                ' Forzamos a que la celda de la derecha (contenido) NO tenga negrita
                 WordDoc.Tables(1).cell(n, 2).Range.Font.Bold = False
-            
-                
-                ' Salimos del bucle una vez corregido
                 Exit For
             End If
         Next n
         
-        finalDocumentPath = saveFolder & "Documento_Final_" & i & ".docx"
+        ' --- JUSTIFICAR EN EL ARCHIVO INDIVIDUAL ---
+        For r = 1 To WordDoc.Tables(1).Rows.count
+            textoIzquierda = UCase(Trim(Replace(WordDoc.Tables(1).cell(r, 1).Range.text, Chr(13) & Chr(7), "")))
+            textoIzquierda = Replace(textoIzquierda, Chr(160), " ")
+            textoIzquierda = Trim(textoIzquierda)
+            
+            If InStr(1, textoIzquierda, "DESCRIPCI") > 0 Or _
+               InStr(1, textoIzquierda, "AMENAZA") > 0 Or _
+               InStr(1, textoIzquierda, "REMEDIACI") > 0 Then
+                WordDoc.Tables(1).cell(r, 2).Range.ParagraphFormat.Alignment = wdAlignParagraphJustify
+            End If
+        Next r
+
+        finalDocumentPath = saveFolder & "Tabla_" & i & ".docx"
         WordDoc.SaveAs finalDocumentPath
         WordDoc.Close
         
         documentsList(i - 1) = finalDocumentPath
     Next i
     
-    FusionarDocumentosInsertando WordApp, documentsList, saveFolder & "Documento_Completo_Fusionado.docx"
+    ' --- FUSIÓN DE DOCUMENTOS ---
+    Dim rutaConsolidado As String
+    rutaConsolidado = saveFolder & "Tablas_detalles_vulnerabilidades.docx"
+    FusionarDocumentosInsertando WordApp, documentsList, rutaConsolidado
+    
+    ' =========================================================================
+    ' PASO FINAL: RE-JUSTIFICAR EL ARCHIVO CONSOLIDADO
+    ' =========================================================================
+    Dim docFusionado As Object
+    Dim tablaActual As Object
+    Dim fila As Integer
+    Dim textoCelda1 As String
+    
+    Set docFusionado = WordApp.Documents.Open(rutaConsolidado)
+    
+    For Each tablaActual In docFusionado.Tables
+        For fila = 1 To tablaActual.Rows.count
+            On Error Resume Next ' Por si la fusión hizo celdas raras
+            textoCelda1 = UCase(Trim(Replace(tablaActual.cell(fila, 1).Range.text, Chr(13) & Chr(7), "")))
+            textoCelda1 = Replace(textoCelda1, Chr(160), " ")
+            textoCelda1 = Trim(textoCelda1)
+            
+            If InStr(1, textoCelda1, "DESCRIPCI") > 0 Or _
+               InStr(1, textoCelda1, "AMENAZA") > 0 Or _
+               InStr(1, textoCelda1, "REMEDIACI") > 0 Then
+                
+                tablaActual.cell(fila, 2).Range.ParagraphFormat.Alignment = wdAlignParagraphJustify
+            End If
+            On Error GoTo 0
+        Next fila
+    Next tablaActual
+    
+    docFusionado.Save
+    docFusionado.Close
+    Set docFusionado = Nothing
+    ' =========================================================================
     
     WordApp.Quit
     Set WordApp = Nothing
     
-    MsgBox "Se han generado los documentos de Word correctamente.", vbInformation
+    MsgBox "Se han generado y fusionado los documentos correctamente.", vbInformation
     
     Set replaceDic = Nothing
-    Set WordApp = Nothing
     Set fs = Nothing
-    
 End Sub
+
 
 Sub CYB001_GenerarDocumentosVulnerabilidadesWordAgrupadoActivo()
     Dim rng         As Range
@@ -3166,9 +3207,9 @@ Sub AplicarNegritaPalabrasClaveEnCeldaWord(ByVal celda As Object)
 
     ' Dividiendo las palabras clave en tres partes
     palabrasClaveParte1 = Array( _
-        "XSS", "Stored XSS", "DOM-based XSS", _
+        "XSS", "Stored XSS", "Ghostcat", "DOM-based XSS", _
         "Session Hijacking", "Phishing", "CSP", _
-        "Validación de entradas", "Sanitización", "Interceptación", _
+        "Validación de entradas", "Sanitización", "Deshabilitar", "Interceptación", _
         "TLS 1.0", "Protocolo débil", "Man-in-the-Middle" _
     )
     
@@ -6994,10 +7035,6 @@ InlineErrorHandler:
     Set initialFont = Nothing
 End Sub
 
-
-
-
-
 Sub FusionarDocumentosInsertando(WordApp As Object, documentsList As Variant, finalDocumentPath As String)
     Dim baseDoc     As Object
     Dim sFile       As String
@@ -7006,32 +7043,38 @@ Sub FusionarDocumentosInsertando(WordApp As Object, documentsList As Variant, fi
     
     On Error GoTo err_Handler
     
+    ' Verificación de seguridad por si la lista está vacía
+    If UBound(documentsList) < LBound(documentsList) Then Exit Sub
     
-    Set baseDoc = WordApp.Documents.Add
+    ' 1. ABRIR EL PRIMER ARCHIVO COMO BASE
+    ' Esto garantiza que conservemos EXACTAMENTE los estilos, tipografía y márgenes originales.
+    Set baseDoc = WordApp.Documents.Open(documentsList(LBound(documentsList)))
     
-    
-    For i = LBound(documentsList) To UBound(documentsList)
-        sFile = documentsList(i)
-        
-        
-        Set oRng = baseDoc.Range
-        oRng.Collapse 0
-        oRng.InsertFile sFile, , , , True
-        
-        
-        If i < UBound(documentsList) Then
-            Set oRng = baseDoc.Range
-            oRng.Collapse 0
-            oRng.InsertBreak Type:=6
-        End If
-    Next i
-        
-    
+    ' Guardarlo inmediatamente con el nombre final para no sobreescribir el original
     baseDoc.SaveAs finalDocumentPath
     
-    
+    ' 2. INSERTAR EL RESTO DE LOS DOCUMENTOS
+    For i = LBound(documentsList) + 1 To UBound(documentsList)
+        sFile = documentsList(i)
+        
+        ' Ir al final del documento
+        Set oRng = baseDoc.Range
+        oRng.Collapse 0 ' 0 = wdCollapseEnd
+        
+        ' Insertar un Salto de Página (Type:=7) para separar las tablas completamente
+        ' Si prefieres que estén en la misma hoja, cambia el 7 por un 3 (wdBreakParagraph)
+        oRng.InsertBreak Type:=7
+        
+        ' Volver a ir al final después del salto
+        oRng.Collapse 0
+        
+        ' Insertar el archivo (el último parámetro en False es importante para no crear vínculos)
+        oRng.InsertFile sFile, , , , False
+    Next i
+        
+    ' Guardar y cerrar
+    baseDoc.Save
     baseDoc.Close
-    
     
     Set baseDoc = Nothing
     Set oRng = Nothing
@@ -7039,8 +7082,10 @@ Sub FusionarDocumentosInsertando(WordApp As Object, documentsList As Variant, fi
     Exit Sub
     
 err_Handler:
-    MsgBox "Error: " & Err.Number & vbCrLf & Err.Description
+    MsgBox "Error en la fusión: " & Err.Number & vbCrLf & Err.Description
     Err.Clear
+    ' Si hay error, intentar cerrar el documento para que no se quede bloqueado
+    If Not baseDoc Is Nothing Then baseDoc.Close False
     Exit Sub
 End Sub
 
