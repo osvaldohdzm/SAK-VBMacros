@@ -6,12 +6,12 @@ Option Explicit
 ' PARTE 1: AUTOMATIZACIÓN (Para que funcione en Módulos)
 ' ==============================================================================
 
-Sub AutoOpen()
-    Call AddSeverityContextMenu
+Sub CYB_001_AutoOpen()
+    Call CYB_003_AddSeverityContextMenu
 End Sub
 
-Sub AutoClose()
-    Call RemoveSeverityContextMenu
+Sub CYB_002_AutoClose()
+    Call CYB_004_RemoveSeverityContextMenu
     If Not ActiveDocument.Saved Then ActiveDocument.Save
 End Sub
 
@@ -19,7 +19,7 @@ End Sub
 ' PARTE 2: CREAR EL MENÚ
 ' ==============================================================================
 
-Sub AddSeverityContextMenu()
+Sub CYB_003_AddSeverityContextMenu()
     Dim menuBar As CommandBar
     Dim newMenu As CommandBarPopup
     Dim menuItem As CommandBarButton
@@ -40,35 +40,35 @@ Sub AddSeverityContextMenu()
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
     menuItem.Caption = "1 - CRÍTICA"
     menuItem.FaceId = 66
-    menuItem.OnAction = "ColorearCritica"
+    menuItem.OnAction = "CYB_005_ColorearCritica"
     
     ' ALTA
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
     menuItem.Caption = "2 - ALTA"
     menuItem.FaceId = 207
-    menuItem.OnAction = "ColorearAlta"
+    menuItem.OnAction = "CYB_006_ColorearAlta"
     
     ' MEDIA
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
     menuItem.Caption = "3 - MEDIA"
     menuItem.FaceId = 139
-    menuItem.OnAction = "ColorearMedia"
+    menuItem.OnAction = "CYB_007_ColorearMedia"
     
     ' BAJA
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
     menuItem.Caption = "4 - BAJA"
     menuItem.FaceId = 138
-    menuItem.OnAction = "ColorearBaja"
+    menuItem.OnAction = "CYB_008_ColorearBaja"
 
     ' QUITAR COLOR
     Set menuItem = newMenu.Controls.Add(Type:=msoControlButton)
     menuItem.Caption = "Quitar Color"
     menuItem.FaceId = 1845
-    menuItem.OnAction = "QuitarColor"
+    menuItem.OnAction = "CYB_009_QuitarColor"
 
 End Sub
 
-Sub RemoveSeverityContextMenu()
+Sub CYB_004_RemoveSeverityContextMenu()
     On Error Resume Next
     Application.CommandBars("Table Text").Controls("Establecer Severidad").Delete
 End Sub
@@ -77,7 +77,7 @@ End Sub
 ' PARTE 3: MACROS QUE CAMBIAN TEXTO Y COLOR
 ' ==============================================================================
 
-Sub ColorearCritica()
+Sub CYB_005_ColorearCritica()
     If Selection.Information(wdWithInTable) Then
         With Selection.Cells(1)
             ' 1. Escribe el texto en MAYÚSCULAS
@@ -92,7 +92,7 @@ Sub ColorearCritica()
     End If
 End Sub
 
-Sub ColorearAlta()
+Sub CYB_006_ColorearAlta()
     If Selection.Information(wdWithInTable) Then
         With Selection.Cells(1)
             ' 1. Escribe texto
@@ -106,7 +106,7 @@ Sub ColorearAlta()
     End If
 End Sub
 
-Sub ColorearMedia()
+Sub CYB_007_ColorearMedia()
     If Selection.Information(wdWithInTable) Then
         With Selection.Cells(1)
             ' 1. Escribe texto
@@ -120,7 +120,7 @@ Sub ColorearMedia()
     End If
 End Sub
 
-Sub ColorearBaja()
+Sub CYB_008_ColorearBaja()
     If Selection.Information(wdWithInTable) Then
         With Selection.Cells(1)
             ' 1. Escribe texto
@@ -134,7 +134,7 @@ Sub ColorearBaja()
     End If
 End Sub
 
-Sub QuitarColor()
+Sub CYB_009_QuitarColor()
     ' NOTA: Este solo quita el color, NO borra el texto,
     ' por si te equivocaste y quieres mantener lo escrito.
     On Error Resume Next
@@ -148,7 +148,7 @@ Sub QuitarColor()
 End Sub
 
 
-Sub FormatearTablaVulnerabilidadesAvanzado()
+Sub CYB_010_FormatearTablaVulnerabilidadesAvanzado()
 
     Dim tbl As table
     Dim i As Long ' Índice para filas
@@ -432,7 +432,7 @@ End With
 
 End Sub
 
-Sub NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
+Sub CYB_011_NegritaPalabrasClave_Robusta_MultiArray_Corregido_CVECompleto()
 
     Dim palabrasClaveParte1 As Variant
     Dim palabrasClaveParte2 As Variant
@@ -566,7 +566,7 @@ End Sub
 
 
 
-Sub AjustarFormatoColumnasTablaVulnes()
+Sub CYB_012_AjustarFormatoColumnasTablaVulnes()
     ' --- DECLARACIÓN DE VARIABLES PRINCIPALES ---
     Dim tbl As word.table
     Dim col As word.Column
@@ -735,7 +735,7 @@ End Sub
 
 
 
-Sub NegritaPalabrasClave()
+Sub CYB_013_NegritaPalabrasClave()
     Dim palabrasTexto As String
     Dim palabrasClave As Variant
     Dim palabra As Variant
@@ -769,7 +769,7 @@ End Sub
 
 
 
-Sub InsertarBloqueCodigoFormateado()
+Sub CYB_014_InsertarBloqueCodigoFormateado()
     If Selection.Type = wdSelectionIP Then
         MsgBox "Por favor, seleccione el código que desea convertir en bloque de código.", vbInformation
         Exit Sub
@@ -810,14 +810,14 @@ Sub InsertarBloqueCodigoFormateado()
     End With
 
     ' Formatear sintaxis en el contenido de la celda
-    Call FormatearCodigoEnRango(celda)
+    Call CYB_016_FormatearCodigoEnRango(celda)
 
     Selection.Delete
 End Sub
 
 Option Explicit
 
-Sub ColorearCeldaSeveridad()
+Sub CYB_015_ColorearCeldaSeveridad()
     ' DECLARACIÓN DE VARIABLES
     Dim textoCelda As String
     Dim score As Double
@@ -907,7 +907,7 @@ Sub ColorearCeldaSeveridad()
 
 End Sub
 
-Sub FormatearCodigoEnRango(ByVal selRange As Range)
+Sub CYB_016_FormatearCodigoEnRango(ByVal selRange As Range)
     Dim colorKeyword As Long: colorKeyword = RGB(0, 0, 255)
     Dim colorCmdlet As Long: colorCmdlet = RGB(13, 35, 116)
     Dim colorString As Long: colorString = RGB(210, 50, 50)
@@ -942,21 +942,21 @@ Sub FormatearCodigoEnRango(ByVal selRange As Range)
                                                             "-like", "-match", "|", ">", "<", ">>")
 
     ' Aplicar colores
-    FormatPattern selRange, """", """", colorString, False
-    FormatPattern selRange, "'", "'", colorString, False
-    FormatPattern selRange, "#", vbCr, colorComment, True
-    FormatPattern selRange, "//", vbCr, colorComment, True
-    FormatWithWildcards selRange, "[0-9]{1,}", colorNumber
-    FormatKeywords selRange, commonTypes, colorType, True
-    FormatWithWildcards selRange, "\$[a-zA-Z0-9_]{1,}", colorType
-    FormatKeywords selRange, sqlKeywords, colorKeyword, True
-    FormatKeywords selRange, psCmdlets, colorCmdlet, True
-    FormatKeywords selRange, shellBuiltins, colorCmdlet, True
-    FormatKeywords selRange, keywords, colorKeyword, True
-    FormatKeywords selRange, commonOperators, colorOperator, False
+    CYB_018_FormatPattern selRange, """", """", colorString, False
+    CYB_018_FormatPattern selRange, "'", "'", colorString, False
+    CYB_018_FormatPattern selRange, "#", vbCr, colorComment, True
+    CYB_018_FormatPattern selRange, "//", vbCr, colorComment, True
+    CYB_019_FormatWithWildcards selRange, "[0-9]{1,}", colorNumber
+    CYB_017_FormatKeywords selRange, commonTypes, colorType, True
+    CYB_019_FormatWithWildcards selRange, "\$[a-zA-Z0-9_]{1,}", colorType
+    CYB_017_FormatKeywords selRange, sqlKeywords, colorKeyword, True
+    CYB_017_FormatKeywords selRange, psCmdlets, colorCmdlet, True
+    CYB_017_FormatKeywords selRange, shellBuiltins, colorCmdlet, True
+    CYB_017_FormatKeywords selRange, keywords, colorKeyword, True
+    CYB_017_FormatKeywords selRange, commonOperators, colorOperator, False
 End Sub
 
-Private Sub FormatKeywords(ByVal rng As Range, ByVal keywords As Variant, ByVal color As Long, ByVal matchWord As Boolean)
+Private Sub CYB_017_FormatKeywords(ByVal rng As Range, ByVal keywords As Variant, ByVal color As Long, ByVal matchWord As Boolean)
     Dim keyword As Variant
     Dim findRange As Range
     Set findRange = rng.Duplicate
@@ -982,7 +982,7 @@ Private Sub FormatKeywords(ByVal rng As Range, ByVal keywords As Variant, ByVal 
     Next keyword
 End Sub
 
-Private Sub FormatPattern(ByVal rng As Range, ByVal startChar As String, ByVal endChar As String, ByVal color As Long, ByVal toEndOfLine As Boolean)
+Private Sub CYB_018_FormatPattern(ByVal rng As Range, ByVal startChar As String, ByVal endChar As String, ByVal color As Long, ByVal toEndOfLine As Boolean)
     Dim findRange As Range
     Set findRange = rng.Duplicate
 
@@ -1016,7 +1016,7 @@ Private Sub FormatPattern(ByVal rng As Range, ByVal startChar As String, ByVal e
     End With
 End Sub
 
-Private Sub FormatWithWildcards(ByVal rng As Range, ByVal pattern As String, ByVal color As Long)
+Private Sub CYB_019_FormatWithWildcards(ByVal rng As Range, ByVal pattern As String, ByVal color As Long)
     Dim findRange As Range
     Set findRange = rng.Duplicate
 
@@ -1039,7 +1039,7 @@ End Sub
 
 
 
-Sub FormatearCodigoHTMLSeleccionado()
+Sub CYB_020_FormatearCodigoHTMLSeleccionado()
     Const colorHTML As Long = &H66CC       ' Azul suave para HTML (ej. etiquetas)
     Const colorCSS As Long = &H228B22      ' Verde más claro para CSS (ej. propiedades)
     Const colorJS As Long = &HFF6347       ' Tomate suave para JS (ej. palabras reservadas)
@@ -1144,7 +1144,7 @@ End Sub
 
 
 
-Sub PalabrasClaveVerde_Corregida()
+Sub CYB_021_PalabrasClaveVerde_Corregida()
 
     Dim doc As Document
     Dim rng As Range          ' Rango de la selección original
@@ -1266,7 +1266,7 @@ Sub PalabrasClaveVerde_Corregida()
 
 End Sub
 
-Sub CensurarIPs_X_Dinamica_Segura()
+Sub CYB_022_CensurarIPs_X_Dinamica_Segura()
     Dim i As Integer, j As Integer
     Dim strX3 As String, strX4 As String
     Dim rng As Range
