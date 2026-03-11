@@ -44,6 +44,32 @@ Sub GEN004_CopyAsListSpaces()
     MsgBox clipboard.GetText
 End Sub
 
+Sub GEN004_CopiarComoListaSeparadaPorComas()
+    Dim cell As Range
+    Dim text As String
+    Dim clipboard As Object
+    
+    ' Crear el objeto para el portapapeles
+    Set clipboard = GetObject("New:{1C3B4210-F441-11CE-B9EA-00AA006B1A69}")
+    
+    ' Recorre las celdas seleccionadas
+    For Each cell In Selection
+        ' Añadir el contenido de cada celda a la cadena, separado por un espacio
+        If Len(text) > 0 Then
+            text = text & "," & cell.value
+        Else
+            text = cell.value
+        End If
+    Next cell
+    
+    ' Colocar el texto en el portapapeles
+    clipboard.SetText text
+    clipboard.PutInClipboard
+    
+    ' Confirmación (opcional)
+    clipboard.GetFromClipboard
+    MsgBox clipboard.GetText
+End Sub
 
 
 Sub GEN005_EliminarSaltosDeLinea()
@@ -168,6 +194,81 @@ Sub GEN021_ResaltarAmarilloSegunTexto()
 End Sub
 
 
+Sub GEN021_ConvertirRutaArchivoAVinculo()
+ Dim cell As Range
+    Dim fso As Object
+    Dim rutaArchivo As String, rutaLibro As String, rutaRelativa As String
+    Dim seleccionado As Range
+    Dim rutaAEvaluar As String
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    If ActiveWorkbook.path = "" Then
+        MsgBox "Error: El archivo de Excel debe estar guardado.", vbCritical
+        Exit Sub
+    End If
+    
+    rutaLibro = ActiveWorkbook.path & "\"
+    
+    On Error Resume Next
+    Set seleccionado = Selection.SpecialCells(xlCellTypeVisible)
+    On Error GoTo 0
+    
+    If seleccionado Is Nothing Then Exit Sub
+
+    Application.ScreenUpdating = False
+    
+    For Each cell In seleccionado
+        rutaArchivo = Trim(cell.value)
+        rutaArchivo = Replace(rutaArchivo, """", "") ' Limpiar comillas
+        
+        If rutaArchivo <> "" Then
+            ' Determinar si la ruta es relativa (.\) para validarla correctamente
+            If Left(rutaArchivo, 2) = ".\" Then
+                rutaAEvaluar = rutaLibro & Mid(rutaArchivo, 3)
+            Else
+                rutaAEvaluar = rutaArchivo
+            End If
+            
+            ' 1. VERIFICAR SI EXISTE (Sea relativa o absoluta)
+            If fso.fileExists(rutaAEvaluar) Or fso.FolderExists(rutaAEvaluar) Then
+                
+                ' Limpiar color de error porque el archivo SÍ existe
+                cell.Interior.ColorIndex = xlNone
+                
+                ' 2. CONVERTIR A RELATIVA SOLO SI ES ABSOLUTA
+                ' Si ya empieza con ".\", solo nos aseguramos del hipervínculo
+                If Left(rutaArchivo, 2) = ".\" Then
+                    rutaRelativa = rutaArchivo
+                ElseIf InStr(1, rutaArchivo, rutaLibro, vbTextCompare) = 1 Then
+                    rutaRelativa = "." & Mid(rutaArchivo, Len(rutaLibro))
+                Else
+                    ' Es una ruta absoluta fuera de la carpeta del Excel
+                    rutaRelativa = rutaArchivo
+                    cell.Interior.Color = RGB(255, 235, 156) ' Naranja (Fuera de contexto relativo)
+                End If
+                
+                ' 3. APLICAR HIPERVÍNCULO Y FORMATO AZUL FIJO
+                cell.Hyperlinks.Add Anchor:=cell, _
+                                    Address:=rutaRelativa, _
+                                    TextToDisplay:=rutaRelativa
+                
+                With cell.Font
+                    .Underline = xlUnderlineStyleSingle
+                    .Color = RGB(0, 112, 192) ' Azul que no cambia a morado
+                End With
+                
+            Else
+                ' 4. EL ARCHIVO NO EXISTE (Marcar en Rojo)
+                cell.Interior.Color = RGB(255, 199, 206) ' Fondo rojo claro
+                cell.Font.Color = RGB(156, 0, 6)         ' Texto rojo oscuro
+            End If
+        End If
+    Next cell
+    
+    Application.ScreenUpdating = True
+End Sub
+
 Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
     Dim lineas As Variant
@@ -247,7 +348,7 @@ Sub GEN007_ExportarTabla()
         With Application.FileDialog(msoFileDialogFolderPicker)
             .Title = "Selecciona la carpeta para guardar el archivo"
             .Show
-            If .SelectedItems.Count > 0 Then
+            If .SelectedItems.count > 0 Then
                 carpetaDestino = .SelectedItems(1)
             Else
                 MsgBox "No se seleccionó ninguna carpeta. La exportación se ha cancelado.", vbExclamation
@@ -347,7 +448,7 @@ Sub GEN010_TraducirCeldasSeleccionadas()
     
     ' Obtener el número total de celdas seleccionadas
     Dim totalCeldas As Integer
-    totalCeldas = Selection.Count
+    totalCeldas = Selection.count
     
     ' Imprimir información en el Inmediato
     Debug.Print "Número total de celdas seleccionadas: " & totalCeldas
@@ -608,8 +709,8 @@ Sub GEN013_VaciarTablaAFilaEjemplo()
         If MsgBox("¿Está seguro de que desea eliminar todas las filas excepto la primera?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
             ' Eliminar todas las filas excepto la primera
             On Error Resume Next
-            If tbl.ListRows.Count > 1 Then
-                tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
+            If tbl.ListRows.count > 1 Then
+                tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.count - 1, tbl.ListColumns.count).Delete
             End If
             On Error GoTo 0
             MsgBox "Se han eliminado todas las filas excepto la primera.", vbInformation, "Proceso completado"
@@ -649,10 +750,10 @@ Sub GEN014_VaciarTodasTablasAFilaEjemplo()
             ' Verificar si la tabla está en la lista de exclusión
             If Not excludeTables.exists(tbl.Name) Then
                 ' Verificar que la tabla tenga más de una fila
-                If tbl.ListRows.Count > 1 Then
+                If tbl.ListRows.count > 1 Then
                     ' Eliminar todas las filas excepto la primera
                     On Error Resume Next
-                    tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
+                    tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.count - 1, tbl.ListColumns.count).Delete
                     On Error GoTo 0
                 End If
             End If
@@ -714,7 +815,7 @@ Sub DistribuirColumnaCeldasMultiples()
 
     ' Obtén el número de celdas seleccionadas
     Dim n As Long
-    n = rng.Count
+    n = rng.count
 
     ' Definir el número de columnas como 4
     Dim numColumnas As Integer
