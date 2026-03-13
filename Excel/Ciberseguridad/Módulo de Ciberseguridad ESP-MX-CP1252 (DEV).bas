@@ -2783,7 +2783,6 @@ Sub CYB008_GenerarPruebasPorServicio_Individual()
 
 End Sub
 
-
 Sub CYB008_GenerarPruebasPorServicio_Completo()
     Dim tblCat As ListObject, tblSurInt As ListObject, tblSurExt As ListObject
     Dim tblDestInt As ListObject, tblDestExt As ListObject
@@ -2791,7 +2790,10 @@ Sub CYB008_GenerarPruebasPorServicio_Completo()
     Dim servCat As String, servSur As String
     Dim contadorInt As Long, contadorExt As Long
     
-    ' 1. Configuración de Tablas (Nombres de Excel)
+    Dim totalTareas As Long, tareaActual As Long
+    Dim porcentaje As Double
+    Dim barra As String
+    
     On Error Resume Next
     Set tblCat = Range("TblSecurityTestCatalog").ListObject
     Set tblSurInt = Range("TblAttackInternalSurface").ListObject
@@ -2800,26 +2802,42 @@ Sub CYB008_GenerarPruebasPorServicio_Completo()
     Set tblDestExt = Range("TblSecurityTestsSelectedExtern").ListObject
     On Error GoTo 0
 
-    ' Validación de existencia
     If tblCat Is Nothing Then
         MsgBox "Error: No se encontró la tabla 'TblSecurityTestCatalog'.", vbCritical
         Exit Sub
     End If
 
-    ' 2. Limpieza de tablas destino (para no duplicar en cada ejecución)
+    ' APAGADO DE EVENTOS PARA EVITAR QUE SE TRABE EXCEL
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
     
+    ' Limpiar tablas destino
     If Not tblDestInt Is Nothing Then If Not tblDestInt.DataBodyRange Is Nothing Then tblDestInt.DataBodyRange.Delete
     If Not tblDestExt Is Nothing Then If Not tblDestExt.DataBodyRange Is Nothing Then tblDestExt.DataBodyRange.Delete
 
-    ' 3. Bucle Principal: Recorrer el Catálogo de Pruebas
+    totalTareas = tblCat.ListRows.Count
+    tareaActual = 0
+    contadorInt = 0
+    contadorExt = 0
+
+    ' Bucle Principal
     For Each filaCat In tblCat.ListRows
-        ' Extraer servicio del catálogo
+        tareaActual = tareaActual + 1
         servCat = Trim(CStr(filaCat.Range(tblCat.ListColumns("Servicio Tecnológico").Index).value))
         
+        ' --- BARRA DE CARGA ---
+        porcentaje = tareaActual / totalTareas
+        barra = String(Int(porcentaje * 20), ChrW(9608)) & String(20 - Int(porcentaje * 20), ChrW(9617))
+        Application.StatusBar = " ? PROGRESO: " & barra & " " & Format(porcentaje, "0%") & " | Analizando: " & servCat
+        
+        Application.ScreenUpdating = True
+        DoEvents
+        Application.ScreenUpdating = False
+        ' ----------------------
+        
         If servCat <> "" Then
-            ' --- PROCESAR SUPERFICIE INTERNA ---
+            ' --- INTERNO (Sin Modificar) ---
             If Not tblSurInt Is Nothing Then
                 For Each filaSur In tblSurInt.ListRows
                     servSur = Trim(CStr(filaSur.Range(tblSurInt.ListColumns("Servicio").Index).value))
@@ -2830,10 +2848,12 @@ Sub CYB008_GenerarPruebasPorServicio_Completo()
                 Next filaSur
             End If
             
-            ' --- PROCESAR SUPERFICIE EXTERNA ---
+            ' --- EXTERNO (Mejorado para "None" y HTTPS) ---
             If Not tblSurExt Is Nothing Then
                 For Each filaSur In tblSurExt.ListRows
                     servSur = Trim(CStr(filaSur.Range(tblSurExt.ListColumns("Servicio").Index).value))
+                    If UCase(servSur) = "NONE" Then servSur = ""
+                    
                     If MatchServicios(servCat, servSur) Then
                         contadorExt = contadorExt + 1
                         Call RellenarLineaComandos(tblDestExt, filaCat, filaSur, tblCat, tblSurExt, contadorExt)
@@ -2843,95 +2863,143 @@ Sub CYB008_GenerarPruebasPorServicio_Completo()
         End If
     Next filaCat
 
+    ' RESTAURAR EXCEL
+    Application.StatusBar = False
+    Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
     Application.ScreenUpdating = True
 
-    MsgBox "Plan de Pruebas Generado con Éxito." & vbCrLf & _
+    MsgBox "Plan de Pruebas Generado exitosamente." & vbCrLf & _
            "--------------------------------------" & vbCrLf & _
            "? Pruebas Internas: " & contadorInt & vbCrLf & _
            "? Pruebas Externas: " & contadorExt & vbCrLf & _
-           "--------------------------------------" & vbCrLf & _
-           "Los comandos han sido personalizados con IPs y Puertos.", vbInformation, "Finalizado"
+           "--------------------------------------", vbInformation, "Proceso Completado"
 End Sub
 
-' Subrutina de Mapeo con Sustitución Dinámica de Comandos
+' -------------------------------------------------------------------------
+' 2. SUBRUTINA DE SUSTITUCIÓN (CORREGIDA PARA HTTP/HTTPS Y HERRAMIENTAS)
+' -------------------------------------------------------------------------
 Private Sub RellenarLineaComandos(tDest As ListObject, fCat As ListRow, fSur As ListRow, tCat As ListObject, tSur As ListObject, folio As Long)
     Dim nFila As ListRow
-    Dim valIP As String, valPuerto As String, valActivo As String, valServicio As String
-    Dim valComandoBase As String, valComandoFinal As String
-    Dim valHerramienta As String, valRefs As String
+    Dim valIP As String, valFQDN As String, valPuerto As String, valTarget As String, valServicio As String
+    Dim valComandoBase As String, valComandoFinal As String, valHerramienta As String, valRefs As String
+    Dim esHttps As Boolean
     
-    ' 1. Obtener datos del Inventario (Surface)
-    valIP = CStr(fSur.Range(tSur.ListColumns("IP").Index).value)
-    valPuerto = CStr(fSur.Range(tSur.ListColumns("Puerto").Index).value)
-    valServicio = CStr(fSur.Range(tSur.ListColumns("Servicio").Index).value)
+    ' 1. Extraer datos de superficie
+    On Error Resume Next
+    valIP = Trim(CStr(fSur.Range(tSur.ListColumns("IP").Index).value))
+    valFQDN = Trim(CStr(fSur.Range(tSur.ListColumns("FQDN / Subdominio").Index).value))
+    valPuerto = Trim(CStr(fSur.Range(tSur.ListColumns("Puerto").Index).value))
+    valServicio = Trim(CStr(fSur.Range(tSur.ListColumns("Servicio").Index).value))
+    On Error GoTo 0
     
-    ' Formatear Activo Tecnológico
-    If valPuerto <> "" And valPuerto <> "0" Then valActivo = valIP & ":" & valPuerto Else valActivo = valIP
+    ' 2. Prioridad FQDN vs IP para el Target
+    If valFQDN <> "" And UCase(valFQDN) <> "NONE" Then
+        valTarget = valFQDN
+    Else
+        valTarget = valIP
+    End If
     
-    ' 2. Obtener datos del Catálogo
-    valHerramienta = CStr(fCat.Range(tCat.ListColumns("Herramienta Sugerida").Index).value)
-    valComandoBase = CStr(fCat.Range(tCat.ListColumns("Acción Rápida de Ejecución Manual Sugerida").Index).value)
-    valRefs = CStr(fCat.Range(tCat.ListColumns("Referencias").Index).value)
+    ' 3. Extraer datos del catálogo
+    On Error Resume Next
+    valHerramienta = Trim(CStr(fCat.Range(tCat.ListColumns("Herramienta Sugerida").Index).value))
+    valComandoBase = Trim(CStr(fCat.Range(tCat.ListColumns("Acción Rápida de Ejecución Manual Sugerida").Index).value))
+    valRefs = Trim(CStr(fCat.Range(tCat.ListColumns("Referencias").Index).value))
+    On Error GoTo 0
     
-    ' 3. LÓGICA DE SUSTITUCIÓN DE COMANDO
+    ' 4. CONSTRUIR COMANDO FINAL (Manejo de Regla HTTP vs HTTPS)
     If valComandoBase <> "" Then
         valComandoFinal = valComandoBase
         
-        ' Reemplazo para protocolos Web (Inyección de puerto no estándar)
+        ' Verificar si el servicio del activo es explícitamente HTTPS
+        esHttps = (UCase(valServicio) = "HTTPS" Or valPuerto = "443")
+        
+        ' Si el activo es HTTPS, actualizamos el comando base de http a https
+        If esHttps And InStr(1, valComandoFinal, "http://<target_ip>", vbTextCompare) > 0 Then
+            valComandoFinal = Replace(valComandoFinal, "http://<target_ip>", "https://<target_ip>", 1, -1, vbTextCompare)
+        End If
+        
+        ' Reemplazo para HTTP
         If InStr(1, valComandoFinal, "http://<target_ip>", vbTextCompare) > 0 Then
-            If valPuerto <> "" And valPuerto <> "80" And valPuerto <> "443" Then
-                valComandoFinal = Replace(valComandoFinal, "http://<target_ip>", "http://" & valIP & ":" & valPuerto)
+            If valPuerto <> "" And valPuerto <> "80" And valPuerto <> "443" And UCase(valPuerto) <> "NONE" And valPuerto <> "0" Then
+                valComandoFinal = Replace(valComandoFinal, "http://<target_ip>", "http://" & valTarget & ":" & valPuerto)
             Else
-                valComandoFinal = Replace(valComandoFinal, "http://<target_ip>", "http://" & valIP)
+                valComandoFinal = Replace(valComandoFinal, "http://<target_ip>", "http://" & valTarget)
             End If
         End If
         
-        ' Reemplazo de variables estándar
-        valComandoFinal = Replace(valComandoFinal, "<target_ip>", valIP)
+        ' Reemplazo para HTTPS
+        If InStr(1, valComandoFinal, "https://<target_ip>", vbTextCompare) > 0 Then
+            If valPuerto <> "" And valPuerto <> "443" And valPuerto <> "80" And UCase(valPuerto) <> "NONE" And valPuerto <> "0" Then
+                valComandoFinal = Replace(valComandoFinal, "https://<target_ip>", "https://" & valTarget & ":" & valPuerto)
+            Else
+                valComandoFinal = Replace(valComandoFinal, "https://<target_ip>", "https://" & valTarget)
+            End If
+        End If
         
-        If valPuerto <> "" And valPuerto <> "0" Then
+        ' Reemplazo General (Por si el comando no llevaba http/https)
+        valComandoFinal = Replace(valComandoFinal, "<target_ip>", valTarget)
+        
+        ' Reemplazo de Puertos (Limpieza de "None")
+        If valPuerto <> "" And UCase(valPuerto) <> "NONE" And valPuerto <> "0" Then
             valComandoFinal = Replace(valComandoFinal, "<target_ports>", valPuerto)
         Else
-            ' Limpiar si no hay puerto para evitar flags vacíos
+            valComandoFinal = Replace(valComandoFinal, "-p <target_ports> ", "")
             valComandoFinal = Replace(valComandoFinal, "-p <target_ports>", "")
             valComandoFinal = Replace(valComandoFinal, "<target_ports>", "")
         End If
+        valComandoFinal = Trim(Replace(valComandoFinal, "  ", " "))
     Else
-        valComandoFinal = "Ejecutar validación manual sobre " & valActivo
+        valComandoFinal = "Ejecutar validación manual sobre " & valTarget
     End If
     
-    ' 4. Escribir en la tabla de destino
+    ' 5. ESCRITURA SEGURA EN LA TABLA
     Set nFila = tDest.ListRows.Add
+    On Error Resume Next
     With nFila
         .Range(tDest.ListColumns("Folio").Index).value = folio
         .Range(tDest.ListColumns("Fecha de Evaluación").Index).value = Date
-        .Range(tDest.ListColumns("Activo Tecnológico").Index).value = valActivo
-        .Range(tDest.ListColumns("Identificador de Prueba de Seguridad").Index).value = fCat.Range(tCat.ListColumns("Identificador de Prueba").Index).value
+        .Range(tDest.ListColumns("Activo Tecnológico").Index).value = valTarget
         .Range(tDest.ListColumns("Servicio Tecnológico Evaluado").Index).value = valServicio
+        .Range(tDest.ListColumns("Identificador de Prueba de Seguridad").Index).value = fCat.Range(tCat.ListColumns("Identificador de Prueba").Index).value
         .Range(tDest.ListColumns("Nombre de la Prueba").Index).value = fCat.Range(tCat.ListColumns("Nombre de la Prueba").Index).value
         .Range(tDest.ListColumns("Descripción de la Prueba").Index).value = fCat.Range(tCat.ListColumns("Descripción de la Prueba").Index).value
+        ' Aseguramos que la herramienta se escriba
         .Range(tDest.ListColumns("Herramienta Sugerida").Index).value = valHerramienta
         .Range(tDest.ListColumns("Acción Rápida de Ejecución Manual Sugerida").Index).value = valComandoFinal
         .Range(tDest.ListColumns("Referencias").Index).value = valRefs
     End With
+    On Error GoTo 0
 End Sub
 
-' Función de Match Inteligente de Servicios
+' -------------------------------------------------------------------------
+' 3. MATCHING INTELIGENTE
+' -------------------------------------------------------------------------
 Function MatchServicios(ByVal Cat As String, ByVal Sur As String) As Boolean
     Cat = UCase(Trim(Cat))
     Sur = UCase(Trim(Sur))
     
-    If Cat = "" Or Sur = "" Then Exit Function
+    If Cat = "" Then Exit Function
     
-    ' Match directo o contenido
-    If InStr(1, Sur, Cat) > 0 Or InStr(1, Cat, Sur) > 0 Then MatchServicios = True: Exit Function
+    ' Permitir que las reglas HTTP del catálogo apliquen a activos HTTPS
+    If Cat = "HTTP" And (Sur = "HTTPS" Or Sur = "HTTP" Or Sur = "WWW" Or Sur = "NONE" Or Sur = "") Then
+        MatchServicios = True
+        Exit Function
+    End If
     
-    ' Reglas de Alias de Red
+    ' Manejo de activos externos sin servicio definido
+    If Sur = "" Or Sur = "NONE" Then
+        If Cat = "INFRAESTRUCTURA" Or Cat = "ICMP" Then MatchServicios = True
+        Exit Function
+    End If
+
+    If InStr(1, Sur, Cat) > 0 Or InStr(1, Cat, Sur) > 0 Then
+        MatchServicios = True
+        Exit Function
+    End If
+    
     Select Case True
         Case (Cat = "SMB" Or Cat = "SAMBA") And (InStr(Sur, "MICROSOFT-DS") > 0 Or Sur = "445")
-            MatchServicios = True
-        Case Cat = "HTTP" And (InStr(Sur, "HTTPS") > 0 Or Sur = "80" Or Sur = "443" Or Sur = "8080")
             MatchServicios = True
         Case Cat = "SSH" And Sur = "22"
             MatchServicios = True
@@ -2940,6 +3008,268 @@ Function MatchServicios(ByVal Cat As String, ByVal Sur As String) As Boolean
         Case Cat = "LDAP" And (Sur = "389" Or Sur = "636")
             MatchServicios = True
     End Select
+End Function
+
+
+
+
+Sub CYB008_GenerarPruebasSeleccionadas()
+    Dim tblCat As ListObject, tblSurInt As ListObject, tblSurExt As ListObject
+    Dim tblDestInt As ListObject, tblDestExt As ListObject
+    Dim filaCat As ListRow, filaSur As ListRow
+    Dim servCat As String, servSur As String
+    Dim contadorInt As Long, contadorExt As Long
+    
+    Dim totalTareas As Long, tareaActual As Long
+    Dim porcentaje As Double
+    Dim barra As String
+    
+    ' CONFIGURACIÓN: Enlazar con las tablas de telemetría y catálogo
+    On Error Resume Next
+    Set tblCat = Range("SecEvalCatalog").ListObject
+    If tblCat Is Nothing Then Set tblCat = Range("TblSecurityTestCatalog").ListObject ' Fallback
+    
+    Set tblSurInt = Range("TblAttackInternalSurface").ListObject
+    Set tblSurExt = Range("TblAttackExternalSurface").ListObject
+    Set tblDestInt = Range("TblSecurityTestsSelectedIntern").ListObject
+    Set tblDestExt = Range("TblSecurityTestsSelectedExtern").ListObject
+    On Error GoTo 0
+
+    If tblCat Is Nothing Then
+        MsgBox "Fallo crítico: No se detectó la matriz 'SecEvalCatalog'. Abortando despliegue.", vbCritical, "SYSTEM HALT"
+        Exit Sub
+    End If
+
+    ' MODO STEALTH: Apagar eventos de Excel para máxima velocidad (Evita bloqueos)
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+    Application.EnableEvents = False
+    
+    ' PURGA DE DATOS: Limpiar vectores de ataque anteriores
+    If Not tblDestInt Is Nothing Then If Not tblDestInt.DataBodyRange Is Nothing Then tblDestInt.DataBodyRange.Delete
+    If Not tblDestExt Is Nothing Then If Not tblDestExt.DataBodyRange Is Nothing Then tblDestExt.DataBodyRange.Delete
+
+    totalTareas = tblCat.ListRows.Count
+    tareaActual = 0
+    contadorInt = 0
+    contadorExt = 0
+
+    ' INICIO DE BUCLE DE ESCANEO
+    For Each filaCat In tblCat.ListRows
+        tareaActual = tareaActual + 1
+        ' Extracción del servicio objetivo
+        servCat = UCase(ExtractTelemetry(filaCat, tblCat, "Categoría / Servicio", "Servicio Tecnológico"))
+        
+        ' --- RENDERIZADO DE BARRA DE PROGRESO CYBER ---
+        porcentaje = tareaActual / totalTareas
+        barra = String(Int(porcentaje * 20), ChrW(9608)) & String(20 - Int(porcentaje * 20), ChrW(9617))
+        Application.StatusBar = " [ RED TEAM NEXUS ] " & barra & " " & Format(porcentaje, "0%") & " | Lock-on: " & servCat
+        
+        ' Micro-parpadeo para mantener la UI viva sin trabar Excel
+        Application.ScreenUpdating = True
+        DoEvents
+        Application.ScreenUpdating = False
+        ' ----------------------------------------------
+        
+        If servCat <> "" Then
+            ' --- SUPERFICIE INTERNA ---
+            If Not tblSurInt Is Nothing Then
+                For Each filaSur In tblSurInt.ListRows
+                    servSur = Trim(CStr(filaSur.Range(tblSurInt.ListColumns("Servicio").Index).value))
+                    If NeuralServiceMatch(servCat, servSur) Then
+                        contadorInt = contadorInt + 1
+                        Call InjectAttackVector(tblDestInt, filaCat, filaSur, tblCat, tblSurInt, contadorInt)
+                    End If
+                Next filaSur
+            End If
+            
+            ' --- SUPERFICIE EXTERNA ---
+            If Not tblSurExt Is Nothing Then
+                For Each filaSur In tblSurExt.ListRows
+                    servSur = Trim(CStr(filaSur.Range(tblSurExt.ListColumns("Servicio").Index).value))
+                    If UCase(servSur) = "NONE" Then servSur = "" ' Normalización de ruido
+                    
+                    If NeuralServiceMatch(servCat, servSur) Then
+                        contadorExt = contadorExt + 1
+                        Call InjectAttackVector(tblDestExt, filaCat, filaSur, tblCat, tblSurExt, contadorExt)
+                    End If
+                Next filaSur
+            End If
+        End If
+    Next filaCat
+
+    ' RESTAURACIÓN DEL SISTEMA
+    Application.StatusBar = False
+    Application.EnableEvents = True
+    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True
+
+    MsgBox "Arsenal de Pruebas Generado con Éxito." & vbCrLf & _
+           "======================================" & vbCrLf & _
+           "[+] Vectores Internos Armados: " & contadorInt & vbCrLf & _
+           "[+] Vectores Externos Armados: " & contadorExt & vbCrLf & _
+           "======================================", vbInformation, "Despliegue Completado"
+End Sub
+Private Sub InjectAttackVector(tDest As ListObject, fCat As ListRow, fSur As ListRow, tCat As ListObject, tSur As ListObject, folio As Long)
+    Dim nFila As ListRow
+    Dim valIP As String, valFQDN As String, valPuerto As String, valTarget As String, valServicio As String
+    Dim valIdTest As String, valName As String, valDesc As String
+    Dim valComandoBase As String, valComandoFinal As String, valHerramienta As String
+    
+    ' 1. Obtener datos del activo (Superficie)
+    On Error Resume Next
+    valIP = Trim(CStr(fSur.Range(tSur.ListColumns("IP").Index).value))
+    valFQDN = Trim(CStr(fSur.Range(tSur.ListColumns("FQDN / Subdominio").Index).value))
+    valPuerto = Trim(CStr(fSur.Range(tSur.ListColumns("Puerto").Index).value))
+    valServicio = Trim(CStr(fSur.Range(tSur.ListColumns("Servicio").Index).value))
+    On Error GoTo 0
+    
+    ' Prioridad FQDN sobre IP
+    valTarget = IIf(valFQDN <> "" And UCase(valFQDN) <> "NONE", valFQDN, valIP)
+    
+    ' 2. Extraer datos del Catálogo (Usando la nueva búsqueda flexible)
+    valIdTest = ExtractTelemetry(fCat, tCat, "Identificador de Prueba", "Id")
+    valName = ExtractTelemetry(fCat, tCat, "Nombre de la Prueba")
+    valDesc = ExtractTelemetry(fCat, tCat, "Descripción de la Prueba")
+    valHerramienta = ExtractTelemetry(fCat, tCat, "Herramienta Sugerida")
+    
+    ' ESTA ES LA COLUMNA CRÍTICA
+    valComandoBase = ExtractTelemetry(fCat, tCat, "Acción Rápida de Ejecución Manual Sugerida")
+    
+    ' 3. Procesar el comando
+    If valComandoBase <> "" Then
+        valComandoFinal = valComandoBase
+        
+        ' Reemplazo de Protocolo
+        If (UCase(valServicio) = "HTTPS" Or valPuerto = "443") Then
+            valComandoFinal = Replace(valComandoFinal, "http://", "https://", 1, -1, vbTextCompare)
+        End If
+        
+        ' Reemplazo de Target IP/Host
+        valComandoFinal = Replace(valComandoFinal, "<target_ip>", valTarget)
+        
+        ' Reemplazo de Puerto
+        If valPuerto <> "" And valPuerto <> "0" And UCase(valPuerto) <> "NONE" Then
+            valComandoFinal = Replace(valComandoFinal, "<target_ports>", valPuerto)
+        Else
+            ' Si no hay puerto, limpiamos los flags de nmap comunes
+            valComandoFinal = Replace(valComandoFinal, "-p <target_ports>", "")
+            valComandoFinal = Replace(valComandoFinal, "<target_ports>", "")
+        End If
+        
+        valComandoFinal = Trim(Replace(valComandoFinal, "  ", " "))
+    Else
+        ' Si entra aquí, es porque ExtractTelemetry no leyó nada de la celda
+        valComandoFinal = "Revisar Catálogo: No se encontró comando para " & valIdTest
+    End If
+    
+    ' 4. Escribir en la tabla de destino
+    Set nFila = tDest.ListRows.Add
+    On Error Resume Next
+    With nFila
+        .Range(tDest.ListColumns("Folio").Index).value = folio
+        .Range(tDest.ListColumns("Fecha de Evaluación").Index).value = Date
+        .Range(tDest.ListColumns("Activo Tecnológico").Index).value = valTarget
+        .Range(tDest.ListColumns("Servicio Tecnológico Evaluado").Index).value = valServicio
+        .Range(tDest.ListColumns("Identificador de Prueba de Seguridad").Index).value = valIdTest
+        .Range(tDest.ListColumns("Nombre de la Prueba").Index).value = valName
+        .Range(tDest.ListColumns("Descripción de la Prueba").Index).value = valDesc
+        .Range(tDest.ListColumns("Herramienta Sugerida").Index).value = valHerramienta
+        .Range(tDest.ListColumns("Acción Rápida de Ejecución Manual Sugerida").Index).value = valComandoFinal
+    End With
+    On Error GoTo 0
+End Sub
+
+' =========================================================================
+' 3. RED NEURAL DE CLASIFICACIÓN (Mapea servicios combinados)
+' =========================================================================
+Function NeuralServiceMatch(ByVal Cat As String, ByVal Sur As String) As Boolean
+    Dim arrCat() As String, i As Integer, singleCat As String
+    Cat = UCase(Trim(Cat))
+    Sur = UCase(Trim(Sur))
+    
+    If Cat = "" Then Exit Function
+    
+    ' Activos Stealth (Sin servicio reportado)
+    If Sur = "" Or Sur = "NONE" Then
+        If InStr(Cat, "HTTP") > 0 Or InStr(Cat, "INFRAESTRUCTURA") > 0 Or InStr(Cat, "ICMP") > 0 Then NeuralServiceMatch = True
+        Exit Function
+    End If
+
+    ' Match directo perfecto
+    If InStr(1, Sur, Cat) > 0 Or InStr(1, Cat, Sur) > 0 Then
+        NeuralServiceMatch = True
+        Exit Function
+    End If
+    
+    ' Parsing de Strings Combinados (Ej. "HTTP HTTPS", "FTP TELNET")
+    Cat = Replace(Cat, ",", " ")
+    arrCat = Split(Cat, " ")
+    
+    For i = LBound(arrCat) To UBound(arrCat)
+        singleCat = Trim(arrCat(i))
+        If singleCat <> "" Then
+            ' Lógica Específica Web
+            If singleCat = "HTTP" Or singleCat = "HTTPS" Then
+                If Sur = "HTTPS" Or Sur = "HTTP" Or Sur = "WWW" Then NeuralServiceMatch = True: Exit Function
+            End If
+            
+            ' Lógica de Puertos Core
+            If (singleCat = "SMB" Or singleCat = "SAMBA") And (InStr(Sur, "MICROSOFT-DS") > 0 Or Sur = "445") Then NeuralServiceMatch = True: Exit Function
+            If singleCat = "SSH" And Sur = "22" Then NeuralServiceMatch = True: Exit Function
+            If singleCat = "RDP" And (Sur = "3389" Or InStr(Sur, "MS-WBT") > 0) Then NeuralServiceMatch = True: Exit Function
+            If singleCat = "LDAP" And (Sur = "389" Or Sur = "636") Then NeuralServiceMatch = True: Exit Function
+            
+            ' Inclusión Parcial Específica
+            If singleCat = Sur Or InStr(1, Sur, singleCat) > 0 Then NeuralServiceMatch = True: Exit Function
+        End If
+    Next i
+End Function
+
+' =========================================================================
+' 4. EXTRACTOR DE TELEMETRÍA (Lee datos evadiendo errores de columnas)
+' =========================================================================
+Function ExtractTelemetry(row As ListRow, tbl As ListObject, col1 As String, Optional col2 As String = "") As String
+    Dim val As String
+    Dim idx As Long
+    Dim lc As ListColumn
+    
+    On Error Resume Next
+    ' Intento 1: Nombre exacto
+    idx = tbl.ListColumns(col1).Index
+    
+    ' Intento 2: Nombre secundario
+    If idx = 0 And col2 <> "" Then idx = tbl.ListColumns(col2).Index
+    
+    ' Intento 3: Búsqueda flexible (si la columna contiene la palabra clave)
+    If idx = 0 Then
+        For Each lc In tbl.ListColumns
+            ' Buscamos palabras clave para la columna de comandos si falla el nombre largo
+            If InStr(1, lc.Name, "Acción", vbTextCompare) > 0 Or _
+               InStr(1, lc.Name, "Comando", vbTextCompare) > 0 Or _
+               InStr(1, lc.Name, "Ejecución", vbTextCompare) > 0 Then
+               
+               If col1 = "Acción Rápida de Ejecución Manual Sugerida" Then
+                    idx = lc.Index
+                    Exit For
+               End If
+            End If
+            
+            ' Búsqueda genérica para otras columnas
+            If InStr(1, lc.Name, col1, vbTextCompare) > 0 Then
+                idx = lc.Index
+                Exit For
+            End If
+        Next lc
+    End If
+    
+    ' Si encontramos la columna, extraemos el valor
+    If idx > 0 Then
+        val = Trim(CStr(row.Range(idx).value))
+    End If
+    On Error GoTo 0
+    
+    ExtractTelemetry = val
 End Function
 
 
@@ -4002,7 +4332,6 @@ ManejadorErrores:
     Resume Limpieza
 End Sub
 
-
 Sub CYB035_CargarNessus_V19_FiltroNone()
     ' =========================================================
     ' VARIABLES DE ENTORNO Y OBJETOS
@@ -4021,12 +4350,34 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
     
     Dim tieneFormula() As Boolean, formulaR1C1Template() As String
     Dim colMap() As Long, arrSalida() As Variant
-    Dim idxRiskCSV As Long ' <--- Variable para ubicar la columna Risk
+    Dim idxRiskCSV As Long
+
+    ' --- NUEVA VARIABLE PARA SELECCIÓN ---
+    Dim respuesta As VbMsgBoxResult
 
     On Error GoTo ManejadorErrores
 
-    Set wsDestino = wb.Sheets("Vulnerabilidades")
-    Set tblDestino = wsDestino.ListObjects("Tbl_vulnerabilidades")
+    ' =========================================================
+    ' 1. SELECCIÓN DE DESTINO (INTERNAS VS EXTERNAS)
+    ' =========================================================
+    respuesta = MsgBox("¿Desea cargar los datos en la tabla de VULNERABILIDADES INTERNAS?" & vbCrLf & vbCrLf & _
+                       "SÍ: Cargar en Internas" & vbCrLf & _
+                       "NO: Cargar en Externas" & vbCrLf & _
+                       "CANCELAR: Detener proceso", _
+                       vbYesNoCancel + vbQuestion, "Seleccionar Destino de Carga")
+
+    If respuesta = vbCancel Then Exit Sub
+
+    If respuesta = vbYes Then
+        ' Configuración para Internas
+        Set wsDestino = wb.Sheets("Vulnerabilidades Internas")
+        Set tblDestino = wsDestino.ListObjects("Tbl_vulnerabilidades_internas")
+    Else
+        ' Configuración para Externas (Si el usuario presionó NO)
+        Set wsDestino = wb.Sheets("Vulnerabilidades Externas")
+        Set tblDestino = wsDestino.ListObjects("Tbl_vulnerabilidades_externas")
+    End If
+
     Set wsConfig = wb.Sheets("Evaluaciones Seleccionadas")
 
     ' =========================================================
@@ -4114,19 +4465,16 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
                 ReDim arrSalida(1 To nRows - 1, 1 To totalCols)
                 ReDim colMap(1 To nCols)
                 Dim columnasMapeadas As Long: columnasMapeadas = 0
-                idxRiskCSV = 0 ' Reiniciamos el buscador de Risk para este archivo
+                idxRiskCSV = 0
 
-                ' 5.1 MAPEADO EXACTO DE COLUMNAS (NESSUS -> EXCEL)
+                ' 5.1 MAPEADO EXACTO DE COLUMNAS
                 For c = 1 To nCols
                     Dim hCSV As String: hCSV = LCase(Trim(CStr(csvData(1, c))))
                     Dim dBusq As String: dBusq = ""
 
                     Select Case hCSV
-                        Case "risk", "risk factor"
-                            dBusq = "Severidad"
-                            idxRiskCSV = c ' <--- Memorizamos en qué columna del CSV está el Risk
+                        Case "risk", "risk factor": dBusq = "Severidad": idxRiskCSV = c
                         Case "host": dBusq = "Identificador de detección usado"
-                        
                         Case "port": dBusq = "Puerto"
                         Case "name": dBusq = "Nombre original de la vulnerabilidad"
                         Case "plugin output": dBusq = "Salidas de herramienta"
@@ -4146,16 +4494,14 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
                     End If
                 Next c
 
-                ' 5.2 EXTRACCIÓN Y LLENADO DE DATOS (CON FILTRO)
+                ' 5.2 EXTRACCIÓN Y LLENADO DE DATOS (CON FILTRO NONE)
                 If columnasMapeadas > 0 Then
                     filaOutput = 0
                     
                     For r = 2 To nRows
-                        ' --- NUEVO ESCUDO: FILTRAR "NONE" ---
                         Dim valRiesgo As String: valRiesgo = ""
                         If idxRiskCSV > 0 Then valRiesgo = Trim(CStr(csvData(r, idxRiskCSV)))
                         
-                        ' Si el riesgo NO es "None", lo procesamos
                         If StrComp(valRiesgo, "None", vbTextCompare) <> 0 Then
                             filaOutput = filaOutput + 1
                             
@@ -4164,13 +4510,13 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
                                     Dim textoCelda As String
                                     textoCelda = CStr(csvData(r, c))
                                     If Len(textoCelda) > 32000 Then
-                                        textoCelda = Left(textoCelda, 32000) & "... [TRUNCADO POR LÍMITE DE EXCEL]"
+                                        textoCelda = Left(textoCelda, 32000) & "... [TRUNCADO]"
                                     End If
                                     arrSalida(filaOutput, colMap(c)) = textoCelda
                                 End If
                             Next c
 
-                            ' Asignación de valores fijos
+                            ' Valores fijos
                             For j = 1 To totalCols
                                 Dim nomFijo As String
                                 nomFijo = LCase(Replace(Replace(tblDestino.ListColumns(j).Name, vbCr, ""), vbLf, ""))
@@ -4181,10 +4527,10 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
                                     arrSalida(filaOutput, j) = Date
                                 End If
                             Next j
-                        End If ' Fin del filtro None
+                        End If
                     Next r
 
-                    ' 5.4 INSERCIÓN SEGURA EN LA TABLA
+                    ' 5.4 INSERCIÓN EN TABLA SELECCIONADA
                     If filaOutput > 0 Then
                         Dim rngInicio As Range
 
@@ -4214,7 +4560,9 @@ Sub CYB035_CargarNessus_V19_FiltroNone()
         archivoNombre = Dir()
     Loop
 
-    MsgBox "¡Proceso Terminado! " & filasTotalesNuevas & " vulnerabilidades cargadas (Se excluyeron las informativas/None).", vbInformation
+    MsgBox "¡Proceso Terminado!" & vbCrLf & _
+           "Destino: " & wsDestino.Name & vbCrLf & _
+           "Cargadas: " & filasTotalesNuevas & " vulnerabilidades.", vbInformation
 
 Limpieza:
     Application.ScreenUpdating = True
@@ -4225,7 +4573,6 @@ ManejadorErrores:
     MsgBox "Error Crítico: " & Err.Description & vbCrLf & "Archivo procesado: " & archivoNombre, vbCritical
     Resume Limpieza
 End Sub
-
 Sub CYB035_CargarResultados_DatosDesdeCSVNexPose()
     Dim wb As Workbook
     Dim ws As Worksheet

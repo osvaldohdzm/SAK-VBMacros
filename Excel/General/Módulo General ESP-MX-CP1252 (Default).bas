@@ -194,81 +194,71 @@ Sub GEN021_ResaltarAmarilloSegunTexto()
 End Sub
 
 
-Sub GEN021_ConvertirRutaArchivoAVinculo()
- Dim cell As Range
+Sub GEN021_CorregirVinculos_PrioridadCelda()
+    Dim cell As Range, seleccionado As Range
     Dim fso As Object
-    Dim rutaArchivo As String, rutaLibro As String, rutaRelativa As String
-    Dim seleccionado As Range
-    Dim rutaAEvaluar As String
+    Dim rutaLibro As String, textoCelda As String, rutaAEvaluar As String
     
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    
-    If ActiveWorkbook.path = "" Then
-        MsgBox "Error: El archivo de Excel debe estar guardado.", vbCritical
-        Exit Sub
-    End If
-    
-    rutaLibro = ActiveWorkbook.path & "\"
+    ' Validar que el libro esté guardado
+    If ActiveWorkbook.path = "" Then Exit Sub
     
     On Error Resume Next
     Set seleccionado = Selection.SpecialCells(xlCellTypeVisible)
     On Error GoTo 0
-    
     If seleccionado Is Nothing Then Exit Sub
 
-    Application.ScreenUpdating = False
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    rutaLibro = ActiveWorkbook.path & "\"
     
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
+
     For Each cell In seleccionado
-        rutaArchivo = Trim(cell.value)
-        rutaArchivo = Replace(rutaArchivo, """", "") ' Limpiar comillas
+        ' 1. PRIORIDAD: Leer el texto de la celda (ej: .\Capturas de pantalla\...)
+        textoCelda = Trim(cell.value)
+        textoCelda = Replace(textoCelda, """", "")
         
-        If rutaArchivo <> "" Then
-            ' Determinar si la ruta es relativa (.\) para validarla correctamente
-            If Left(rutaArchivo, 2) = ".\" Then
-                rutaAEvaluar = rutaLibro & Mid(rutaArchivo, 3)
+        If textoCelda <> "" Then
+            ' 2. Construir la ruta completa para verificar si el archivo existe
+            If Left(textoCelda, 2) = ".\" Then
+                rutaAEvaluar = rutaLibro & Mid(textoCelda, 3)
+            ElseIf InStr(1, textoCelda, ":") = 0 Then
+                ' Si no tiene .\ ni C:\, asumimos que es una ruta relativa
+                rutaAEvaluar = rutaLibro & textoCelda
+                textoCelda = ".\" & textoCelda ' Normalizamos el texto
             Else
-                rutaAEvaluar = rutaArchivo
+                rutaAEvaluar = textoCelda
             End If
-            
-            ' 1. VERIFICAR SI EXISTE (Sea relativa o absoluta)
+
+            ' 3. VERIFICACIÓN RÁPIDA: Si el archivo existe en esa ruta
             If fso.fileExists(rutaAEvaluar) Or fso.FolderExists(rutaAEvaluar) Then
                 
-                ' Limpiar color de error porque el archivo SÍ existe
-                cell.Interior.ColorIndex = xlNone
+                ' ELIMINAR VINCULO ANTERIOR (si existía uno malo como el de Downloads)
+                If cell.Hyperlinks.Count > 0 Then cell.Hyperlinks.Delete
                 
-                ' 2. CONVERTIR A RELATIVA SOLO SI ES ABSOLUTA
-                ' Si ya empieza con ".\", solo nos aseguramos del hipervínculo
-                If Left(rutaArchivo, 2) = ".\" Then
-                    rutaRelativa = rutaArchivo
-                ElseIf InStr(1, rutaArchivo, rutaLibro, vbTextCompare) = 1 Then
-                    rutaRelativa = "." & Mid(rutaArchivo, Len(rutaLibro))
-                Else
-                    ' Es una ruta absoluta fuera de la carpeta del Excel
-                    rutaRelativa = rutaArchivo
-                    cell.Interior.Color = RGB(255, 235, 156) ' Naranja (Fuera de contexto relativo)
-                End If
-                
-                ' 3. APLICAR HIPERVÍNCULO Y FORMATO AZUL FIJO
+                ' ASIGNAR NUEVO VÍNCULO CORRECTO basándonos en el texto de la celda
                 cell.Hyperlinks.Add Anchor:=cell, _
-                                    Address:=rutaRelativa, _
-                                    TextToDisplay:=rutaRelativa
+                                    Address:=textoCelda, _
+                                    TextToDisplay:=textoCelda
                 
+                ' Formato visual: Limpiar errores y poner azul
+                cell.Interior.ColorIndex = xlNone
                 With cell.Font
+                    .Name = "Arial" ' O la fuente que prefieras
                     .Underline = xlUnderlineStyleSingle
-                    .Color = RGB(0, 112, 192) ' Azul que no cambia a morado
+                    .Color = RGB(0, 112, 192)
                 End With
-                
             Else
-                ' 4. EL ARCHIVO NO EXISTE (Marcar en Rojo)
-                cell.Interior.Color = RGB(255, 199, 206) ' Fondo rojo claro
-                cell.Font.Color = RGB(156, 0, 6)         ' Texto rojo oscuro
+                ' 4. MARCAR ERROR: Si el texto de la celda no apunta a nada real
+                cell.Interior.Color = RGB(255, 199, 206) ' Rojo claro
+                cell.Font.Color = RGB(156, 0, 6)         ' Texto rojo
             End If
         End If
     Next cell
-    
-    Application.ScreenUpdating = True
-End Sub
 
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+End Sub
 Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
     Dim lineas As Variant
@@ -348,7 +338,7 @@ Sub GEN007_ExportarTabla()
         With Application.FileDialog(msoFileDialogFolderPicker)
             .Title = "Selecciona la carpeta para guardar el archivo"
             .Show
-            If .SelectedItems.count > 0 Then
+            If .SelectedItems.Count > 0 Then
                 carpetaDestino = .SelectedItems(1)
             Else
                 MsgBox "No se seleccionó ninguna carpeta. La exportación se ha cancelado.", vbExclamation
@@ -448,7 +438,7 @@ Sub GEN010_TraducirCeldasSeleccionadas()
     
     ' Obtener el número total de celdas seleccionadas
     Dim totalCeldas As Integer
-    totalCeldas = Selection.count
+    totalCeldas = Selection.Count
     
     ' Imprimir información en el Inmediato
     Debug.Print "Número total de celdas seleccionadas: " & totalCeldas
@@ -709,8 +699,8 @@ Sub GEN013_VaciarTablaAFilaEjemplo()
         If MsgBox("¿Está seguro de que desea eliminar todas las filas excepto la primera?", vbYesNo + vbExclamation, "Confirmación") = vbYes Then
             ' Eliminar todas las filas excepto la primera
             On Error Resume Next
-            If tbl.ListRows.count > 1 Then
-                tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.count - 1, tbl.ListColumns.count).Delete
+            If tbl.ListRows.Count > 1 Then
+                tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
             End If
             On Error GoTo 0
             MsgBox "Se han eliminado todas las filas excepto la primera.", vbInformation, "Proceso completado"
@@ -748,12 +738,12 @@ Sub GEN014_VaciarTodasTablasAFilaEjemplo()
         ' Recorrer todas las tablas de la hoja actual
         For Each tbl In ws.ListObjects
             ' Verificar si la tabla está en la lista de exclusión
-            If Not excludeTables.exists(tbl.Name) Then
+            If Not excludeTables.Exists(tbl.Name) Then
                 ' Verificar que la tabla tenga más de una fila
-                If tbl.ListRows.count > 1 Then
+                If tbl.ListRows.Count > 1 Then
                     ' Eliminar todas las filas excepto la primera
                     On Error Resume Next
-                    tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.count - 1, tbl.ListColumns.count).Delete
+                    tbl.DataBodyRange.Offset(1, 0).Resize(tbl.ListRows.Count - 1, tbl.ListColumns.Count).Delete
                     On Error GoTo 0
                 End If
             End If
@@ -815,7 +805,7 @@ Sub DistribuirColumnaCeldasMultiples()
 
     ' Obtén el número de celdas seleccionadas
     Dim n As Long
-    n = rng.count
+    n = rng.Count
 
     ' Definir el número de columnas como 4
     Dim numColumnas As Integer
