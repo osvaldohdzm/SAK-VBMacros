@@ -451,7 +451,7 @@ Sub CYB024_LimpiarCeldasYMostrarContenidoComoArray()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -1172,7 +1172,7 @@ Sub CYB014_EscanearIPsDesdeSeleccionSinDuplicados()
         If ip = "" Then GoTo Siguiente
 
         ' Si ya escaneamos esta IP, usamos el resultado guardado
-        If dictResultados.exists(ip) Then
+        If dictResultados.Exists(ip) Then
             celda.Offset(0, 1).value = dictResultados(ip)
             GoTo Siguiente
         End If
@@ -1320,7 +1320,7 @@ Sub EliminarUltimasFilasSiEsSalidaPruebaSeguridad(WordDoc As Object, replaceDic 
     metodoDeteccionKey = "«Método de detección»"
     
     
-    If replaceDic.exists(salidaPruebaSeguridadKey) And replaceDic.exists(metodoDeteccionKey) Then
+    If replaceDic.Exists(salidaPruebaSeguridadKey) And replaceDic.Exists(metodoDeteccionKey) Then
         
         salidaPruebaSeguridadValue = CStr(replaceDic(salidaPruebaSeguridadKey))
         metodoDeteccionValue = CStr(replaceDic(metodoDeteccionKey))
@@ -1543,7 +1543,7 @@ Sub CYB017_LimpiarColumnaReferencias()
                     contentArray(i) = Trim(Replace(contentArray(i), Chr(13), ""))
                     contentArray(i) = Replace(contentArray(i), " ", "")
                     If InStr(1, contentArray(i), "wikipedia", vbTextCompare) = 0 Then
-                        If Not uniqueUrls.exists(contentArray(i)) Then
+                        If Not uniqueUrls.Exists(contentArray(i)) Then
                             uniqueUrls.Add contentArray(i), Nothing
                         End If
                     End If
@@ -2342,7 +2342,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     ts.Close
     
     
-    If replaceDic.exists("«Aplicaci?n»") Then
+    If replaceDic.Exists("«Aplicaci?n»") Then
         appName = replaceDic("«Aplicaci?n»")
     Else
         MsgBox "No se encontr? el campo        "
@@ -2484,7 +2484,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         severity = rng.Cells(i, severidadColumna).value
         If severity <> "" Then
-            If severityCounts.exists(severity) Then
+            If severityCounts.Exists(severity) Then
                 severityCounts(severity) = severityCounts(severity) + 1
             Else
                 severityCounts.Add severity, 1
@@ -2513,7 +2513,7 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     For i = 2 To rng.Rows.Count
         vulntypes = rng.Cells(i, tiposvulnerabilidadColumna).value
         If vulntypes <> "" Then
-            If vulntypesCounts.exists(vulntypes) Then
+            If vulntypesCounts.Exists(vulntypes) Then
                 vulntypesCounts(vulntypes) = vulntypesCounts(vulntypes) + 1
             Else
                 vulntypesCounts.Add vulntypes, 1
@@ -2522,10 +2522,10 @@ Sub CYB007_GenerarReportesVulnsAppsINAI()
     Next i
     
     
-    countBAJA = IIf(severityCounts.exists("BAJA"), severityCounts("BAJA"), 0)
-    countMEDIA = IIf(severityCounts.exists("MEDIA"), severityCounts("MEDIA"), 0)
-    countALTA = IIf(severityCounts.exists("ALTA"), severityCounts("ALTA"), 0)
-    countCRITICAS = IIf(severityCounts.exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
+    countBAJA = IIf(severityCounts.Exists("BAJA"), severityCounts("BAJA"), 0)
+    countMEDIA = IIf(severityCounts.Exists("MEDIA"), severityCounts("MEDIA"), 0)
+    countALTA = IIf(severityCounts.Exists("ALTA"), severityCounts("ALTA"), 0)
+    countCRITICAS = IIf(severityCounts.Exists("CRÍTICOS"), severityCounts("CRÍTICOS"), 0)
     
     
     totalVulnerabilidades = countBAJA + countMEDIA + countALTA + countCRITICAS
@@ -3342,7 +3342,7 @@ Sub CYB003_GenerarReportesVulns()
         key = "«" & headerRow.Cells(1, i).value & "»"
         
         
-        If replaceDic.exists(key) Then
+        If replaceDic.Exists(key) Then
             MsgBox "Se ha encontrado un encabezado duplicado: " & headerRow.Cells(1, i).value & _
                    vbCrLf & "Por favor, corrige los encabezados duplicados y vuelve a ejecutar la macro.", vbExclamation
             Exit Sub
@@ -3354,7 +3354,7 @@ Sub CYB003_GenerarReportesVulns()
     Next i
     
     
-    If replaceDic.exists("«Nombre de carpeta»") Then
+    If replaceDic.Exists("«Nombre de carpeta»") Then
         folderName = replaceDic("«Nombre de carpeta»")
     Else
         MsgBox "No se encontr? el campo        "
@@ -3367,12 +3367,12 @@ Sub CYB003_GenerarReportesVulns()
     MkDir carpetaSalida
     On Error GoTo 0
     
-    If replaceDic.exists("«Tipo de reporte»") Then
+    If replaceDic.Exists("«Tipo de reporte»") Then
         Select Case replaceDic("«Tipo de reporte»")
             Case "T?cnico"
                 
                 
-                If replaceDic.exists("«Ruta de la plantilla»") Then
+                If replaceDic.Exists("«Ruta de la plantilla»") Then
                     plantillaReportePath = replaceDic("«Ruta de la plantilla»")
                 Else
                     MsgBox "No se encontr? el campo        "
@@ -4331,248 +4331,361 @@ ManejadorErrores:
     MsgBox "Error: " & Err.Description, vbCritical
     Resume Limpieza
 End Sub
-
-Sub CYB035_CargarNessus_V19_FiltroNone()
-    ' =========================================================
-    ' VARIABLES DE ENTORNO Y OBJETOS
-    ' =========================================================
+Sub CYB035_Nessus_Professional_V20_Smart()
     Dim wb As Workbook: Set wb = ThisWorkbook
-    Dim wsDestino As Worksheet, tblDestino As ListObject
-    Dim wsConfig As Worksheet
-    Dim wbCSV As Workbook, csvData As Variant
+    Dim wsConfig As Worksheet: Set wsConfig = wb.Sheets("Evaluaciones Seleccionadas")
+    Dim tblDestino As ListObject
+    Dim celdaBusqueda As Range, primeraDireccion As String
+    Dim servicio As String, rutaConfig As String, rutaFinal As String
+    Dim archivoNombre As String, wbCSV As Workbook, csvData As Variant
+    Dim nRows As Long, nCols As Long, totalInsertados As Long, countFila As Long
     
-    Dim rutaConfig As String, baseProyecto As String
-    Dim rutaFinal As String, archivoNombre As String
+    ' Variables para Mappeo de Configuración (Hoja Evaluaciones Seleccionadas)
+    Dim colActividad As Integer, colServicio As Integer, colCarpeta As Integer
     
-    Dim nRows As Long, nCols As Long, filaOutput As Long
-    Dim filasTotalesNuevas As Long
-    Dim c As Long, r As Long, j As Long, totalCols As Long
-    
-    Dim tieneFormula() As Boolean, formulaR1C1Template() As String
-    Dim colMap() As Long, arrSalida() As Variant
-    Dim idxRiskCSV As Long
-
-    ' --- NUEVA VARIABLE PARA SELECCIÓN ---
-    Dim respuesta As VbMsgBoxResult
+    ' Índices de columnas en la Tabla de Vulnerabilidades (Destino)
+    Dim idxNombre As Integer, idxSev As Integer, idxIDOrig As Integer, idxDet As Integer
+    Dim idxOri As Integer, idxIdentificadorUso As Integer
+    Dim idxRiskCSV As Long, colMap() As Long, arrSalida() As Variant
 
     On Error GoTo ManejadorErrores
+    Application.ScreenUpdating = False: Application.Calculation = xlCalculationManual
 
     ' =========================================================
-    ' 1. SELECCIÓN DE DESTINO (INTERNAS VS EXTERNAS)
+    ' 1. MAPPEO INTELIGENTE: LOCALIZAR COLUMNAS EN CONFIGURACIÓN
     ' =========================================================
-    respuesta = MsgBox("¿Desea cargar los datos en la tabla de VULNERABILIDADES INTERNAS?" & vbCrLf & vbCrLf & _
-                       "SÍ: Cargar en Internas" & vbCrLf & _
-                       "NO: Cargar en Externas" & vbCrLf & _
-                       "CANCELAR: Detener proceso", _
-                       vbYesNoCancel + vbQuestion, "Seleccionar Destino de Carga")
+    colActividad = FindHeaderCol(wsConfig, "Actividad de Checklist")
+    colServicio = FindHeaderCol(wsConfig, "Servicio")
+    colCarpeta = FindHeaderCol(wsConfig, "Carpeta de Archivos de Salida")
 
-    If respuesta = vbCancel Then Exit Sub
-
-    If respuesta = vbYes Then
-        ' Configuración para Internas
-        Set wsDestino = wb.Sheets("Vulnerabilidades Internas")
-        Set tblDestino = wsDestino.ListObjects("Tbl_vulnerabilidades_internas")
-    Else
-        ' Configuración para Externas (Si el usuario presionó NO)
-        Set wsDestino = wb.Sheets("Vulnerabilidades Externas")
-        Set tblDestino = wsDestino.ListObjects("Tbl_vulnerabilidades_externas")
-    End If
-
-    Set wsConfig = wb.Sheets("Evaluaciones Seleccionadas")
-
-    ' =========================================================
-    ' 2. MODO FRANCOTIRADOR: BÚSQUEDA DE RUTA
-    ' =========================================================
-    Dim celdaNessus As Range, celdaHeader As Range
-    
-    Set celdaNessus = wsConfig.UsedRange.Find(What:="Nessus Professional", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=False)
-    Set celdaHeader = wsConfig.UsedRange.Find(What:="Carpeta de Archivos de Salida", LookIn:=xlValues, LookAt:=xlPart, MatchCase:=False)
-    
-    If celdaNessus Is Nothing Or celdaHeader Is Nothing Then
-        MsgBox "No encontré Nessus o el encabezado de salida en la hoja de configuración.", vbCritical: Exit Sub
-    End If
-
-    rutaConfig = Trim(CStr(wsConfig.Cells(celdaNessus.row, celdaHeader.Column).value))
-
-    If rutaConfig = "" Then
-        Dim col As Long
-        For col = 1 To 50
-            Dim valTemp As String: valTemp = Trim(CStr(wsConfig.Cells(celdaNessus.row, col).value))
-            If InStr(1, valTemp, ".\", vbTextCompare) > 0 And InStr(1, valTemp, ".png", vbTextCompare) = 0 Then
-                rutaConfig = valTemp: Exit For
-            End If
-        Next col
+    If colActividad = 0 Or colServicio = 0 Or colCarpeta = 0 Then
+        MsgBox "Error: No se encuentran las columnas 'Servicio', 'Actividad de Checklist' o 'Carpeta de Archivos de Salida' en la hoja de Configuración.", vbCritical
+        GoTo Limpieza
     End If
 
     ' =========================================================
-    ' 3. CONSTRUCCIÓN DE LA RUTA HACIA EL DISCO
+    ' 2. BUSCAR "NESSUS PROFESSIONAL" EN LA CONFIGURACIÓN
     ' =========================================================
-    baseProyecto = wb.path
-    
-    If Left(rutaConfig, 2) = ".\" Then
-        rutaFinal = baseProyecto & "\" & Mid(rutaConfig, 3)
-    Else
-        rutaFinal = rutaConfig
-    End If
-
-    If Right(rutaFinal, 1) <> "\" Then rutaFinal = rutaFinal & "\"
-
-    If Dir(rutaFinal, vbDirectory) = "" Then
-        MsgBox "La carpeta no existe o no es accesible:" & vbCrLf & rutaFinal, vbCritical: Exit Sub
-    End If
-
-    ' =========================================================
-    ' 4. PREPARACIÓN DE LA TABLA DESTINO Y FÓRMULAS
-    ' =========================================================
-    Application.ScreenUpdating = False
-    Application.Calculation = xlCalculationManual
-
-    totalCols = tblDestino.ListColumns.Count
-    ReDim tieneFormula(1 To totalCols)
-    ReDim formulaR1C1Template(1 To totalCols)
-
-    Dim rngModelo As Range
-    If tblDestino.ListRows.Count > 0 Then
-        Set rngModelo = tblDestino.ListRows(1).Range
-    Else
-        Set rngModelo = tblDestino.HeaderRowRange.Offset(1, 0)
-    End If
-
-    For c = 1 To totalCols
-        If rngModelo.Cells(1, c).HasFormula Then
-            tieneFormula(c) = True
-            formulaR1C1Template(c) = rngModelo.Cells(1, c).FormulaR1C1
-        End If
-    Next c
-
-    ' =========================================================
-    ' 5. PROCESAMIENTO DE ARCHIVOS CSV
-    ' =========================================================
-    archivoNombre = Dir(rutaFinal & "*.csv")
-    filasTotalesNuevas = 0
-
-    Do While archivoNombre <> ""
+    With wsConfig.Columns(colActividad)
+        Set celdaBusqueda = .Find("Nessus Professional", LookIn:=xlValues, LookAt:=xlPart)
         
-        Set wbCSV = Workbooks.Open(fileName:=rutaFinal & archivoNombre, Local:=False, ReadOnly:=True)
-        csvData = wbCSV.Worksheets(1).UsedRange.value
-        wbCSV.Close False
+        If Not celdaBusqueda Is Nothing Then
+            primeraDireccion = celdaBusqueda.Address
+            Do
+                ' --- A. IDENTIFICAR DESTINO (PTICN -> Internas, PTECN -> Externas) ---
+                servicio = UCase(Trim(wsConfig.Cells(celdaBusqueda.row, colServicio).value))
+                
+                If InStr(servicio, "PTICN") > 0 Then
+                    Set tblDestino = wb.Sheets("Vulnerabilidades Internas").ListObjects("Tbl_vulnerabilidades_internas")
+                ElseIf InStr(servicio, "PTECN") > 0 Then
+                    Set tblDestino = wb.Sheets("Vulnerabilidades Externas").ListObjects("Tbl_vulnerabilidades_externas")
+                Else
+                    Set tblDestino = Nothing
+                End If
+                
+                ' --- B. IDENTIFICAR RUTA ---
+                rutaConfig = Trim(CStr(wsConfig.Cells(celdaBusqueda.row, colCarpeta).value))
+                
+                If Not tblDestino Is Nothing And rutaConfig <> "" Then
+                    ' Obtener índices de la TABLA DESTINO por nombre
+                    idxNombre = GetColIdx(tblDestino, "Nombre original de la vulnerabilidad")
+                    idxSev = GetColIdx(tblDestino, "Severidad Original")
+                    idxIDOrig = GetColIdx(tblDestino, "Identificador original de la vulnerabilidad")
+                    idxIdentificadorUso = GetColIdx(tblDestino, "Identificador de detección usado")
+                    idxDet = GetColIdx(tblDestino, "Salidas de herramienta")
+                    idxOri = GetColIdx(tblDestino, "Tipo de origen")
 
-        If IsArray(csvData) Then
-            nRows = UBound(csvData, 1)
-            nCols = UBound(csvData, 2)
-
-            If nRows > 1 And nCols > 1 Then
-                ReDim arrSalida(1 To nRows - 1, 1 To totalCols)
-                ReDim colMap(1 To nCols)
-                Dim columnasMapeadas As Long: columnasMapeadas = 0
-                idxRiskCSV = 0
-
-                ' 5.1 MAPEADO EXACTO DE COLUMNAS
-                For c = 1 To nCols
-                    Dim hCSV As String: hCSV = LCase(Trim(CStr(csvData(1, c))))
-                    Dim dBusq As String: dBusq = ""
-
-                    Select Case hCSV
-                        Case "risk", "risk factor": dBusq = "Severidad": idxRiskCSV = c
-                        Case "host": dBusq = "Identificador de detección usado"
-                        Case "port": dBusq = "Puerto"
-                        Case "name": dBusq = "Nombre original de la vulnerabilidad"
-                        Case "plugin output": dBusq = "Salidas de herramienta"
-                        Case "plugin id": dBusq = "Identificador original de la vulnerabilidad"
-                    End Select
-
-                    If dBusq <> "" Then
-                        For j = 1 To totalCols
-                            Dim nomExcel As String
-                            nomExcel = Replace(Replace(tblDestino.ListColumns(j).Name, vbCr, ""), vbLf, "")
-                            If InStr(1, nomExcel, dBusq, vbTextCompare) > 0 Then
-                                colMap(c) = j
-                                columnasMapeadas = columnasMapeadas + 1
-                                Exit For
-                            End If
-                        Next j
-                    End If
-                Next c
-
-                ' 5.2 EXTRACCIÓN Y LLENADO DE DATOS (CON FILTRO NONE)
-                If columnasMapeadas > 0 Then
-                    filaOutput = 0
+                    ' Resolver Ruta
+                    If Left(rutaConfig, 2) = ".\" Then rutaFinal = wb.path & "\" & Mid(rutaConfig, 3) Else rutaFinal = rutaConfig
+                    If Right(rutaFinal, 1) <> "\" Then rutaFinal = rutaFinal & "\"
                     
-                    For r = 2 To nRows
-                        Dim valRiesgo As String: valRiesgo = ""
-                        If idxRiskCSV > 0 Then valRiesgo = Trim(CStr(csvData(r, idxRiskCSV)))
+                    ' 3. PROCESAR ARCHIVOS CSV EN LA CARPETA
+                    If Dir(rutaFinal, vbDirectory) <> "" Then
+                        archivoNombre = Dir(rutaFinal & "*.csv")
                         
-                        If StrComp(valRiesgo, "None", vbTextCompare) <> 0 Then
-                            filaOutput = filaOutput + 1
+                        Do While archivoNombre <> ""
+                            Set wbCSV = Workbooks.Open(fileName:=rutaFinal & archivoNombre, Local:=False, ReadOnly:=True)
+                            csvData = wbCSV.Worksheets(1).UsedRange.value: wbCSV.Close False
                             
-                            For c = 1 To nCols
-                                If colMap(c) > 0 Then
-                                    Dim textoCelda As String
-                                    textoCelda = CStr(csvData(r, c))
-                                    If Len(textoCelda) > 32000 Then
-                                        textoCelda = Left(textoCelda, 32000) & "... [TRUNCADO]"
-                                    End If
-                                    arrSalida(filaOutput, colMap(c)) = textoCelda
-                                End If
-                            Next c
-
-                            ' Valores fijos
-                            For j = 1 To totalCols
-                                Dim nomFijo As String
-                                nomFijo = LCase(Replace(Replace(tblDestino.ListColumns(j).Name, vbCr, ""), vbLf, ""))
+                            If IsArray(csvData) Then
+                                nRows = UBound(csvData, 1): nCols = UBound(csvData, 2)
+                                ReDim arrSalida(1 To nRows, 1 To tblDestino.ListColumns.Count)
+                                ReDim colMap(1 To nCols): countFila = 0: idxRiskCSV = 0
                                 
-                                If InStr(1, nomFijo, "tipo de origen", vbTextCompare) > 0 Then
-                                    arrSalida(filaOutput, j) = "Nessus"
-                                ElseIf InStr(1, nomFijo, "fecha de detección", vbTextCompare) > 0 Or InStr(1, nomFijo, "última fecha de detección", vbTextCompare) > 0 Then
-                                    arrSalida(filaOutput, j) = Date
+                                ' 3.1 Mappeo de columnas del CSV de Nessus al Destino
+                                For c = 1 To nCols
+                                    Dim hCSV As String: hCSV = LCase(Trim(CStr(csvData(1, c))))
+                                    Select Case hCSV
+                                        Case "risk", "risk factor": idxRiskCSV = c
+                                        Case "host": colMap(c) = idxIdentificadorUso ' <--- Host mapeado a Identificador de uso
+                                        Case "plugin id": colMap(c) = idxIDOrig
+                                        Case "name": colMap(c) = idxNombre
+                                        Case "plugin output": colMap(c) = idxDet
+                                    End Select
+                                Next c
+                                
+                                ' 3.2 Extraer datos filtrando "None"
+                                For r = 2 To nRows
+                                    Dim rk As String: rk = CStr(csvData(r, idxRiskCSV))
+                                    If LCase(rk) <> "none" And rk <> "" Then
+                                        countFila = countFila + 1
+                                        For c = 1 To nCols
+                                            If colMap(c) > 0 Then
+                                                Dim txt As String: txt = CStr(csvData(r, c))
+                                                If Len(txt) > 32000 Then txt = Left(txt, 32000) & "... [TRUNCADO]"
+                                                arrSalida(countFila, colMap(c)) = txt
+                                            End If
+                                        Next c
+                                        ' Severidad y Origen
+                                        arrSalida(countFila, idxSev) = UCase(rk)
+                                        arrSalida(countFila, idxOri) = "Nessus"
+                                    End If
+                                Next r
+                                
+                                ' 3.3 Pegado en bloque (Turbo)
+                                If countFila > 0 Then
+                                    Dim nRow As ListRow: Set nRow = tblDestino.ListRows.Add
+                                    nRow.Range.Resize(countFila).value = arrSalida
+                                    totalInsertados = totalInsertados + countFila
                                 End If
-                            Next j
-                        End If
-                    Next r
-
-                    ' 5.4 INSERCIÓN EN TABLA SELECCIONADA
-                    If filaOutput > 0 Then
-                        Dim rngInicio As Range
-
-                        If tblDestino.ListRows.Count = 0 Then
-                            tblDestino.ListRows.Add
-                            Set rngInicio = tblDestino.DataBodyRange.Rows(1)
-                        Else
-                            Set rngInicio = tblDestino.ListRows.Add.Range
-                        End If
-
-                        Dim rngDest As Range
-                        Set rngDest = rngInicio.Resize(filaOutput, totalCols)
-                        rngDest.value = arrSalida
-
-                        For c = 1 To totalCols
-                            If tieneFormula(c) Then
-                                rngDest.Columns(c).FormulaR1C1 = formulaR1C1Template(c)
                             End If
-                        Next c
-
-                        filasTotalesNuevas = filasTotalesNuevas + filaOutput
+                            archivoNombre = Dir()
+                        Loop
                     End If
                 End If
-            End If
+                Set celdaBusqueda = .FindNext(celdaBusqueda)
+            Loop While Not celdaBusqueda Is Nothing And celdaBusqueda.Address <> primeraDireccion
         End If
+    End With
 
-        archivoNombre = Dir()
-    Loop
-
-    MsgBox "¡Proceso Terminado!" & vbCrLf & _
-           "Destino: " & wsDestino.Name & vbCrLf & _
-           "Cargadas: " & filasTotalesNuevas & " vulnerabilidades.", vbInformation
+    MsgBox "Carga de Nessus finalizada." & vbCrLf & "Registros cargados: " & totalInsertados, vbInformation
 
 Limpieza:
-    Application.ScreenUpdating = True
-    Application.Calculation = xlCalculationAutomatic
+    Application.ScreenUpdating = True: Application.Calculation = xlCalculationAutomatic
     Exit Sub
-
 ManejadorErrores:
-    MsgBox "Error Crítico: " & Err.Description & vbCrLf & "Archivo procesado: " & archivoNombre, vbCritical
-    Resume Limpieza
+    MsgBox "Error en Nessus: " & Err.Description: Resume Limpieza
 End Sub
+
+Sub CYB035_Acunetix_Professional_V37()
+    Dim wb As Workbook: Set wb = ThisWorkbook
+    Dim wsConfig As Worksheet: Set wsConfig = wb.Sheets("Evaluaciones Seleccionadas")
+    Dim tblDestino As ListObject
+    Dim celdaBusqueda As Range, primeraDireccion As String
+    Dim servicio As String, rutaConfig As String, rutaFinal As String
+    Dim fullText As String, scanDataSection As String, lines() As String, decodedLine As String
+    Dim totalInsertados As Long, totalArchivos As Long
+    
+    Dim colActividad As Integer, colServicio As Integer, colCarpeta As Integer
+    Dim colArchivos As New Collection, vArchivo As Variant
+    Dim dictSev As Object: Set dictSev = CreateObject("Scripting.Dictionary")
+    Dim arrData() As Variant, countFila As Long
+    
+    ' Índices de la tabla de vulnerabilidades
+    Dim idxNombre As Integer, idxSev As Integer, idxIDOrig As Integer
+    Dim idxIdentificadorUso As Integer, idxDet As Integer, idxOri As Integer
+
+    ' Objeto Base64 persistente
+    Dim objXML As Object: Set objXML = CreateObject("MSXML2.DOMDocument")
+    Dim objNode As Object: Set objNode = objXML.createElement("b64")
+    objNode.DataType = "bin.base64"
+
+    On Error GoTo ManejadorErrores
+    Application.ScreenUpdating = False: Application.Calculation = xlCalculationManual: Application.EnableEvents = False
+
+    ' 1. MAPPEO DINÁMICO EN CONFIGURACIÓN
+    colActividad = FindHeaderCol(wsConfig, "Actividad de Checklist")
+    colServicio = FindHeaderCol(wsConfig, "Servicio")
+    colCarpeta = FindHeaderCol(wsConfig, "Carpeta de Archivos de Salida")
+
+    If colActividad = 0 Or colServicio = 0 Or colCarpeta = 0 Then
+        MsgBox "Faltan columnas en 'Evaluaciones Seleccionadas'.", vbCritical: GoTo Limpieza
+    End If
+
+    ' 2. BUSCAR ACUNETIX
+    With wsConfig.Columns(colActividad)
+        Set celdaBusqueda = .Find("Acunetix", LookIn:=xlValues, LookAt:=xlPart)
+        If Not celdaBusqueda Is Nothing Then
+            primeraDireccion = celdaBusqueda.Address
+            Do
+                servicio = UCase(Trim(wsConfig.Cells(celdaBusqueda.row, colServicio).value))
+                If InStr(servicio, "PTICN") > 0 Then
+                    Set tblDestino = wb.Sheets("Vulnerabilidades Internas").ListObjects("Tbl_vulnerabilidades_internas")
+                ElseIf InStr(servicio, "PTECN") > 0 Then
+                    Set tblDestino = wb.Sheets("Vulnerabilidades Externas").ListObjects("Tbl_vulnerabilidades_externas")
+                Else: Set tblDestino = Nothing: End If
+                
+                rutaConfig = Trim(CStr(wsConfig.Cells(celdaBusqueda.row, colCarpeta).value))
+                
+                If Not tblDestino Is Nothing And rutaConfig <> "" Then
+                    ' Mappeo de columnas destino
+                    idxNombre = GetColIdx(tblDestino, "Nombre original de la vulnerabilidad")
+                    idxSev = GetColIdx(tblDestino, "Severidad Original")
+                    idxIDOrig = GetColIdx(tblDestino, "Identificador original de la vulnerabilidad")
+                    idxIdentificadorUso = GetColIdx(tblDestino, "Identificador de detección usado")
+                    idxDet = GetColIdx(tblDestino, "Salidas de herramienta")
+                    idxOri = GetColIdx(tblDestino, "Tipo de origen")
+
+                    If Left(rutaConfig, 2) = ".\" Then rutaFinal = wb.path & "\" & Mid(rutaConfig, 3) Else rutaFinal = rutaConfig
+                    If Right(rutaFinal, 1) <> "\" Then rutaFinal = rutaFinal & "\"
+                    
+                    Set colArchivos = New Collection
+                    Dim fName As String: fName = Dir(rutaFinal & "*.html")
+                    Do While fName <> "": colArchivos.Add fName: fName = Dir(): Loop
+
+                    For Each vArchivo In colArchivos
+                        fullText = ReadFileUTF8(rutaFinal & vArchivo)
+                        
+                        scanDataSection = ""
+                        Dim pStart As Long, pEnd As Long
+                        pStart = InStr(1, fullText, "id=""scanData""", vbTextCompare)
+                        If pStart = 0 Then pStart = InStr(1, fullText, "id='scanData'", vbTextCompare)
+                        
+                        If pStart > 0 Then
+                            pStart = InStr(pStart, fullText, ">") + 1
+                            pEnd = InStr(pStart, fullText, "</script>")
+                            If pEnd > pStart Then scanDataSection = Mid(fullText, pStart, pEnd - pStart)
+                        End If
+                        fullText = ""
+                        
+                        If Len(Trim(scanDataSection)) > 0 Then
+                            scanDataSection = Replace(Replace(scanDataSection, vbCrLf, vbLf), vbCr, vbLf)
+                            lines = Split(scanDataSection, vbLf)
+                            ReDim arrData(1 To UBound(lines) + 2, 1 To tblDestino.ListColumns.Count)
+                            countFila = 0: dictSev.RemoveAll
+                            
+                            ' PASADA 1: SEVERIDAD
+                            For i = 0 To UBound(lines)
+                                decodedLine = SmartDecode64(lines(i), objNode)
+                                If InStr(decodedLine, """severity"":") > 0 Then
+                                    dictSev(GetJsonKey(decodedLine, "vt_id")) = GetJsonKey(decodedLine, "severity")
+                                End If
+                            Next i
+                            
+                            ' PASADA 2: HALLAZGOS
+                            For i = 0 To UBound(lines)
+                                decodedLine = SmartDecode64(lines(i), objNode)
+                                If InStr(decodedLine, """vuln_hash""") > 0 Then
+                                    Dim vName As String: vName = GetJsonKey(decodedLine, "name")
+                                    If vName <> "" Then
+                                        countFila = countFila + 1
+                                        ' --- SOLICITUD: AMBOS CAMPOS RECIBEN EL NOMBRE ---
+                                        arrData(countFila, idxNombre) = vName
+                                        arrData(countFila, idxIDOrig) = vName
+                                        
+                                        ' Resto de campos
+                                        arrData(countFila, idxIdentificadorUso) = GetJsonKey(decodedLine, "url")
+                                        arrData(countFila, idxOri) = "Acunetix"
+                                        Dim d1 As String: d1 = GetJsonKey(decodedLine, "details")
+                                        Dim d2 As String: d2 = GetJsonKey(decodedLine, "matched_text")
+                                        arrData(countFila, idxDet) = CleanAcunetixProfessional(d1 & IIf(d2 <> "", vbLf & "Detección: " & d2, ""))
+                                        
+                                        ' Severidad Traducida
+                                        Dim sID As String: sID = GetJsonKey(decodedLine, "vt_id")
+                                        Dim sVal As String: sVal = ""
+                                        If dictSev.Exists(sID) Then sVal = dictSev(sID)
+                                        Select Case sVal
+                                            Case "4": arrData(countFila, idxSev) = "4 CRÍTICA"
+                                            Case "3": arrData(countFila, idxSev) = "3 ALTA"
+                                            Case "2": arrData(countFila, idxSev) = "2 MEDIA"
+                                            Case "1": arrData(countFila, idxSev) = "1 BAJA"
+                                            Case Else: arrData(countFila, idxSev) = "0 INFORMATIVA"
+                                        End Select
+                                    End If
+                                End If
+                            Next i
+                            
+                            ' PEGAR EN TABLA
+                            If countFila > 0 Then
+                                Dim nRow As Range
+                                If tblDestino.ListRows.Count = 0 Then
+                                    tblDestino.ListRows.Add: Set nRow = tblDestino.DataBodyRange.Rows(1)
+                                Else
+                                    Set nRow = tblDestino.ListRows.Add.Range
+                                End If
+                                tblDestino.Resize tblDestino.Range.Resize(tblDestino.Range.Rows.Count + countFila - 1)
+                                nRow.Resize(countFila, tblDestino.ListColumns.Count).value = arrData
+                                totalInsertados = totalInsertados + countFila
+                            End If
+                        End If
+                        totalArchivos = totalArchivos + 1
+                    Next vArchivo
+                End If
+                Set celdaBusqueda = .FindNext(celdaBusqueda)
+            Loop While Not celdaBusqueda Is Nothing And celdaBusqueda.Address <> primeraDireccion
+        End If
+    End With
+
+    MsgBox "CARGA FINALIZADA CON ÉXITO." & vbCrLf & "Hallazgos totales: " & totalInsertados, vbInformation
+
+Limpieza:
+    Application.ScreenUpdating = True: Application.Calculation = xlCalculationAutomatic: Application.EnableEvents = True
+    Exit Sub
+ManejadorErrores:
+    MsgBox "Error: " & Err.Description: Resume Limpieza
+End Sub
+
+' --- FUNCIONES DE APOYO (REVISADAS PARA V37) ---
+
+Function ReadFileUTF8(path As String) As String
+    Dim stream As Object: Set stream = CreateObject("ADODB.Stream")
+    stream.Type = 2: stream.Charset = "utf-8": stream.Open
+    stream.LoadFromFile path: ReadFileUTF8 = stream.ReadText: stream.Close
+End Function
+
+Function SmartDecode64(ByVal strData As String, ByRef node As Object) As String
+    strData = Replace(Replace(Replace(Trim(strData), vbCr, ""), vbLf, ""), " ", "")
+    If Len(strData) < 10 Then Exit Function
+    On Error Resume Next: node.text = strData: SmartDecode64 = StrConv(node.nodeTypedValue, vbUnicode): On Error GoTo 0
+End Function
+
+Function CleanAcunetixProfessional(ByVal txt As String) As String
+    Dim res As String: res = txt: Dim p1 As Long, p2 As Long
+    res = Replace(res, "<li>", "- "): res = Replace(res, "</li>", vbLf)
+    res = Replace(res, "<br/>", vbLf): res = Replace(res, "<br>", vbLf)
+    Do While InStr(res, "<") > 0 And InStr(res, ">") > InStr(res, "<")
+        p1 = InStr(res, "<"): p2 = InStr(res, ">"): res = Left(res, p1 - 1) & Mid(res, p2 + 1)
+    Loop
+    res = Replace(res, "\r\n", vbLf): res = Replace(res, "\n", vbLf): res = Replace(res, "\t", " ")
+    res = Replace(res, "&quot;", """"): res = Replace(res, "&amp;", "&"): res = Replace(res, "&lt;", "<"): res = Replace(res, "&gt;", ">"): res = Replace(res, "&#x27;", "'")
+    Do While InStr(res, vbLf & vbLf) > 0: res = Replace(res, vbLf & vbLf, vbLf): Loop
+    CleanAcunetixProfessional = Trim(res)
+End Function
+
+Function GetColIdx(tbl As ListObject, nombrePart As String) As Integer
+    Dim i As Integer
+    For i = 1 To tbl.ListColumns.Count
+        If InStr(1, tbl.ListColumns(i).Name, nombrePart, vbTextCompare) > 0 Then GetColIdx = i: Exit Function
+    Next i
+    GetColIdx = 1
+End Function
+
+Function FindHeaderCol(ws As Worksheet, headerName As String) As Integer
+    Dim cell As Range
+    Set cell = ws.Rows(1).Find(What:=headerName, LookIn:=xlValues, LookAt:=xlWhole, MatchCase:=False)
+    If Not cell Is Nothing Then FindHeaderCol = cell.Column
+End Function
+
+Function GetJsonKey(ByVal json As String, ByVal key As String) As String
+    Dim sk As String: sk = """" & key & """:"
+    Dim p1 As Long, pE As Long: p1 = InStr(json, sk)
+    If p1 = 0 Then Exit Function
+    p1 = p1 + Len(sk)
+    Do While Mid(json, p1, 1) = " ": p1 = p1 + 1: Loop
+    If Mid(json, p1, 1) = """" Then
+        p1 = p1 + 1: pE = p1
+        Do: pE = InStr(pE, json, """"): If pE = 0 Then Exit Do
+            If Mid(json, pE - 1, 1) <> "\" Then Exit Do
+            pE = pE + 1
+        Loop
+        GetJsonKey = Replace(Mid(json, p1, pE - p1), "\""", """")
+    Else
+        Dim p2 As Long: p2 = InStr(p1, json, ","): If p2 = 0 Then p2 = InStr(p1, json, "}")
+        GetJsonKey = Trim(Mid(json, p1, p2 - p1))
+    End If
+End Function
+
+
 Sub CYB035_CargarResultados_DatosDesdeCSVNexPose()
     Dim wb As Workbook
     Dim ws As Worksheet
@@ -4747,7 +4860,7 @@ Set regex = CreateObject("VBScript.RegExp")
     
     requiredFields = Array("Severidad", "Nombre de vulnerabilidad", "Salidas de herramienta", "IPv4 Interna", "Puerto")
     For Each field In requiredFields
-        If Not dict.exists(field) Then
+        If Not dict.Exists(field) Then
             MsgBox "La columna "
             Exit Sub
         End If
@@ -5252,7 +5365,7 @@ Sub CYB040_ResaltarFalsosPositivosEnVerde()
     Dim coincidencias As Boolean
     coincidencias = False
     For Each celda In Selection
-        If valoresTabla.exists(celda.value) Then
+        If valoresTabla.Exists(celda.value) Then
             celda.Interior.Color = RGB(0, 255, 0)
             coincidencias = True
         End If
@@ -5421,7 +5534,7 @@ Sub CYB036_CargarResultados_DatosDesdeXMLAcunetix_v5()
     ' --- Check for Required Fields in the Table ---
     requiredFields = Array("Explicación técnica", "Nombre original de la vulnerabilidad", "Identificador de detección usado", "Tipo de origen", "Identificador original de la vulnerabilidad", "CWE", "Salidas de herramienta")
     For Each field In requiredFields
-        If Not dict.exists(field) Then
+        If Not dict.Exists(field) Then
             MsgBox "La columna '" & field & "' no se encuentra en la tabla '" & tbl.Name & "'. Asegúrese de que todas las columnas requeridas existan.", vbCritical
             Exit Sub
         End If
@@ -5632,7 +5745,7 @@ Attribute CYB041_IrACatalogoVulnerabilidad.VB_ProcData.VB_Invoke_Func = "G\n14"
         Exit Sub
     End If
     
-    If Not dictColumnas.exists(tipoOrigen) Then
+    If Not dictColumnas.Exists(tipoOrigen) Then
         MsgBox "El tipo de origen "
         Exit Sub
     End If
@@ -5765,7 +5878,7 @@ Sub CYB042_MarcarYFiltrarEnCatalogo()
     tblCatalogo.ListColumns(1).DataBodyRange.Interior.ColorIndex = xlNone
 
     For Each filaRango In Intersect(rngSeleccion, tblOrigen.DataBodyRange).Rows
-        If Not dictFilasProcesadas.exists(filaRango.row) Then
+        If Not dictFilasProcesadas.Exists(filaRango.row) Then
             dictFilasProcesadas.Add filaRango.row, True
             
             On Error Resume Next
@@ -5773,7 +5886,7 @@ Sub CYB042_MarcarYFiltrarEnCatalogo()
             idVulnerabilidad = Intersect(tblOrigen.ListColumns("Identificador original de la vulnerabilidad").DataBodyRange, filaRango.EntireRow).value
             On Error GoTo 0
             
-            If tipoOrigen <> "" And Not IsEmpty(idVulnerabilidad) And dictColumnas.exists(tipoOrigen) Then
+            If tipoOrigen <> "" And Not IsEmpty(idVulnerabilidad) And dictColumnas.Exists(tipoOrigen) Then
                 colBusqueda = dictColumnas(tipoOrigen)
                 
                 On Error Resume Next
@@ -5871,7 +5984,7 @@ Sub CYB042_Estandarizar()
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
         If key <> "" Then
-            If Not dict.exists(key) Then
+            If Not dict.Exists(key) Then
                 dict.Add key, CreateObject("Scripting.Dictionary")
             End If
             
@@ -5889,10 +6002,10 @@ Sub CYB042_Estandarizar()
     
     For i = 2 To lastRow
         key = ws.Cells(i, stdCol).value
-        If key <> "" And dict.exists(key) Then
+        If key <> "" And dict.Exists(key) Then
             For Each colName In colIndex.Keys
                 colNum = colIndex(colName)
-                If ws.Cells(i, colNum).value = "" And dict(key).exists(colName) Then
+                If ws.Cells(i, colNum).value = "" And dict(key).Exists(colName) Then
                     ws.Cells(i, colNum).value = dict(key)(colName)
                 End If
             Next
@@ -6229,8 +6342,8 @@ Private Sub ObtenerRespuestasGeminiCVSS4()
 
             
             If Not json Is Nothing Then
-                If json.exists("candidates") And json("candidates").Count > 0 Then
-                    If json("candidates")(0).exists("content") And json("candidates")(0)("content").exists("parts") Then
+                If json.Exists("candidates") And json("candidates").Count > 0 Then
+                    If json("candidates")(0).Exists("content") And json("candidates")(0)("content").Exists("parts") Then
                         If json("candidates")(0)("content")("parts").Count > 0 Then
                             answerID = json("candidates")(0)("content")("parts")(0)("text")
                         Else

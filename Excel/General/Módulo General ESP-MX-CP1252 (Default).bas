@@ -194,71 +194,93 @@ Sub GEN021_ResaltarAmarilloSegunTexto()
 End Sub
 
 
-Sub GEN021_CorregirVinculos_PrioridadCelda()
-    Dim cell As Range, seleccionado As Range
-    Dim fso As Object
-    Dim rutaLibro As String, textoCelda As String, rutaAEvaluar As String
-    
-    ' Validar que el libro esté guardado
-    If ActiveWorkbook.path = "" Then Exit Sub
-    
-    On Error Resume Next
-    Set seleccionado = Selection.SpecialCells(xlCellTypeVisible)
-    On Error GoTo 0
-    If seleccionado Is Nothing Then Exit Sub
+Sub GEN021_CorregirVinculos_Relativos()
 
+    Dim cell As Range
+    Dim rango As Range
+    Dim fso As Object
+    Dim rutaLibro As String
+    Dim rutaTexto As String
+    Dim rutaReal As String
+    Dim rutaRelativa As String
+
+    If ActiveWorkbook.path = "" Then
+        MsgBox "Debes guardar el archivo primero.", vbExclamation
+        Exit Sub
+    End If
+
+    rutaLibro = ActiveWorkbook.path
     Set fso = CreateObject("Scripting.FileSystemObject")
-    rutaLibro = ActiveWorkbook.path & "\"
-    
+
+    On Error Resume Next
+    Set rango = Selection.SpecialCells(xlCellTypeVisible)
+    On Error GoTo 0
+
+    If rango Is Nothing Then Exit Sub
+
     Application.ScreenUpdating = False
     Application.Calculation = xlCalculationManual
 
-    For Each cell In seleccionado
-        ' 1. PRIORIDAD: Leer el texto de la celda (ej: .\Capturas de pantalla\...)
-        textoCelda = Trim(cell.value)
-        textoCelda = Replace(textoCelda, """", "")
-        
-        If textoCelda <> "" Then
-            ' 2. Construir la ruta completa para verificar si el archivo existe
-            If Left(textoCelda, 2) = ".\" Then
-                rutaAEvaluar = rutaLibro & Mid(textoCelda, 3)
-            ElseIf InStr(1, textoCelda, ":") = 0 Then
-                ' Si no tiene .\ ni C:\, asumimos que es una ruta relativa
-                rutaAEvaluar = rutaLibro & textoCelda
-                textoCelda = ".\" & textoCelda ' Normalizamos el texto
-            Else
-                rutaAEvaluar = textoCelda
+    For Each cell In rango
+
+        rutaTexto = Trim(CStr(cell.Value2))
+        rutaTexto = Replace(rutaTexto, """", "")
+
+        If rutaTexto <> "" Then
+
+            rutaReal = rutaTexto
+
+            ' Si es relativa convertir a absoluta temporal
+            If Left(rutaTexto, 2) = ".\" Then
+                rutaReal = rutaLibro & "\" & Mid(rutaTexto, 3)
             End If
 
-            ' 3. VERIFICACIÓN RÁPIDA: Si el archivo existe en esa ruta
-            If fso.fileExists(rutaAEvaluar) Or fso.FolderExists(rutaAEvaluar) Then
-                
-                ' ELIMINAR VINCULO ANTERIOR (si existía uno malo como el de Downloads)
-                If cell.Hyperlinks.Count > 0 Then cell.Hyperlinks.Delete
-                
-                ' ASIGNAR NUEVO VÍNCULO CORRECTO basándonos en el texto de la celda
-                cell.Hyperlinks.Add Anchor:=cell, _
-                                    Address:=textoCelda, _
-                                    TextToDisplay:=textoCelda
-                
-                ' Formato visual: Limpiar errores y poner azul
-                cell.Interior.ColorIndex = xlNone
-                With cell.Font
-                    .Name = "Arial" ' O la fuente que prefieras
-                    .Underline = xlUnderlineStyleSingle
-                    .Color = RGB(0, 112, 192)
-                End With
+            If fso.fileExists(rutaReal) Or fso.FolderExists(rutaReal) Then
+
+                ' Intentar convertir a relativa
+                If InStr(1, rutaReal, rutaLibro, vbTextCompare) = 1 Then
+                    rutaRelativa = ".\" & Mid(rutaReal, Len(rutaLibro) + 2)
+                Else
+                    rutaRelativa = rutaReal
+                End If
+
+                ' eliminar hyperlink viejo
+                If cell.Hyperlinks.Count > 0 Then
+                    cell.Hyperlinks.Delete
+                End If
+
+                ' actualizar TEXTO de celda
+                cell.value = rutaRelativa
+
+                ' crear hyperlink
+                ActiveSheet.Hyperlinks.Add _
+                    Anchor:=cell, _
+                    Address:=rutaRelativa, _
+                    TextToDisplay:=rutaRelativa
+
+                ' formato
+                cell.Interior.pattern = xlNone
+                cell.Font.Color = RGB(0, 112, 192)
+                cell.Font.Underline = xlUnderlineStyleSingle
+
             Else
-                ' 4. MARCAR ERROR: Si el texto de la celda no apunta a nada real
-                cell.Interior.Color = RGB(255, 199, 206) ' Rojo claro
-                cell.Font.Color = RGB(156, 0, 6)         ' Texto rojo
+
+                ' marcar error si no existe
+                cell.Interior.Color = RGB(255, 199, 206)
+                cell.Font.Color = RGB(156, 0, 6)
+
             End If
+
         End If
+
     Next cell
 
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
+
 End Sub
+
+
 Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
     Dim lineas As Variant
