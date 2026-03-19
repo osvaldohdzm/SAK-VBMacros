@@ -465,3 +465,82 @@ Sub GEN_012_ModificarEstiloTitulo3()
     MsgBox "El estilo 'Título 3' ha sido actualizado con éxito."
 End Sub
 
+
+Sub GEN_013_ReemplazarBR_SoloSeleccion()
+
+
+    Dim rngBusqueda As Range
+    Dim rngParrafo As Range
+    
+    Set rngBusqueda = ActiveDocument.Content
+    
+    With rngBusqueda.Find
+        .ClearFormatting
+        .Text = "[[BR]]"
+        .Forward = True
+        .Wrap = wdFindStop
+        .Format = False
+    End With
+    
+    Do While rngBusqueda.Find.Execute
+        
+        'Tomar el párrafo donde se encontró [[BR]]
+        Set rngParrafo = rngBusqueda.Paragraphs(1).Range
+        
+        'Reemplazar solo dentro de ese párrafo
+        With rngParrafo.Find
+            .ClearFormatting
+            .Replacement.ClearFormatting
+            .Text = "[[BR]]"
+            .Replacement.Text = "^p"
+            .Wrap = wdFindStop
+            .Execute Replace:=wdReplaceAll
+        End With
+        
+        'Continuar después del párrafo procesado
+        rngBusqueda.Start = rngParrafo.End
+        rngBusqueda.End = ActiveDocument.Content.End
+        
+    Loop
+
+End Sub
+
+
+Sub GEN_013_EliminarPaginasVaciasLimpiar()
+    Dim rng As Range
+    Application.ScreenUpdating = False
+    
+    Set rng = ActiveDocument.Content
+    
+    ' 1. Elimina saltos de página manuales duplicados (^m^m)
+    With rng.Find
+        .ClearFormatting
+        .Replacement.ClearFormatting
+        .Text = "^m^m"
+        .Replacement.Text = "^m"
+        .Forward = True
+        .Wrap = wdFindContinue
+        .Format = False
+        .Execute Replace:=wdReplaceAll
+    End With
+    
+    ' 2. Elimina párrafos vacíos que están justo antes de un salto de página (^p^m)
+    ' Esto es lo que suele causar que una página tenga solo un "Enter"
+    Set rng = ActiveDocument.Content
+    With rng.Find
+        .Text = "^p^m"
+        .Replacement.Text = "^m"
+        .Execute Replace:=wdReplaceAll
+    End With
+
+    ' 3. Limpieza al final del documento (borra Enters o Saltos al puro final)
+    Do While ActiveDocument.Characters.Last.Previous = vbCr Or _
+             ActiveDocument.Characters.Last.Previous = Chr(12)
+        ActiveDocument.Characters.Last.Previous.Delete
+        If ActiveDocument.Characters.count <= 1 Then Exit Do
+    Loop
+    
+    Application.ScreenUpdating = True
+    MsgBox "¡Limpieza completada! Se eliminaron los saltos redundantes.", vbInformation
+End Sub
+

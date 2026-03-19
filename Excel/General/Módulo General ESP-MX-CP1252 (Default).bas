@@ -204,12 +204,12 @@ Sub GEN021_CorregirVinculos_Relativos()
     Dim rutaReal As String
     Dim rutaRelativa As String
 
-    If ActiveWorkbook.path = "" Then
+    If ActiveWorkbook.Path = "" Then
         MsgBox "Debes guardar el archivo primero.", vbExclamation
         Exit Sub
     End If
 
-    rutaLibro = ActiveWorkbook.path
+    rutaLibro = ActiveWorkbook.Path
     Set fso = CreateObject("Scripting.FileSystemObject")
 
     On Error Resume Next
@@ -280,6 +280,95 @@ Sub GEN021_CorregirVinculos_Relativos()
 
 End Sub
 
+
+Sub GEN023_PegarCapturasdePantallaComoLink()
+    Dim ws As Worksheet
+    Dim folderPath As String, fileName As String, fullPath As String
+    Dim shp As Shape
+    Dim chartObj As ChartObject
+    Dim targetCell As Range
+    Dim i As Integer
+    Dim esImagen As Boolean: esImagen = False
+    
+    ' 1. Verificar qué hay en el portapapeles antes de actuar
+    ' Recorremos los formatos disponibles en el portapapeles
+    For i = 1 To 30 ' Revisamos los formatos principales
+        If Application.ClipboardFormats(i) = xlClipboardFormatBitmap Or _
+           Application.ClipboardFormats(i) = xlClipboardFormatPicture Then
+            esImagen = True
+            Exit For
+        End If
+    Next i
+
+    ' Si NO es imagen, hacemos un pegado normal y salimos
+    If Not esImagen Then
+        On Error Resume Next
+        ActiveSheet.Paste
+        If Err.Number <> 0 Then MsgBox "El portapapeles está vacío.", vbInformation
+        On Error GoTo 0
+        Exit Sub
+    End If
+
+    ' --- A PARTIR DE AQUÍ SOLO CORRE SI ES IMAGEN ---
+
+    ' 2. Verificar si el archivo está guardado
+    If ThisWorkbook.Path = "" Then
+        MsgBox "Primero debes guardar tu archivo Excel para poder crear la carpeta de capturas.", vbCritical
+        Exit Sub
+    End If
+
+    Set ws = ActiveSheet
+    Set targetCell = ActiveCell
+    
+    ' 3. Carpeta de Capturas
+    folderPath = ThisWorkbook.Path & "\Capturas de Pantalla\"
+    If Dir(folderPath, vbDirectory) = "" Then MkDir folderPath
+    
+    ' 4. Pegar la imagen temporalmente para procesarla
+    Application.ScreenUpdating = False ' Congelamos pantalla para que no parpadee
+    ws.Paste
+    Set shp = ws.Shapes(ws.Shapes.Count)
+    
+    ' 5. Nombre y Ruta
+    fileName = "Captura_" & Format(Now, "yyyymmdd_hhmmss") & ".png"
+    fullPath = folderPath & fileName
+    
+    ' 6. Exportación de Alta Calidad (Anti-blanco)
+    Set chartObj = ws.ChartObjects.Add(Left:=0, Top:=0, Width:=shp.Width, Height:=shp.Height)
+    
+    With chartObj
+        .Border.LineStyle = xlNone
+        shp.Copy
+        .Select
+        DoEvents
+        .Chart.Paste
+        
+        ' Espera necesaria para que Windows renderice la imagen
+        Application.Wait (Now + TimeValue("0:00:01"))
+        DoEvents
+        
+        .Chart.Export fileName:=fullPath, FilterName:="PNG"
+        .Delete
+    End With
+    
+    ' Limpiar objeto temporal
+    shp.Delete
+    Application.ScreenUpdating = True
+    
+    ' 7. Insertar el Hipervínculo Relativo
+    ws.Hyperlinks.Add Anchor:=targetCell, _
+                      Address:="Capturas de Pantalla/" & fileName, _
+                      TextToDisplay:="Ver Imagen: " & fileName
+    
+    ' Estilo rápido
+    With targetCell
+        .Font.Name = "Segoe UI"
+        .Font.Color = RGB(0, 110, 200)
+        .Font.Underline = xlUnderlineStyleSingle
+    End With
+
+    Application.StatusBar = "Imagen guardada: " & fileName
+End Sub
 
 Sub GEN008_EliminarLineasVaciasEnCeldasSeleccionadas()
     Dim celda As Range
